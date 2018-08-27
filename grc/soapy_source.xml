@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<block>
+  <name>soapy_source</name>
+  <key>soapy_soapy_source</key>
+  <category>[soapy]</category>
+  <import>import soapy</import>
+  <make>soapy.soapy_source($freq, $gain, $samp_rate, $bw, $dev)</make>
+
+  <param>
+    <name>Frequency</name>
+    <key>freq</key>
+    <type>float</type>
+  </param>
+
+  <param>
+    <name>Gain</name>
+    <key>gain</key>
+    <type>float</type>
+  </param>
+  
+  <param>
+    <name>Sampling Rate</name>
+    <key>samp_rate</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Bandwidth</name>
+    <key>bw</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Device</name>
+    <key>dev</key>
+    <type>string</type>
+  </param>
+
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>

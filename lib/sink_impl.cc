@@ -23,41 +23,41 @@
 #endif
 
 #include <gnuradio/io_signature.h>
-#include "soapy_sink_impl.h"
+#include "sink_impl.h"
 
 namespace gr {
   namespace soapy {
 
-    soapy_sink::sptr
-    soapy_sink::make()
+    sink::sptr
+    sink::make(float frequency, float gain, float samp_rate, float bandwidth, const std::string device)
     {
       return gnuradio::get_initial_sptr
-        (new soapy_sink_impl());
+        (new sink_impl(frequency, gain, samp_rate, bandwidth, device));
     }
 
     /*
      * The private constructor
      */
-    soapy_sink_impl::soapy_sink_impl()
-      : gr::sync_block("soapy_sink",
-              gr::io_signature::make(<+MIN_IN+>, <+MAX_IN+>, sizeof(<+ITYPE+>)),
-              gr::io_signature::make(<+MIN_OUT+>, <+MAX_OUT+>, sizeof(<+OTYPE+>)))
+    sink_impl::sink_impl(float frequency, float gain, float samp_rate, float bandwidth, const std::string device)
+      : gr::sync_block("sink",
+              gr::io_signature::make(0, 0, 0),
+              gr::io_signature::make(0, 0, 0))
     {}
 
     /*
      * Our virtual destructor.
      */
-    soapy_sink_impl::~soapy_sink_impl()
+    sink_impl::~sink_impl()
     {
     }
 
     int
-    soapy_sink_impl::work(int noutput_items,
+    sink_impl::work(int noutput_items,
         gr_vector_const_void_star &input_items,
         gr_vector_void_star &output_items)
     {
-      const <+ITYPE+> *in = (const <+ITYPE+> *) input_items[0];
-      <+OTYPE+> *out = (<+OTYPE+> *) output_items[0];
+//      const float *in = (const float *) input_items[0];
+//      <+OTYPE+> *out = (<+OTYPE+> *) output_items[0];
 
       // Do <+signal processing+>
 

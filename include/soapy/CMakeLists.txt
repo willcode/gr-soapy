@@ -23,6 +23,6 @@
 ########################################################################
 install(FILES
     api.h
-    soapy_source.h
-    soapy_sink.h DESTINATION include/soapy
+    source.h
+    sink.h DESTINATION include/soapy
 )
