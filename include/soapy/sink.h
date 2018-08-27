@@ -18,31 +18,39 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_SOAPY_SOAPY_SINK_IMPL_H
-#define INCLUDED_SOAPY_SOAPY_SINK_IMPL_H
 
-#include <soapy/soapy_sink.h>
+#ifndef INCLUDED_SOAPY_SINK_H
+#define INCLUDED_SOAPY_SINK_H
+
+#include <soapy/api.h>
+#include <gnuradio/sync_block.h>
 
 namespace gr {
   namespace soapy {
 
-    class soapy_sink_impl : public soapy_sink
+    /*!
+     * \brief <+description of block+>
+     * \ingroup soapy
+     *
+     */
+    class SOAPY_API sink : virtual public gr::sync_block
     {
-     private:
-      // Nothing to declare in this block.
-
      public:
-      soapy_sink_impl();
-      ~soapy_sink_impl();
+      typedef boost::shared_ptr<sink> sptr;
 
-      // Where all the action really happens
-      int work(int noutput_items,
-         gr_vector_const_void_star &input_items,
-         gr_vector_void_star &output_items);
+      /*!
+       * \brief Return a shared_ptr to a new instance of soapy::sink.
+       *
+       * To avoid accidental use of raw pointers, soapy::sink's
+       * constructor is in a private implementation
+       * class. soapy::sink::make is the public interface for
+       * creating new instances.
+       */
+      static sptr make(float frequency, float gain, float samp_rate, float bandwidth, const std::string device);
     };
 
   } // namespace soapy
 } // namespace gr
 
-#endif /* INCLUDED_SOAPY_SOAPY_SINK_IMPL_H */
+#endif /* INCLUDED_SOAPY_SINK_H */
 

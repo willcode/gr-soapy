@@ -19,6 +19,6 @@
 # Boston, MA 02110-1301, USA.
 
 install(FILES
-    soapy_soapy_source.xml
-    soapy_soapy_sink.xml DESTINATION share/gnuradio/grc/blocks
+    soapy_source.xml
+    soapy_sink.xml DESTINATION share/gnuradio/grc/blocks
 )

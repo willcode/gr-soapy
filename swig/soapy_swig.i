@@ -8,12 +8,12 @@
 %include "soapy_swig_doc.i"
 
 %{
-#include "soapy/soapy_source.h"
-#include "soapy/soapy_sink.h"
+#include "soapy/source.h"
+#include "soapy/sink.h"
 %}
 
 
-%include "soapy/soapy_source.h"
-GR_SWIG_BLOCK_MAGIC2(soapy, soapy_source);
-%include "soapy/soapy_sink.h"
-GR_SWIG_BLOCK_MAGIC2(soapy, soapy_sink);
+%include "soapy/source.h"
+GR_SWIG_BLOCK_MAGIC2(soapy, source);
+%include "soapy/sink.h"
+GR_SWIG_BLOCK_MAGIC2(soapy, sink);

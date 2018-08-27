@@ -23,41 +23,41 @@
 #endif
 
 #include <gnuradio/io_signature.h>
-#include "soapy_source_impl.h"
+#include "source_impl.h"
 
 namespace gr {
   namespace soapy {
 
-    soapy_source::sptr
-    soapy_source::make()
+    source::sptr
+    source::make()
     {
       return gnuradio::get_initial_sptr
-        (new soapy_source_impl());
+        (new source_impl());
     }
 
     /*
      * The private constructor
      */
-    soapy_source_impl::soapy_source_impl()
-      : gr::sync_block("soapy_source",
-              gr::io_signature::make(<+MIN_IN+>, <+MAX_IN+>, sizeof(<+ITYPE+>)),
-              gr::io_signature::make(<+MIN_OUT+>, <+MAX_OUT+>, sizeof(<+OTYPE+>)))
+    source_impl::source_impl()
+      : gr::sync_block("source",
+              gr::io_signature::make(0, 0, 0),
+              gr::io_signature::make(0, 0, 0))
     {}
 
     /*
      * Our virtual destructor.
      */
-    soapy_source_impl::~soapy_source_impl()
+    source_impl::~source_impl()
     {
     }
 
     int
-    soapy_source_impl::work(int noutput_items,
+    source_impl::work(int noutput_items,
         gr_vector_const_void_star &input_items,
         gr_vector_void_star &output_items)
     {
-      const <+ITYPE+> *in = (const <+ITYPE+> *) input_items[0];
-      <+OTYPE+> *out = (<+OTYPE+> *) output_items[0];
+//      const <+ITYPE+> *in = (const <+ITYPE+> *) input_items[0];
+//      <+OTYPE+> *out = (<+OTYPE+> *) output_items[0];
 
       // Do <+signal processing+>
 

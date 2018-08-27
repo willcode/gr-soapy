@@ -24,11 +24,13 @@
 include(GrPlatform) #define LIB_SUFFIX
 
 include_directories(${Boost_INCLUDE_DIR})
+include_directories(${SoapySDR_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
+link_directories(${SoapySDR_LIBRARY_DIRS})
 
 list(APPEND soapy_sources
-    soapy_source_impl.cc
-    soapy_sink_impl.cc
+    source_impl.cc
+    sink_impl.cc
 )
 
 set(soapy_sources "${soapy_sources}" PARENT_SCOPE)
@@ -38,7 +40,7 @@ if(NOT soapy_sources)
 endif(NOT soapy_sources)
 
 add_library(gnuradio-soapy SHARED ${soapy_sources})
-target_link_libraries(gnuradio-soapy ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES})
+target_link_libraries(gnuradio-soapy ${Boost_LIBRARIES} ${SoapySDR_LIBRARIES}  ${GNURADIO_ALL_LIBRARIES})
 set_target_properties(gnuradio-soapy PROPERTIES DEFINE_SYMBOL "gnuradio_soapy_EXPORTS")
 
 if(APPLE)
