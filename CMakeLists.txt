@@ -93,6 +93,11 @@ if(NOT Boost_FOUND)
     message(FATAL_ERROR "Boost required to compile soapy")
 endif()
 
+find_package(SoapySDR COMPONENTS filesystem system REQUIRED)
+
+if(NOT SoapySDR_FOUND)
+    message(FATAL_ERROR "SoapySDR required to compile gr-soapy")
+endif()
 ########################################################################
 # Install directories
 ########################################################################
