@@ -46,7 +46,8 @@ namespace gr {
        * class. soapy::source::make is the public interface for
        * creating new instances.
        */
-      static sptr make();
+      static sptr make(float frequency, float gain, float sampling_rate,
+                       float bandwidth, const std::string device);
     };
 
   } // namespace soapy
