@@ -35,6 +35,9 @@ namespace gr {
     class source_impl : public source
     {
      private:
+      SoapySDR::Device* d_device;
+      int makeDevice(const std::string &argStr);
+      int unmakeDevice(SoapySDR::Device* dev);
       void set_frequency (SoapySDR::Device* dev, float frequency);
       void set_gain(SoapySDR::Device* dev, float gain);
       void set_sample_rate(SoapySDR::Device* dev, float sample_rate);
@@ -49,8 +52,8 @@ namespace gr {
       int work(int noutput_items,
          gr_vector_const_void_star &input_items,
          gr_vector_void_star &output_items);
-    };
 
+    };
   } // namespace soapy
 } // namespace gr
 
