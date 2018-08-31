@@ -23,16 +23,26 @@
 
 #include <soapy/source.h>
 
+#include <SoapySDR/Version.hpp>
+#include <SoapySDR/Modules.hpp>
+#include <SoapySDR/Registry.hpp>
+#include <SoapySDR/Device.hpp>
+#include <SoapySDR/ConverterRegistry.hpp>
+
 namespace gr {
   namespace soapy {
 
     class source_impl : public source
     {
      private:
-      // Nothing to declare in this block.
+      void set_frequency (SoapySDR::Device* dev, float frequency);
+      void set_gain(SoapySDR::Device* dev, float gain);
+      void set_sample_rate(SoapySDR::Device* dev, float sample_rate);
+      void set_bandwidth(SoapySDR::Device* dev, float bandwidth);
 
      public:
-      source_impl();
+      source_impl(float frequency, float gain, float sampling_rate,
+                  float bandwidth, const std::string device);
       ~source_impl();
 
       // Where all the action really happens
