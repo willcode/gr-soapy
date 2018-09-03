@@ -36,6 +36,16 @@ namespace gr {
     {
      private:
       SoapySDR::Device* d_device;
+      SoapySDR::Stream* d_stream;
+
+      size_t d_mtu;
+      std::vector<void*> d_bufs;
+
+      float d_frequency;
+      float d_gain;
+      float d_sampling_rate;
+      float d_bandwidth;
+
       int makeDevice(const std::string &argStr);
       int unmakeDevice(SoapySDR::Device* dev);
       void set_frequency (SoapySDR::Device* dev, float frequency);
