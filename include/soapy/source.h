@@ -47,7 +47,8 @@ namespace gr {
        * creating new instances.
        */
       static sptr make(float frequency, float gain, float sampling_rate,
-                       float bandwidth, const std::string device);
+                       float bandwidth, const std::string antenna,
+                       const std::string device);
     };
 
   } // namespace soapy
