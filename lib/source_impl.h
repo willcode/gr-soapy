@@ -45,6 +45,7 @@ namespace gr {
       float d_gain;
       float d_sampling_rate;
       float d_bandwidth;
+      std::string d_antenna;
 
       int makeDevice(const std::string &argStr);
       int unmakeDevice(SoapySDR::Device* dev);
@@ -52,10 +53,12 @@ namespace gr {
       void set_gain(SoapySDR::Device* dev, float gain);
       void set_sample_rate(SoapySDR::Device* dev, float sample_rate);
       void set_bandwidth(SoapySDR::Device* dev, float bandwidth);
+      void set_antenna(const size_t channel, const std::string &name);
 
      public:
       source_impl(float frequency, float gain, float sampling_rate,
-                  float bandwidth, const std::string device);
+                  float bandwidth, const std::string antenna,
+                  const std::string device);
       ~source_impl();
 
       // Where all the action really happens
