@@ -25,6 +25,13 @@
 #include <soapy/api.h>
 #include <gnuradio/sync_block.h>
 
+
+#include <SoapySDR/Version.hpp>
+#include <SoapySDR/Modules.hpp>
+#include <SoapySDR/Registry.hpp>
+#include <SoapySDR/Device.hpp>
+#include <SoapySDR/ConverterRegistry.hpp>
+
 namespace gr {
   namespace soapy {
 
@@ -48,7 +55,12 @@ namespace gr {
        */
       static sptr make(float frequency, float gain, float sampling_rate,
                        float bandwidth, const std::string antenna,
-                       const std::string device);
+                       size_t channel, const std::string device);
+
+      /* Callbacks for source fields */
+      virtual void set_gain(size_t channel, float gain) = 0;
+
+      virtual void set_frequency(size_t channel, float freq) = 0;
     };
 
   } // namespace soapy
