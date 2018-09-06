@@ -32,11 +32,11 @@ namespace gr
     source::sptr
     source::make (float frequency, float gain, float sampling_rate,
                   float bandwidth, const std::string antenna,
-                  const std::string device)
+                  size_t channel, const std::string device)
     {
       return gnuradio::get_initial_sptr (
           new source_impl (frequency, gain, sampling_rate, bandwidth, antenna,
-                           device));
+                           channel, device));
     }
 
     /*
@@ -44,7 +44,7 @@ namespace gr
      */
     source_impl::source_impl (float frequency, float gain, float sampling_rate,
                               float bandwidth, const std::string antenna,
-                              const std::string device) :
+                              size_t channel, const std::string device) :
             gr::sync_block ("source", gr::io_signature::make (0, 0, 0),
                             gr::io_signature::make (1, 1, sizeof(gr_complex))),
             d_mtu (0),
@@ -52,13 +52,14 @@ namespace gr
             d_gain (gain),
             d_sampling_rate (sampling_rate),
             d_bandwidth (bandwidth),
-            d_antenna (antenna)
+            d_antenna (antenna),
+            d_channel(channel)
     {
       makeDevice (device);
-      set_frequency (d_device, d_frequency);
-      set_gain (d_device, d_gain);
-      set_sample_rate (d_device, d_sampling_rate);
-      set_bandwidth (d_device, d_bandwidth);
+      set_frequency (d_channel, d_frequency);
+      set_gain (d_channel ,d_gain);
+      set_sample_rate (d_channel, d_sampling_rate);
+      set_bandwidth (d_channel, d_bandwidth);
       set_antenna (0, d_antenna);
       d_stream = d_device->setupStream (SOAPY_SDR_RX, "CF32");
       d_device->activateStream (d_stream);
@@ -99,32 +100,35 @@ namespace gr
     }
 
     void
-    source_impl::set_frequency (SoapySDR::Device* dev, float frequency)
+    source_impl::set_frequency (size_t channel, float frequency)
     {
-      dev->setFrequency (SOAPY_SDR_RX, 0, frequency);
+      d_device->setFrequency (SOAPY_SDR_RX, channel, frequency);
     }
 
     void
-    source_impl::set_gain (SoapySDR::Device* dev, float gain)
+    source_impl::set_gain (size_t channel, float gain)
     {
-      dev->setGain (SOAPY_SDR_RX, 0, gain);
+      d_device->setGain (SOAPY_SDR_RX, channel, gain);
     }
 
     void
-    source_impl::set_sample_rate (SoapySDR::Device* dev, float sample_rate)
+    source_impl::set_sample_rate (size_t channel, float sample_rate)
     {
-      dev->setSampleRate (SOAPY_SDR_RX, 0, sample_rate);
+      d_device->setSampleRate (SOAPY_SDR_RX, channel, sample_rate);
     }
 
     void
-    source_impl::set_bandwidth (SoapySDR::Device* dev, float bandwidth)
+    source_impl::set_bandwidth (size_t channel, float bandwidth)
     {
-      dev->setBandwidth (SOAPY_SDR_RX, 0, bandwidth);
+      d_device->setBandwidth (SOAPY_SDR_RX, channel, bandwidth);
     }
 
     void
     source_impl::set_antenna (const size_t channel, const std::string &name)
     {
+      std::cout << "Antennas" << std::endl;
+      for (auto it : d_device->listAntennas(SOAPY_SDR_TX,0))
+        std::cout << it << std::endl;
       d_device->setAntenna (SOAPY_SDR_RX, channel, name);
     }
 

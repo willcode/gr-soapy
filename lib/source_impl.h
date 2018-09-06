@@ -23,12 +23,6 @@
 
 #include <soapy/source.h>
 
-#include <SoapySDR/Version.hpp>
-#include <SoapySDR/Modules.hpp>
-#include <SoapySDR/Registry.hpp>
-#include <SoapySDR/Device.hpp>
-#include <SoapySDR/ConverterRegistry.hpp>
-
 namespace gr {
   namespace soapy {
 
@@ -46,19 +40,20 @@ namespace gr {
       float d_sampling_rate;
       float d_bandwidth;
       std::string d_antenna;
+      size_t d_channel;
 
       int makeDevice(const std::string &argStr);
       int unmakeDevice(SoapySDR::Device* dev);
-      void set_frequency (SoapySDR::Device* dev, float frequency);
-      void set_gain(SoapySDR::Device* dev, float gain);
-      void set_sample_rate(SoapySDR::Device* dev, float sample_rate);
-      void set_bandwidth(SoapySDR::Device* dev, float bandwidth);
-      void set_antenna(const size_t channel, const std::string &name);
+      void set_frequency (size_t channel, float frequency);
+      void set_gain(size_t channel, float gain);
+      void set_sample_rate(size_t channel, float sample_rate);
+      void set_bandwidth(size_t channel, float bandwidth);
+      void set_antenna(size_t channel, const std::string &name);
 
      public:
       source_impl(float frequency, float gain, float sampling_rate,
                   float bandwidth, const std::string antenna,
-                  const std::string device);
+                  size_t channel, const std::string device);
       ~source_impl();
 
       // Where all the action really happens
