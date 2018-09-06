@@ -25,6 +25,14 @@
 #include <gnuradio/io_signature.h>
 #include "source_impl.h"
 
+const pmt::pmt_t CMD_CHAN_KEY = pmt::mp("chan");
+const pmt::pmt_t CMD_FREQ_KEY = pmt::mp("freq");
+const pmt::pmt_t CMD_GAIN_KEY = pmt::mp("gain");
+const pmt::pmt_t CMD_ANTENNA_KEY = pmt::mp("antenna");
+const pmt::pmt_t CMD_RATE_KEY = pmt::mp("samp_rate");
+const pmt::pmt_t CMD_BW_KEY = pmt::mp("bw");
+
+
 namespace gr
 {
   namespace soapy
@@ -53,7 +61,8 @@ namespace gr
             d_sampling_rate (sampling_rate),
             d_bandwidth (bandwidth),
             d_antenna (antenna),
-            d_channel(channel)
+            d_channel(channel),
+            d_message_port(pmt::mp("command"))
     {
       makeDevice (device);
       set_frequency (d_channel, d_frequency);
@@ -65,12 +74,38 @@ namespace gr
       d_device->activateStream (d_stream);
       d_mtu = d_device->getStreamMTU (d_stream);
       d_bufs.resize (1);
+
+      message_port_register_in (d_message_port);
+      set_msg_handler (
+          d_message_port,
+          boost::bind (&source_impl::msg_handler_command, this, _1));
+
+      register_msg_cmd_handler (
+          CMD_FREQ_KEY,
+          boost::bind (&source_impl::cmd_handler_frequency, this, _1, _2));
+      register_msg_cmd_handler (
+          CMD_GAIN_KEY,
+          boost::bind (&source_impl::cmd_handler_gain, this, _1, _2));
+      register_msg_cmd_handler (
+          CMD_RATE_KEY,
+          boost::bind (&source_impl::cmd_handler_samp_rate, this, _1, _2));
+      register_msg_cmd_handler (
+          CMD_BW_KEY,
+          boost::bind (&source_impl::cmd_handler_bw, this, _1, _2));
+      register_msg_cmd_handler (
+          CMD_ANTENNA_KEY,
+          boost::bind (&source_impl::cmd_handler_antenna, this, _1, _2));
     }
 
     source_impl::~source_impl ()
     {
       unmakeDevice (d_device);
 
+    }
+
+    void source_impl::register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler)
+    {
+      d_cmd_handlers[cmd] = handler;
     }
 
     int
@@ -126,10 +161,37 @@ namespace gr
     void
     source_impl::set_antenna (const size_t channel, const std::string &name)
     {
-      std::cout << "Antennas" << std::endl;
-      for (auto it : d_device->listAntennas(SOAPY_SDR_TX,0))
-        std::cout << it << std::endl;
       d_device->setAntenna (SOAPY_SDR_RX, channel, name);
+    }
+
+    void
+    source_impl::cmd_handler_frequency(pmt::pmt_t val, size_t chann)
+    {
+      set_frequency(chann, pmt::to_float(val));
+    }
+
+    void
+    source_impl::cmd_handler_gain(pmt::pmt_t val, size_t chann)
+    {
+      set_gain(chann, pmt::to_float(val));
+    }
+
+    void
+    source_impl::cmd_handler_samp_rate(pmt::pmt_t val, size_t chann)
+    {
+      set_sample_rate(chann, pmt::to_float(val));
+    }
+
+    void
+    source_impl::cmd_handler_bw(pmt::pmt_t val, size_t chann)
+    {
+      set_bandwidth(chann, pmt::to_float(val));
+    }
+
+    void
+    source_impl::cmd_handler_antenna(pmt::pmt_t val, size_t chann)
+    {
+      set_antenna(chann, pmt::symbol_to_string(val));
     }
 
     int
@@ -146,6 +208,27 @@ namespace gr
 
       // Tell runtime system how many output items we produced.
       return noutput_items;
+    }
+
+    void
+    source_impl::msg_handler_command (pmt::pmt_t msg)
+    {
+      if (!pmt::is_dict(msg)) {
+        return;
+      }
+      size_t chann = 0;
+      if (pmt::dict_has_key(msg, CMD_CHAN_KEY)) {
+        chann = pmt::to_long(
+            pmt::dict_ref(
+              msg, CMD_CHAN_KEY,
+              pmt::from_long(0)
+            )
+        );
+        pmt::dict_delete(msg, CMD_CHAN_KEY);
+      }
+      for (size_t i = 0; i < pmt::length(msg); i++) {
+        d_cmd_handlers[pmt::car(pmt::nth(i, msg))](pmt::cdr(pmt::nth(i, msg)), chann);
+      }
     }
 
   } /* namespace soapy */

@@ -50,6 +50,11 @@
     <type>string</type>
   </param>
 
+  <sink>
+  	<name>command</name>
+  	<type>message</type>
+  	 <optional>1</optional>
+  </sink>
   <source>
     <name>out</name>
     <type>complex</type>
