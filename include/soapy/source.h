@@ -26,11 +26,7 @@
 #include <gnuradio/sync_block.h>
 
 
-#include <SoapySDR/Version.hpp>
-#include <SoapySDR/Modules.hpp>
-#include <SoapySDR/Registry.hpp>
-#include <SoapySDR/Device.hpp>
-#include <SoapySDR/ConverterRegistry.hpp>
+
 
 namespace gr {
   namespace soapy {
