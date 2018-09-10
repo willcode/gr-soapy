@@ -206,9 +206,23 @@ namespace gr
       int flags = 0;
       long long timeNs = 0;
       size_t total_samples = std::min (noutput_items, (int) d_mtu);
-      d_device->readStream (d_stream, &d_bufs[0], total_samples, flags, timeNs,
-                            long (1e6));
-
+      size_t index = 0;
+      int read;
+      while(index < noutput_items)
+      {
+        if(total_samples + index > noutput_items)
+        {
+          read = d_device->readStream (d_stream, &d_bufs[0], noutput_items - index, flags, timeNs,
+                                              long (1e6));
+        }
+        else
+        {
+          read = d_device->readStream (d_stream, &d_bufs[0], total_samples, flags, timeNs,
+                                                        long (1e6));
+        }
+        d_bufs[0] += read*sizeof(gr_complex);
+        index+= read;
+      }
       // Tell runtime system how many output items we produced.
       return noutput_items;
     }
