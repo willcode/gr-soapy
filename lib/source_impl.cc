@@ -25,32 +25,87 @@
 #include <gnuradio/io_signature.h>
 #include "source_impl.h"
 
+const pmt::pmt_t CMD_CHAN_KEY = pmt::mp("chan");
+const pmt::pmt_t CMD_FREQ_KEY = pmt::mp("freq");
+const pmt::pmt_t CMD_GAIN_KEY = pmt::mp("gain");
+const pmt::pmt_t CMD_ANTENNA_KEY = pmt::mp("antenna");
+const pmt::pmt_t CMD_RATE_KEY = pmt::mp("samp_rate");
+const pmt::pmt_t CMD_BW_KEY = pmt::mp("bw");
+
+
 namespace gr
 {
   namespace soapy
   {
     source::sptr
     source::make (float frequency, float gain, float sampling_rate,
-                  float bandwidth, const std::string device)
+                  float bandwidth, const std::string antenna,
+                  size_t channel, const std::string device)
     {
       return gnuradio::get_initial_sptr (
-          new source_impl (frequency, gain, sampling_rate, bandwidth, device));
+          new source_impl (frequency, gain, sampling_rate, bandwidth, antenna,
+                           channel, device));
     }
 
     /*
      * The private constructor
      */
     source_impl::source_impl (float frequency, float gain, float sampling_rate,
-                              float bandwidth, const std::string device) :
+                              float bandwidth, const std::string antenna,
+                              size_t channel, const std::string device) :
             gr::sync_block ("source", gr::io_signature::make (0, 0, 0),
-                            gr::io_signature::make (1, 1, sizeof(gr_complex)))
+                            gr::io_signature::make (1, 1, sizeof(gr_complex))),
+            d_mtu (0),
+            d_frequency (frequency),
+            d_gain (gain),
+            d_sampling_rate (sampling_rate),
+            d_bandwidth (bandwidth),
+            d_antenna (antenna),
+            d_channel(channel),
+            d_message_port(pmt::mp("command"))
     {
       makeDevice (device);
+      set_frequency (d_channel, d_frequency);
+      set_gain (d_channel ,d_gain);
+      set_sample_rate (d_channel, d_sampling_rate);
+      set_bandwidth (d_channel, d_bandwidth);
+      set_antenna (0, d_antenna);
+      d_stream = d_device->setupStream (SOAPY_SDR_RX, "CF32");
+      d_device->activateStream (d_stream);
+      d_mtu = d_device->getStreamMTU (d_stream);
+      d_bufs.resize (1);
+
+      message_port_register_in (d_message_port);
+      set_msg_handler (
+          d_message_port,
+          boost::bind (&source_impl::msg_handler_command, this, _1));
+
+      register_msg_cmd_handler (
+          CMD_FREQ_KEY,
+          boost::bind (&source_impl::cmd_handler_frequency, this, _1, _2));
+      register_msg_cmd_handler (
+          CMD_GAIN_KEY,
+          boost::bind (&source_impl::cmd_handler_gain, this, _1, _2));
+      register_msg_cmd_handler (
+          CMD_RATE_KEY,
+          boost::bind (&source_impl::cmd_handler_samp_rate, this, _1, _2));
+      register_msg_cmd_handler (
+          CMD_BW_KEY,
+          boost::bind (&source_impl::cmd_handler_bw, this, _1, _2));
+      register_msg_cmd_handler (
+          CMD_ANTENNA_KEY,
+          boost::bind (&source_impl::cmd_handler_antenna, this, _1, _2));
     }
 
     source_impl::~source_impl ()
     {
       unmakeDevice (d_device);
+
+    }
+
+    void source_impl::register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler)
+    {
+      d_cmd_handlers[cmd] = handler;
     }
 
     int
@@ -80,27 +135,63 @@ namespace gr
     }
 
     void
-    source_impl::set_frequency (SoapySDR::Device* dev, float frequency)
+    source_impl::set_frequency (size_t channel, float frequency)
     {
-      dev->setFrequency (SOAPY_SDR_RX, 0, frequency);
+      d_device->setFrequency (SOAPY_SDR_RX, channel, frequency);
     }
 
     void
-    source_impl::set_gain (SoapySDR::Device* dev, float gain)
+    source_impl::set_gain (size_t channel, float gain)
     {
-      dev->setGain (SOAPY_SDR_RX, 0, gain);
+      d_device->setGain (SOAPY_SDR_RX, channel, gain);
     }
 
     void
-    source_impl::set_sample_rate (SoapySDR::Device* dev, float sample_rate)
+    source_impl::set_sample_rate (size_t channel, float sample_rate)
     {
-      dev->setSampleRate (SOAPY_SDR_RX, 0, sample_rate);
+      d_device->setSampleRate (SOAPY_SDR_RX, channel, sample_rate);
     }
 
     void
-    source_impl::set_bandwidth (SoapySDR::Device* dev, float bandwidth)
+    source_impl::set_bandwidth (size_t channel, float bandwidth)
     {
-      dev->setBandwidth (SOAPY_SDR_RX, 0, bandwidth);
+      d_device->setBandwidth (SOAPY_SDR_RX, channel, bandwidth);
+    }
+
+    void
+    source_impl::set_antenna (const size_t channel, const std::string &name)
+    {
+      d_device->setAntenna (SOAPY_SDR_RX, channel, name);
+    }
+
+    void
+    source_impl::cmd_handler_frequency(pmt::pmt_t val, size_t chann)
+    {
+      set_frequency(chann, pmt::to_float(val));
+    }
+
+    void
+    source_impl::cmd_handler_gain(pmt::pmt_t val, size_t chann)
+    {
+      set_gain(chann, pmt::to_float(val));
+    }
+
+    void
+    source_impl::cmd_handler_samp_rate(pmt::pmt_t val, size_t chann)
+    {
+      set_sample_rate(chann, pmt::to_float(val));
+    }
+
+    void
+    source_impl::cmd_handler_bw(pmt::pmt_t val, size_t chann)
+    {
+      set_bandwidth(chann, pmt::to_float(val));
+    }
+
+    void
+    source_impl::cmd_handler_antenna(pmt::pmt_t val, size_t chann)
+    {
+      set_antenna(chann, pmt::symbol_to_string(val));
     }
 
     int
@@ -108,11 +199,36 @@ namespace gr
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items)
     {
-
-      // Do <+signal processing+>
+      d_bufs[0] = (gr_complex*) output_items[0];
+      int flags = 0;
+      long long timeNs = 0;
+      size_t total_samples = std::min (noutput_items, (int) d_mtu);
+      d_device->readStream (d_stream, &d_bufs[0], total_samples, flags, timeNs,
+                            long (1e6));
 
       // Tell runtime system how many output items we produced.
       return noutput_items;
+    }
+
+    void
+    source_impl::msg_handler_command (pmt::pmt_t msg)
+    {
+      if (!pmt::is_dict(msg)) {
+        return;
+      }
+      size_t chann = 0;
+      if (pmt::dict_has_key(msg, CMD_CHAN_KEY)) {
+        chann = pmt::to_long(
+            pmt::dict_ref(
+              msg, CMD_CHAN_KEY,
+              pmt::from_long(0)
+            )
+        );
+        pmt::dict_delete(msg, CMD_CHAN_KEY);
+      }
+      for (size_t i = 0; i < pmt::length(msg); i++) {
+        d_cmd_handlers[pmt::car(pmt::nth(i, msg))](pmt::cdr(pmt::nth(i, msg)), chann);
+      }
     }
 
   } /* namespace soapy */

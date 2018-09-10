@@ -22,12 +22,15 @@
 #define INCLUDED_SOAPY_SOURCE_IMPL_H
 
 #include <soapy/source.h>
+#include <boost/bind.hpp>
 
 #include <SoapySDR/Version.hpp>
 #include <SoapySDR/Modules.hpp>
 #include <SoapySDR/Registry.hpp>
 #include <SoapySDR/Device.hpp>
 #include <SoapySDR/ConverterRegistry.hpp>
+
+typedef boost::function<void(pmt::pmt_t , size_t)> cmd_handler_t;
 
 namespace gr {
   namespace soapy {
@@ -36,16 +39,38 @@ namespace gr {
     {
      private:
       SoapySDR::Device* d_device;
+      SoapySDR::Stream* d_stream;
+
+      size_t d_mtu;
+      std::vector<void*> d_bufs;
+      pmt::pmt_t d_message_port;
+
+      float d_frequency;
+      float d_gain;
+      float d_sampling_rate;
+      float d_bandwidth;
+      std::string d_antenna;
+      size_t d_channel;
+      std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
+
       int makeDevice(const std::string &argStr);
       int unmakeDevice(SoapySDR::Device* dev);
-      void set_frequency (SoapySDR::Device* dev, float frequency);
-      void set_gain(SoapySDR::Device* dev, float gain);
-      void set_sample_rate(SoapySDR::Device* dev, float sample_rate);
-      void set_bandwidth(SoapySDR::Device* dev, float bandwidth);
-
+      void set_frequency (size_t channel, float frequency);
+      void set_gain(size_t channel, float gain);
+      void set_sample_rate(size_t channel, float sample_rate);
+      void set_bandwidth(size_t channel, float bandwidth);
+      void set_antenna(size_t channel, const std::string &name);
+      void msg_handler_command(pmt::pmt_t msg);
+      void cmd_handler_frequency(pmt::pmt_t val, size_t chann);
+      void cmd_handler_gain(pmt::pmt_t val, size_t chann);
+      void cmd_handler_samp_rate(pmt::pmt_t val, size_t chann);
+      void cmd_handler_bw(pmt::pmt_t val, size_t chann);
+      void cmd_handler_antenna(pmt::pmt_t val, size_t chann);
+      void register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler);
      public:
       source_impl(float frequency, float gain, float sampling_rate,
-                  float bandwidth, const std::string device);
+                  float bandwidth, const std::string antenna,
+                  size_t channel, const std::string device);
       ~source_impl();
 
       // Where all the action really happens

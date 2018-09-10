@@ -4,7 +4,9 @@
   <key>soapy_soapy_source</key>
   <category>[soapy]</category>
   <import>import soapy</import>
-  <make>soapy.source($freq, $gain, $samp_rate, $bw, $dev)</make>
+  <make>soapy.source($freq, $gain, $samp_rate, $bw, $antenna, $chan, $dev)</make>
+  <callback>set_gain($chan, $gain)</callback>
+  <callback>set_frequency($chan, $freq)</callback>
 
   <param>
     <name>Frequency</name>
@@ -28,12 +30,31 @@
     <key>bw</key>
     <type>float</type>
   </param>
+  
+  <param>
+      <name>Antenna</name>
+      <key>antenna</key>
+      <type>string</type>
+  </param>
+
+  <param>
+      <name>Channel</name>
+      <key>chan</key>
+      <value>0</value>
+      <type>int</type>
+  </param>
+
   <param>
     <name>Device</name>
     <key>dev</key>
     <type>string</type>
   </param>
 
+  <sink>
+  	<name>command</name>
+  	<type>message</type>
+  	 <optional>1</optional>
+  </sink>
   <source>
     <name>out</name>
     <type>complex</type>
