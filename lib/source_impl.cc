@@ -69,7 +69,10 @@ namespace gr
       set_gain (d_channel ,d_gain);
       set_sample_rate (d_channel, d_sampling_rate);
       set_bandwidth (d_channel, d_bandwidth);
-      set_antenna (0, d_antenna);
+      if(d_antenna.compare("") != 0)
+      {
+        set_antenna (0, d_antenna);
+      }
       d_stream = d_device->setupStream (SOAPY_SDR_RX, "CF32");
       d_device->activateStream (d_stream);
       d_mtu = d_device->getStreamMTU (d_stream);
