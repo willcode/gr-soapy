@@ -52,14 +52,30 @@ namespace gr {
       std::string d_antenna;
       size_t d_channel;
       std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
+      gr_complex d_dc_offset;
+      bool d_dc_offset_mode;
+      double d_frequency_correction;
+      gr_complex d_iq_balance;
+      bool d_gain_mode;
+      double d_clock_rate;
+      std::string d_clock_source;
+      std::string d_frontend_mapping;
 
       int makeDevice(const std::string &argStr);
       int unmakeDevice(SoapySDR::Device* dev);
       void set_frequency (size_t channel, float frequency);
       void set_gain(size_t channel, float gain);
+      void set_gain_mode(size_t channel, float gain, bool automatic);
       void set_sample_rate(size_t channel, float sample_rate);
       void set_bandwidth(size_t channel, float bandwidth);
       void set_antenna(size_t channel, const std::string &name);
+      void set_dc_offset(size_t channel, gr_complexd dc_offset, bool boolean);
+      void set_dc_offset_mode(size_t channel, bool automatic);
+      void set_frequency_correction(size_t channel, double correction);
+      void set_iq_balance(size_t channel, gr_complexd balance);
+      void set_master_clock_rate(double rate);
+      void set_clock_source(const std::string &name);
+      void set_frontend_mapping(const std::string &mapping);
       void msg_handler_command(pmt::pmt_t msg);
       void cmd_handler_frequency(pmt::pmt_t val, size_t chann);
       void cmd_handler_gain(pmt::pmt_t val, size_t chann);
@@ -67,10 +83,15 @@ namespace gr {
       void cmd_handler_bw(pmt::pmt_t val, size_t chann);
       void cmd_handler_antenna(pmt::pmt_t val, size_t chann);
       void register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler);
+
+
+
      public:
       source_impl(float frequency, float gain, float sampling_rate,
-                  float bandwidth, const std::string antenna,
-                  size_t channel, const std::string device);
+                  float bandwidth, const std::string antenna, size_t channel,
+                  gr_complexd dc_offset, bool dc_offset_mode,
+                  double correction, gr_complexd balance,
+                  const std::string clock_source, const std::string device);
       ~source_impl();
 
       // Where all the action really happens
