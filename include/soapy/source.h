@@ -51,7 +51,10 @@ namespace gr {
        */
       static sptr make(float frequency, float gain, float sampling_rate,
                        float bandwidth, const std::string antenna,
-                       size_t channel, const std::string device);
+                       size_t channel, gr_complexd dc_offset,
+                       bool dc_offset_mode, double correction,
+                       gr_complexd balance, const std::string clock_source,
+                       const std::string device);
 
       /* Callbacks for source fields */
       virtual void set_gain(size_t channel, float gain) = 0;

@@ -4,7 +4,12 @@
   <key>soapy_soapy_source</key>
   <category>[soapy]</category>
   <import>import soapy</import>
-  <make>soapy.source($freq, $gain, $samp_rate, $bw, $antenna, $chan, $dev)</make>
+
+  <make>\
+      soapy.source($freq, $gain, $samp_rate, $bw, $antenna, $chan, \ 
+      $dc_offset, $offset_mode, $correction, $balance, $clock_source, $dev) \
+  </make>
+
   <callback>set_gain($chan, $gain)</callback>
   <callback>set_frequency($chan, $freq)</callback>
 
@@ -25,6 +30,7 @@
     <key>samp_rate</key>
     <type>float</type>
   </param>
+
   <param>
     <name>Bandwidth</name>
     <key>bw</key>
@@ -42,6 +48,38 @@
       <key>chan</key>
       <value>0</value>
       <type>int</type>
+  </param>
+
+  <param>
+      <name>DC Offset</name>
+      <key>dc_offset</key>
+      <type>complex</type>
+  </param>
+
+  <param>
+      <name>Automatic DC Offset Mode</name>
+      <key>offset_mode</key>
+      <value>True</value>
+      <type>bool</type>
+  </param>
+
+  <param>
+      <name>Frequency Correction</name>
+      <key>correction</key>
+      <value>0</value>
+      <type>real</type>
+  </param>
+
+  <param>
+      <name>IQ Balance Correction</name>
+      <key>balance</key>
+      <type>complex</type>
+  </param>
+  
+  <param>
+      <name>Clock Source</name>
+      <key>clock_source</key>
+      <type>string</type>
   </param>
 
   <param>
