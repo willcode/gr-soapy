@@ -76,6 +76,18 @@ namespace gr {
       void set_master_clock_rate(double rate);
       void set_clock_source(const std::string &name);
       void set_frontend_mapping(const std::string &mapping);
+      double get_frequency(size_t channel);
+      double get_gain(size_t channel);
+      bool get_gain_mode(size_t channel);
+      double get_sampling_rate(size_t channel);
+      double get_bandwidth(size_t channel);
+      std::string get_antenna(size_t channel);
+      std::complex<double> get_dc_offset(size_t channel);
+      bool get_dc_offset_mode(size_t channel);
+      double get_frequency_correction(size_t channel);
+      std::complex<double> get_iq_balance(size_t channel);
+      double get_master_clock_rate();
+      std::string get_clock_source();
       void msg_handler_command(pmt::pmt_t msg);
       void cmd_handler_frequency(pmt::pmt_t val, size_t chann);
       void cmd_handler_gain(pmt::pmt_t val, size_t chann);
@@ -83,6 +95,7 @@ namespace gr {
       void cmd_handler_bw(pmt::pmt_t val, size_t chann);
       void cmd_handler_antenna(pmt::pmt_t val, size_t chann);
       void register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler);
+
 
 
 

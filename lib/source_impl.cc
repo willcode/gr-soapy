@@ -160,6 +160,7 @@ namespace gr
     source_impl::set_frequency (size_t channel, float frequency)
     {
       d_device->setFrequency (SOAPY_SDR_RX, channel, frequency);
+      d_frequency = frequency;
     }
 
     void
@@ -168,6 +169,7 @@ namespace gr
       /* User can change gain only if gain mode is not set to automatic */
       if (!d_gain_mode) {
         d_device->setGain (SOAPY_SDR_RX, channel, gain);
+        d_gain = gain;
       }
     }
 
@@ -185,18 +187,21 @@ namespace gr
     source_impl::set_sample_rate (size_t channel, float sample_rate)
     {
       d_device->setSampleRate (SOAPY_SDR_RX, channel, sample_rate);
+      d_sampling_rate = sample_rate;
     }
 
     void
     source_impl::set_bandwidth (size_t channel, float bandwidth)
     {
       d_device->setBandwidth (SOAPY_SDR_RX, channel, bandwidth);
+      d_bandwidth = bandwidth;
     }
 
     void
     source_impl::set_antenna (const size_t channel, const std::string &name)
     {
       d_device->setAntenna (SOAPY_SDR_RX, channel, name);
+      d_antenna = name;
     }
 
     void
@@ -205,6 +210,7 @@ namespace gr
       /* If DC Correction is supported but automatic mode is not set DC correction */
       if (!automatic && d_device->hasDCOffset (SOAPY_SDR_RX, channel)) {
         d_device->setDCOffset (SOAPY_SDR_TX, channel, dc_offset);
+        d_dc_offset = dc_offset;
       }
     }
 
@@ -214,6 +220,7 @@ namespace gr
       /* If user specifies automatic DC Correction and is supported activate it */
       if (automatic && d_device->hasDCOffsetMode (SOAPY_SDR_RX, channel)) {
         d_device->setDCOffsetMode (SOAPY_SDR_RX, channel, automatic);
+        d_dc_offset_mode = automatic;
       }
     }
 
@@ -223,6 +230,7 @@ namespace gr
       /* If the device supports Frequency correction set value */
       if (d_device->hasFrequencyCorrection (SOAPY_SDR_RX, channel)) {
         d_device->setFrequencyCorrection (SOAPY_SDR_RX, channel, value);
+        d_frequency_correction = value;
       }
     }
 
@@ -232,6 +240,7 @@ namespace gr
       /* If the device supports IQ blance correction set value */
       if (d_device->hasIQBalance (SOAPY_SDR_RX, channel)) {
         d_device->setIQBalance (SOAPY_SDR_RX, channel, balance);
+        d_iq_balance = balance;
       }
     }
 
@@ -239,18 +248,91 @@ namespace gr
     source_impl::set_master_clock_rate(double rate)
     {
       d_device->setMasterClockRate(rate);
+      d_clock_rate = rate;
     }
 
     void
     source_impl::set_clock_source(const std::string & name)
     {
       d_device->setClockSource(name);
+      d_clock_source = name;
     }
 
     void
     source_impl::set_frontend_mapping(const std::string &mapping)
     {
       d_device->setFrontendMapping(SOAPY_SDR_RX, mapping);
+    }
+
+    double
+    source_impl::get_frequency(size_t channel){
+      return d_device->getFrequency(SOAPY_SDR_RX, channel);
+    }
+
+    double
+	source_impl::get_gain(size_t channel)
+    {
+    	return d_device->getGain(SOAPY_SDR_RX, channel);
+    }
+
+    bool
+	source_impl::get_gain_mode(size_t channel)
+    {
+    	return d_device->getGainMode(SOAPY_SDR_RX, channel);
+    }
+
+    double
+	source_impl::get_sampling_rate(size_t channel)
+    {
+    	return d_device->getSampleRate(SOAPY_SDR_RX, channel);
+    }
+
+    double
+	source_impl::get_bandwidth(size_t channel)
+    {
+    	return d_device->getBandwidth(SOAPY_SDR_RX, channel);
+    }
+
+    std::string
+	source_impl::get_antenna(size_t channel)
+    {
+    	return d_device->getAntenna(SOAPY_SDR_RX, channel);
+    }
+
+    std::complex<double>
+	source_impl::get_dc_offset(size_t channel)
+    {
+    	return d_device->getDCOffset(SOAPY_SDR_RX, channel);
+    }
+
+    bool
+	source_impl::get_dc_offset_mode(size_t channel)
+    {
+    	return d_device->getDCOffsetMode(SOAPY_SDR_RX, channel);
+    }
+
+    double
+	source_impl::get_frequency_correction(size_t channel)
+    {
+    	return d_device->getFrequencyCorrection(SOAPY_SDR_RX, channel);
+    }
+
+    std::complex<double>
+	source_impl::get_iq_balance(size_t channel)
+    {
+    	return d_device->getIQBalance(SOAPY_SDR_RX, channel);
+    }
+
+    double
+	source_impl::get_master_clock_rate()
+    {
+    	return d_device->getMasterClockRate();
+    }
+
+    std::string
+	source_impl::get_clock_source()
+    {
+    	return d_device->getClockSource();
     }
 
     void
