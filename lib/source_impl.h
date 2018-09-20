@@ -66,6 +66,7 @@ namespace gr {
       std::string d_frontend_mapping;
 
       void register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler);
+      std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
 
      public:
       source_impl(float frequency, float gain, float sampling_rate,
@@ -325,20 +326,6 @@ namespace gr {
        * @param chann an available channel on the device
        */
       void cmd_handler_antenna(pmt::pmt_t val, size_t chann);
-
-      /*!
-       * A dictionary mapping keys to handler functions for
-       * setting device parameters from asynchronous input messages.
-       * Key must be a pmt dictionary mapping the parameter to its
-       * value to be updated. pmt::dict keys can be any of the following: \n
-       * "chann"     : Corresponding channel index \n
-       * "freq"      : Center frequency \n
-       * "gain"      : Gain balue \n
-       * "antenna"   : Antenna \n
-       * "samp_rate" : Sampling rate \n
-       * "bw"        : Bandwidth
-       */
-      std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
     };
   } // namespace soapy
 } // namespace gr
