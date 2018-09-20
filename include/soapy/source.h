@@ -29,6 +29,22 @@
 
 
 namespace gr {
+  /// \defgroup messages
+
+  /*!
+   * \ingroup messages
+   * \section cmd_handler PMT message syntax
+   * Message handlers expect a dictionary for
+   * setting device parameters from asynchronous input messages.
+   * Key must be a pmt dictionary mapping the parameter to its
+   * value to be updated. pmt::dict keys can be any of the following: \n
+   * "chann"     : Corresponding channel index (int)\n
+   * "freq"      : Center frequency (Hz) \n
+   * "gain"      : Gain value (dB) \n
+   * "antenna"   : Antenna (string)\n
+   * "samp_rate" : Sampling rate (samples/second)\n
+   * "bw"        : Bandwidth (Hz)
+   */
   namespace soapy {
 
     /*!
@@ -45,7 +61,7 @@ namespace gr {
      * Antenna and clock source can be left empty and default values
      * will be used.
      * This block has a message port, which consumes PMT messages.
-     * For a description of the command syntax , see \ref source_impl#d_cmd_handlers.
+     * For a description of the command syntax , see \ref cmd_handler.
      */
     class SOAPY_API source : virtual public gr::sync_block
     {

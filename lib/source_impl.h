@@ -37,8 +37,9 @@ namespace gr {
   namespace soapy {
 
     /*!
-     * Source block implementation for SDR devices.
+     * \brief Source block implementation for SDR devices.
      */
+
     class source_impl : public source
     {
      private:
