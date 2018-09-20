@@ -78,6 +78,7 @@ namespace gr {
       int work(int noutput_items,
          gr_vector_const_void_star &input_items,
          gr_vector_void_star &output_items);
+
       /*!
        * Create and store a new Device object using the make function of SoapySDR
        * API.
@@ -328,12 +329,12 @@ namespace gr {
        * A dictionary mapping keys to handler functions for
        * setting device parameters from asynchronous input messages.
        * Key must be a pmt dictionary mapping the parameter to its
-       * value to be updated. pmt::dict keys can be any of the following:
-       * "chann"     : Corresponding channel index
-       * "freq"      : Center frequency
-       * "gain"      : Gain balue
-       * "antenna"   : Antenna
-       * "samp_rate" : Sampling rate
+       * value to be updated. pmt::dict keys can be any of the following: \n
+       * "chann"     : Corresponding channel index \n
+       * "freq"      : Center frequency \n
+       * "gain"      : Gain balue \n
+       * "antenna"   : Antenna \n
+       * "samp_rate" : Sampling rate \n
        * "bw"        : Bandwidth
        */
       std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
