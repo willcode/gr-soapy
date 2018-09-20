@@ -55,7 +55,6 @@ namespace gr {
       float d_bandwidth;
       std::string d_antenna;
       size_t d_channel;
-      std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
       gr_complex d_dc_offset;
       bool d_dc_offset_auto_mode;
       double d_frequency_correction;
@@ -98,7 +97,7 @@ namespace gr {
       int unmakeDevice(SoapySDR::Device* dev);
 
       /*!
-       * Set the center frequency for the specified chain.
+       * Set the center frequency for the specified RX chain.
        * Default implementation tunes RF component frequency as close as
        * possible to the requested frequency. See specific device module
        * for more information.
@@ -108,7 +107,7 @@ namespace gr {
       void set_frequency (size_t channel, float frequency);
 
       /*!
-       * Set the overall gain for the specified chain.
+       * Set the overall gain for the specified RX chain.
        * The gain will be distributed automatically across available
        * elements according to Soapy API.
        * \param channel an available channel on the device
@@ -324,6 +323,20 @@ namespace gr {
        * @param chann an available channel on the device
        */
       void cmd_handler_antenna(pmt::pmt_t val, size_t chann);
+
+      /*!
+       * A dictionary mapping keys to handler functions for
+       * setting device parameters from asynchronous input messages.
+       * Key must be a pmt dictionary mapping the parameter to its
+       * value to be updated. pmt::dict keys can be any of the following:
+       * "chann"     : Corresponding channel index
+       * "freq"      : Center frequency
+       * "gain"      : Gain balue
+       * "antenna"   : Antenna
+       * "samp_rate" : Sampling rate
+       * "bw"        : Bandwidth
+       */
+      std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
     };
   } // namespace soapy
 } // namespace gr
