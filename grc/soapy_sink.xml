@@ -5,7 +5,8 @@
   <category>[soapy]</category>
   <import>import soapy</import>
   <make>\
-      soapy.sink($freq, $gain, $samp_rate, $bw, $antenna, $chan, $dev)\
+      soapy.sink($freq, $gain, $samp_rate, $bw, $antenna, $chan, \ 
+      $dc_offset, $offset_mode, $correction, $balance, $clock_source, $dev)\
   </make>
 
   <callback>set_gain($chan, $gain)</callback>
@@ -47,7 +48,39 @@
       <value>0</value>
       <type>int</type>
   </param>
-  
+
+    <param>
+      <name>DC Offset</name>
+      <key>dc_offset</key>
+      <type>complex</type>
+  </param>
+
+  <param>
+      <name>Automatic DC Offset Mode</name>
+      <key>offset_mode</key>
+      <value>True</value>
+      <type>bool</type>
+  </param>
+
+  <param>
+      <name>Frequency Correction</name>
+      <key>correction</key>
+      <value>0</value>
+      <type>real</type>
+  </param>
+
+  <param>
+      <name>IQ Balance Correction</name>
+      <key>balance</key>
+      <type>complex</type>
+  </param>
+
+  <param>
+      <name>Clock Source</name>
+      <key>clock_source</key>
+      <type>string</type>
+  </param>
+
   <param>
     <name>Device</name>
     <key>dev</key>
@@ -59,11 +92,10 @@
     <type>complex</type>
   </sink>
   
-  <!--
   <sink>
     <name>command</name>
     <type>message</type>
     <optional>1</optional>
   </sink>
-  -->
+  
 </block>
