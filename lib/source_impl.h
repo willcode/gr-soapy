@@ -149,7 +149,7 @@ namespace gr {
       void set_antenna(size_t channel, const std::string &name);
 
       /*!
-       * Set the dc offset correction for the specified chain.
+       * Set the dc offset correction for the RX chain.
        * If the dc offset correction automatic mode is on
        * the value is omitted and the device sets the dc offset
        * correction automatically.
@@ -160,7 +160,7 @@ namespace gr {
       void set_dc_offset(size_t channel, gr_complexd dc_offset, bool dc_offset_auto_mode);
 
       /*!
-       * Set automatic dc offset correction to the specified chain
+       * Set automatic dc offset correction to the RX chain
        * if supported by the device.
        * \param channel an available channel on the device
        * \param dc_offset_auto_mode true for automatic dc offset correction
@@ -168,14 +168,14 @@ namespace gr {
       void set_dc_offset_mode(size_t channel, bool dc_offset_auto_mode);
 
       /*!
-       * Set the frequency correction to the specified chain.
+       * Set the frequency correction to the RX chain.
        * @param channel an available channel on the device
        * @param freq_correction the correction value in PPM
        */
       void set_frequency_correction(size_t channel, double freq_correction);
 
       /*!
-       * Set iq balance correction to the specified chain
+       * Set iq balance correction to the RX chain
        * \param channel an available channel on the device
        * \param iq_balance the relative correction (1.0 max)
        */
