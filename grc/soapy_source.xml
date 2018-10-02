@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <block>
-  <name>soapy_source</name>
-  <key>soapy_soapy_source</key>
+  <name>Soapy Source</name>
+  <key>soapy_source</key>
   <category>[soapy]</category>
   <import>import soapy</import>
 

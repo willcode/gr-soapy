@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <block>
-  <name>soapy_sink</name>
-  <key>soapy_soapy_sink</key>
+  <name>Soapy Sink</name>
+  <key>soapy_sink</key>
   <category>[soapy]</category>
   <import>import soapy</import>
   <make>\
