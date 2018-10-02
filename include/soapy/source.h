@@ -87,13 +87,18 @@ namespace gr {
        * @param frequency_correction the correction value in PPM
        * @param iq_balance the relative correction (1.0 max)
        * @param clock_source the name of clock source
+       * @param clock_rate the master clock rate
        * @param device the device driver and type
+       *
+       * Driver name can be any of "uhd", "lime", "airspy",
+       * "rtlsdr" or others
        */
       static sptr make(float frequency, float gain, float sampling_rate,
                        float bandwidth, const std::string antenna,
                        size_t channel, gr_complexd dc_offset,
                        bool dc_offset_mode, double frequency_correction,
                        gr_complexd iq_balance, const std::string clock_source,
+                       double clock_rate,
                        const std::string device);
 
       /* Callbacks for source fields */
