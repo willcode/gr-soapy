@@ -7,7 +7,7 @@
 
   <make>\
       soapy.source($freq, $gain, $samp_rate, $bw, $antenna, $chan, \ 
-      $dc_offset, $offset_mode, $correction, $balance, $clock_source, $dev) \
+      $dc_offset, $offset_mode, $correction, $balance, $clock_source, $clock_rate, $dev) \
   </make>
 
   <callback>set_gain($chan, $gain)</callback>
@@ -17,36 +17,41 @@
     <name>Frequency</name>
     <key>freq</key>
     <type>float</type>
+    <tab>RF Options</tab>
   </param>
 
   <param>
     <name>Gain</name>
     <key>gain</key>
     <type>float</type>
+    <tab>RF Options</tab>
   </param>
   
   <param>
     <name>Sampling Rate</name>
     <key>samp_rate</key>
     <type>float</type>
+    <tab>RF Options</tab>
   </param>
 
   <param>
     <name>Bandwidth</name>
     <key>bw</key>
     <type>float</type>
+    <tab>RF Options</tab>
   </param>
   
   <param>
       <name>Antenna</name>
       <key>antenna</key>
       <type>string</type>
+      <tab>RF Options</tab>
   </param>
 
   <param>
-      <name>Channel</name>
+      <name>Num Channels</name>
       <key>chan</key>
-      <value>0</value>
+      <value>1</value>
       <type>int</type>
   </param>
 
@@ -67,6 +72,12 @@
       <name>Frequency Correction</name>
       <key>correction</key>
       <value>0</value>
+      <type>real</type>
+  </param>
+  
+  <param>
+      <name>Master Clock Rate</name>
+      <key>clock_rate</key>
       <type>real</type>
   </param>
 
@@ -96,5 +107,6 @@
   <source>
     <name>out</name>
     <type>complex</type>
+    <nports>$chan</nports>
   </source>
 </block>

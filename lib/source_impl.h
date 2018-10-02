@@ -48,7 +48,7 @@ namespace gr {
       SoapySDR::Stream* d_stream;
 
       size_t d_mtu;
-      std::vector<void*> d_bufs;
+      gr_vector_void_star d_bufs;
       pmt::pmt_t d_message_port;
 
       float d_frequency;
@@ -74,7 +74,7 @@ namespace gr {
                   float bandwidth, const std::string antenna, size_t channel,
                   gr_complexd dc_offset, bool dc_offset_mode,
                   double correction, gr_complexd balance,
-                  const std::string clock_source, const std::string device);
+                  const std::string clock_source, double clock_rate, const std::string device);
       ~source_impl();
 
       // Where all the action really happens
