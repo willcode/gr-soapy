@@ -30,7 +30,6 @@
 #include <SoapySDR/Modules.hpp>
 #include <SoapySDR/Registry.hpp>
 #include <SoapySDR/Device.hpp>
-#include <SoapySDR/ConverterRegistry.hpp>
 
 typedef boost::function<void(pmt::pmt_t , size_t)> cmd_handler_t;
 

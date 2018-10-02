@@ -1,0 +1,16 @@
+image: opensuse/tumbleweed
+
+before_script:
+    - zypper in -y libboost* cppunit-devel python python-devel swig cmake gcc-c++ gcc soapy-sdr soapy-sdr-devel gnuradio gnuradio-devel
+
+stages:
+        - build
+
+gr_soapy_build:
+    stage: build
+    script:
+        - mkdir -p build
+        - cd build
+        - cmake -DCMAKE_INSTALL_PREFIX=/usr -DLIB_SUFFIX=64 -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+        - make
+        - cd ..
