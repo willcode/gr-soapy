@@ -53,6 +53,7 @@ namespace gr {
       size_t d_channel;
       gr_complex d_dc_offset;
       bool d_dc_offset_auto_mode;
+      bool d_gain_auto_mode;
       double d_frequency_correction;
       gr_complex d_iq_balance;
       bool d_gain_mode;
@@ -66,7 +67,7 @@ namespace gr {
      public:
       sink_impl(float frequency, float gain, float sampling_rate,
                 float bandwidth, const std::string antenna, size_t channel,
-                gr_complexd dc_offset, bool dc_offset_mode,
+                gr_complexd dc_offset, bool dc_offset_auto_mode, bool gain_auto_mode,
                 double correction, gr_complexd balance,
                 const std::string clock_source, const std::string device);
       ~sink_impl();
@@ -118,9 +119,9 @@ namespace gr {
        * If not supported set gain value manually.
        * \param channel an available channel on the device
        * \param gain the new amplification value in dB
-       * \param automatic true for automatic gain mode
+       * \param gain_auto_mode true for automatic gain mode
        */
-      void set_gain_mode(size_t channel, float gain, bool automatic);
+      void set_gain_mode(size_t channel, float gain, bool gain_auto_mode);
 
       /*!
        * Set the baseband sample rate for the TX chain.

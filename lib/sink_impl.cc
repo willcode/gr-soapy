@@ -42,13 +42,15 @@ namespace gr
     sink::make (float frequency, float gain, float sampling_rate,
                 float bandwidth, const std::string antenna, size_t channel,
                 gr_complexd dc_offset, bool dc_offset_auto_mode,
-                double freq_correction, gr_complexd iq_balance,
-                const std::string clock_source, const std::string device)
+                bool gain_auto_mode, double freq_correction,
+                gr_complexd iq_balance, const std::string clock_source,
+                const std::string device)
     {
       return gnuradio::get_initial_sptr (
           new sink_impl (frequency, gain, sampling_rate, bandwidth, antenna,
                          channel, dc_offset, dc_offset_auto_mode,
-                         freq_correction, iq_balance, clock_source, device));
+                         gain_auto_mode, freq_correction, iq_balance,
+                         clock_source, device));
     }
 
     /*
@@ -57,8 +59,8 @@ namespace gr
     sink_impl::sink_impl (float frequency, float gain, float sampling_rate,
                           float bandwidth, const std::string antenna,
                           size_t channel, gr_complexd dc_offset,
-                          bool dc_offset_auto_mode, double freq_correction,
-                          gr_complexd iq_balance,
+                          bool dc_offset_auto_mode, bool gain_auto_mode,
+                          double freq_correction, gr_complexd iq_balance,
                           const std::string clock_source,
                           const std::string device) :
             gr::sync_block ("sink",
@@ -74,6 +76,7 @@ namespace gr
             d_channel (channel),
             d_dc_offset (dc_offset),
             d_dc_offset_auto_mode (dc_offset_auto_mode),
+            d_gain_auto_mode (gain_auto_mode),
             d_frequency_correction (freq_correction),
             d_iq_balance (iq_balance),
             d_clock_source (clock_source)
@@ -89,7 +92,6 @@ namespace gr
       set_dc_offset (d_channel, d_dc_offset, d_dc_offset_auto_mode);
       set_dc_offset_mode (d_channel, d_dc_offset_auto_mode);
       set_frequency_correction (d_channel, d_frequency_correction);
-      set_iq_balance (d_channel, d_iq_balance);
       set_iq_balance (d_channel, d_iq_balance);
       if (d_clock_source.compare ("") != 0) {
         set_clock_source (d_clock_source);
@@ -174,13 +176,13 @@ namespace gr
 
     void
     sink_impl::set_gain_mode (size_t channel, float gain,
-                                bool dc_offset_auto_mode)
+                              bool gain_auto_mode)
     {
       /* If user specifies no automatic gain setting set gain value */
-      if (!dc_offset_auto_mode) {
+      if (!gain_auto_mode) {
         d_device->setGain (SOAPY_SDR_TX, channel, gain);
       }
-      d_device->setGainMode (SOAPY_SDR_TX, channel, dc_offset_auto_mode);
+      d_device->setGainMode (SOAPY_SDR_TX, channel, gain_auto_mode);
     }
 
     void

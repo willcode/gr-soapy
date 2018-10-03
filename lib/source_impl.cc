@@ -40,13 +40,13 @@ namespace gr
     source::sptr
     source::make (float frequency, float gain, float sampling_rate,
                   float bandwidth, const std::string antenna, size_t channel,
-                  gr_complexd dc_offset, bool dc_offset_auto_mode,
+                  gr_complexd dc_offset, bool dc_offset_auto_mode, bool gain_auto_mode,
                   double freq_correction, gr_complexd iq_balance,
                   const std::string clock_source, double clock_rate,const std::string device)
     {
       return gnuradio::get_initial_sptr (
           new source_impl (frequency, gain, sampling_rate, bandwidth, antenna,
-                           channel, dc_offset, dc_offset_auto_mode,
+                           channel, dc_offset, dc_offset_auto_mode, gain_auto_mode,
                            freq_correction, iq_balance, clock_source, clock_rate, device));
     }
 
@@ -56,8 +56,8 @@ namespace gr
     source_impl::source_impl (float frequency, float gain, float sampling_rate,
                               float bandwidth, const std::string antenna,
                               size_t channel, gr_complexd dc_offset,
-                              bool dc_offset_auto_mode, double freq_correction,
-                              gr_complexd iq_balance,
+                              bool dc_offset_auto_mode, bool gain_auto_mode,
+                              double freq_correction, gr_complexd iq_balance,
                               const std::string clock_source,
                               double clock_rate,
                               const std::string device) :
@@ -73,10 +73,11 @@ namespace gr
             d_channel (channel),
             d_dc_offset (dc_offset),
             d_dc_offset_auto_mode (dc_offset_auto_mode),
+            d_gain_auto_mode (gain_auto_mode),
             d_frequency_correction (freq_correction),
             d_iq_balance (iq_balance),
-            d_clock_source (clock_source),
-            d_clock_rate(clock_rate)
+            d_clock_rate (clock_rate),
+            d_clock_source (clock_source)
     {
       makeDevice (device);
       for(uint8_t chan=0;chan< d_channel;chan++){
@@ -84,7 +85,7 @@ namespace gr
           set_master_clock_rate(d_clock_rate);
         }
         set_frequency (chan, d_frequency);
-        set_gain_mode (chan, d_gain, d_gain_mode);
+        set_gain_mode (chan, d_gain, d_gain_auto_mode);
         set_sample_rate (chan, d_sampling_rate);
         set_bandwidth (chan, d_bandwidth);
         if (d_antenna.compare ("") != 0) {
@@ -172,7 +173,7 @@ namespace gr
     void
     source_impl::set_frequency (size_t channel, float frequency)
     {
-      d_device->setFrequency (SOAPY_SDR_RX, channel, frequency);
+      d_device->setFrequency (SOAPY_SDR_RX, 0, frequency);
       d_frequency = frequency;
     }
 
@@ -180,41 +181,41 @@ namespace gr
     source_impl::set_gain (size_t channel, float gain)
     {
       /* User can change gain only if gain mode is not set to automatic */
-      if (!d_gain_mode) {
-        d_device->setGain (SOAPY_SDR_RX, channel, gain);
+      if (!d_gain_auto_mode) {
+        d_device->setGain (SOAPY_SDR_RX, 0, gain);
         d_gain = gain;
       }
     }
 
     void
     source_impl::set_gain_mode (size_t channel, float gain,
-                                bool dc_offset_auto_mode)
+                                bool gain_auto_mode)
     {
       /* If user specifies no automatic gain setting set gain value */
-      if (!dc_offset_auto_mode) {
-        d_device->setGain (SOAPY_SDR_RX, channel, gain);
+      if (!gain_auto_mode) {
+        d_device->setGain (SOAPY_SDR_RX, 0, gain);
       }
-      d_device->setGainMode (SOAPY_SDR_RX, channel, dc_offset_auto_mode);
+      d_device->setGainMode (SOAPY_SDR_RX, 0, gain_auto_mode);
     }
 
     void
     source_impl::set_sample_rate (size_t channel, float sample_rate)
     {
-      d_device->setSampleRate (SOAPY_SDR_RX, channel, sample_rate);
+      d_device->setSampleRate (SOAPY_SDR_RX, 0, sample_rate);
       d_sampling_rate = sample_rate;
     }
 
     void
     source_impl::set_bandwidth (size_t channel, float bandwidth)
     {
-      d_device->setBandwidth (SOAPY_SDR_RX, channel, bandwidth);
+      d_device->setBandwidth (SOAPY_SDR_RX, 0, bandwidth);
       d_bandwidth = bandwidth;
     }
 
     void
     source_impl::set_antenna (const size_t channel, const std::string &name)
     {
-      d_device->setAntenna (SOAPY_SDR_RX, channel, name);
+      d_device->setAntenna (SOAPY_SDR_RX, 0, name);
       d_antenna = name;
     }
 
@@ -224,8 +225,8 @@ namespace gr
     {
       /* If DC Correction is supported but automatic mode is not set DC correction */
       if (!dc_offset_auto_mode
-          && d_device->hasDCOffset (SOAPY_SDR_RX, channel)) {
-        d_device->setDCOffset (SOAPY_SDR_TX, channel, dc_offset);
+          && d_device->hasDCOffset (SOAPY_SDR_RX, 0)) {
+        d_device->setDCOffset (SOAPY_SDR_TX, 0, dc_offset);
         d_dc_offset = dc_offset;
       }
     }
@@ -235,8 +236,8 @@ namespace gr
     {
       /* If user specifies automatic DC Correction and is supported activate it */
       if (dc_offset_auto_mode
-          && d_device->hasDCOffsetMode (SOAPY_SDR_RX, channel)) {
-        d_device->setDCOffsetMode (SOAPY_SDR_RX, channel, dc_offset_auto_mode);
+          && d_device->hasDCOffsetMode (SOAPY_SDR_RX, 0)) {
+        d_device->setDCOffsetMode (SOAPY_SDR_RX, 0, dc_offset_auto_mode);
         d_dc_offset_auto_mode = dc_offset_auto_mode;
       }
     }
@@ -246,8 +247,8 @@ namespace gr
                                            double freq_correction)
     {
       /* If the device supports Frequency correction set value */
-      if (d_device->hasFrequencyCorrection (SOAPY_SDR_RX, channel)) {
-        d_device->setFrequencyCorrection (SOAPY_SDR_RX, channel,
+      if (d_device->hasFrequencyCorrection (SOAPY_SDR_RX, 0)) {
+        d_device->setFrequencyCorrection (SOAPY_SDR_RX, 0,
                                           freq_correction);
         d_frequency_correction = freq_correction;
       }
@@ -257,8 +258,8 @@ namespace gr
     source_impl::set_iq_balance (size_t channel, gr_complexd iq_balance)
     {
       /* If the device supports IQ blance correction set value */
-      if (d_device->hasIQBalance (SOAPY_SDR_RX, channel)) {
-        d_device->setIQBalance (SOAPY_SDR_RX, channel, iq_balance);
+      if (d_device->hasIQBalance (SOAPY_SDR_RX, 0)) {
+        d_device->setIQBalance (SOAPY_SDR_RX, 0, iq_balance);
         d_iq_balance = iq_balance;
       }
     }

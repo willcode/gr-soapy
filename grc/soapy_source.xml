@@ -7,7 +7,8 @@
 
   <make>\
       soapy.source($freq, $gain, $samp_rate, $bw, $antenna, $chan, \ 
-      $dc_offset, $offset_mode, $correction, $balance, $clock_source, $clock_rate, $dev) \
+      $dc_offset, $dc_offset_auto_mode, $gain_auto_mode, $correction, $balance,\
+      $clock_source, $clock_rate, $dev) \
   </make>
 
   <callback>set_gain($chan, $gain)</callback>
@@ -25,6 +26,13 @@
     <key>gain</key>
     <type>float</type>
     <tab>RF Options</tab>
+  </param>
+  
+  <param>
+    <name>Automatic Gain</name>
+    <key>gain_auto_mode</key>
+    <value>False</value>
+    <type>bool</type>
   </param>
   
   <param>
@@ -63,8 +71,8 @@
 
   <param>
       <name>Automatic DC Offset Mode</name>
-      <key>offset_mode</key>
-      <value>True</value>
+      <key>dc_offset_auto_mode</key>
+      <value>False</value>
       <type>bool</type>
   </param>
 
@@ -104,6 +112,7 @@
   	<type>message</type>
   	 <optional>1</optional>
   </sink>
+  
   <source>
     <name>out</name>
     <type>complex</type>
