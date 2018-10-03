@@ -6,7 +6,7 @@
   <import>import soapy</import>
   <make>\
       soapy.sink($freq, $gain, $samp_rate, $bw, $antenna, $chan, \ 
-      $dc_offset, $offset_mode, $correction, $balance, $clock_source, $dev)\
+      $dc_offset, $dc_offset_auto_mode, $gain_auto_mode, $correction, $balance, $clock_source, $dev)\
   </make>
 
   <callback>set_gain($chan, $gain)</callback>
@@ -22,6 +22,13 @@
     <name>Gain</name>
     <key>gain</key>
     <type>float</type>
+  </param>
+  
+  <param>
+    <name>Automatic Gain</name>
+    <key>gain_auto_mode</key>
+    <value>False</value>
+    <type>bool</type>
   </param>
   
   <param>
@@ -49,7 +56,7 @@
       <type>int</type>
   </param>
 
-    <param>
+  <param>
       <name>DC Offset</name>
       <key>dc_offset</key>
       <type>complex</type>
@@ -57,8 +64,8 @@
 
   <param>
       <name>Automatic DC Offset Mode</name>
-      <key>offset_mode</key>
-      <value>True</value>
+      <key>dc_offset_auto_mode</key>
+      <value>False</value>
       <type>bool</type>
   </param>
 

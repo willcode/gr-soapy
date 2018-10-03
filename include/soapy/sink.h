@@ -64,6 +64,7 @@ namespace gr {
        * @param channel an available channel on the device
        * @param dc_offset the relative correction (1.0 max)
        * @param dc_offset_mode true for automatic correction
+       * @param gain_auto_mode true for automatic gain control
        * @param frequency_correction the correction value in PPM
        * @param iq_balance the relative correction (1.0 max)
        * @param clock_source the name of clock source
@@ -72,7 +73,7 @@ namespace gr {
       static sptr make(float frequency, float gain, float sampling_rate,
                        float bandwidth, const std::string antenna,
                        size_t channel, gr_complexd dc_offset,
-                       bool dc_offset_mode, double frequency_correction,
+                       bool dc_offset_mode, bool gain_auto_mode, double frequency_correction,
                        gr_complexd iq_balance, const std::string clock_source,
                        const std::string device);
 
