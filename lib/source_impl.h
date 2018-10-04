@@ -64,12 +64,25 @@ namespace gr {
       double d_clock_rate;
       std::string d_clock_source;
       std::string d_frontend_mapping;
+      std::string d_type;
+      uint8_t d_type_size;
 
       void register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler);
       std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
 
+      inline io_signature::sptr
+      args_to_io_sig(const std::string type, size_t nchan)
+      {
+        size_t size = 0;
+        if(type == "fc32")
+          size = 8;
+        if(type == "s16")
+          size = 2;
+        return io_signature::make(nchan, nchan, size);
+      }
+
      public:
-      source_impl(size_t nchan, const std::string device, float sampling_rate);
+      source_impl(size_t nchan, const std::string device, float sampling_rate, const std::string type);
       ~source_impl();
 
       // Where all the action really happens
