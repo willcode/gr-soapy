@@ -57,9 +57,9 @@
   </param>
 
   <param>
-      <name>Num Channels</name>
+      <name>Channel</name>
       <key>chan</key>
-      <value>1</value>
+      <value>0</value>
       <type>int</type>
   </param>
 
@@ -116,6 +116,5 @@
   <source>
     <name>out</name>
     <type>complex</type>
-    <nports>$chan</nports>
   </source>
 </block>
