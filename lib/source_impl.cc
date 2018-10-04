@@ -62,7 +62,7 @@ namespace gr
                               double clock_rate,
                               const std::string device) :
             gr::sync_block ("source", gr::io_signature::make (0, 0, 0),
-                            gr::io_signature::make (channel, channel, sizeof(gr_complex))),
+                            gr::io_signature::make (1, 1, sizeof(gr_complex))),
             d_mtu (0),
             d_message_port (pmt::mp ("command")),
             d_frequency (frequency),
@@ -80,35 +80,31 @@ namespace gr
             d_clock_source (clock_source)
     {
       makeDevice (device);
-      for(uint8_t chan=0;chan< d_channel;chan++){
-        if(d_clock_rate){
-          set_master_clock_rate(d_clock_rate);
-        }
-        set_frequency (chan, d_frequency);
-        set_gain_mode (chan, d_gain, d_gain_auto_mode);
-        set_sample_rate (chan, d_sampling_rate);
-        set_bandwidth (chan, d_bandwidth);
-        if (d_antenna.compare ("") != 0) {
-          set_antenna (chan, d_antenna);
-        }
-
-        set_dc_offset (chan, d_dc_offset, d_dc_offset_auto_mode);
-        set_dc_offset_mode (chan, d_dc_offset_auto_mode);
-        set_frequency_correction (chan, d_frequency_correction);
-        set_iq_balance (chan, d_iq_balance);
+      if (d_clock_rate) {
+        set_master_clock_rate (d_clock_rate);
       }
+      set_frequency (d_channel, d_frequency);
+      set_gain_mode (d_channel, d_gain, d_gain_auto_mode);
+      set_sample_rate (d_channel, d_sampling_rate);
+      set_bandwidth (d_channel, d_bandwidth);
+      if (d_antenna.compare ("") != 0) {
+        set_antenna (d_channel, d_antenna);
+      }
+
+      set_dc_offset (d_channel, d_dc_offset, d_dc_offset_auto_mode);
+      set_dc_offset_mode (d_channel, d_dc_offset_auto_mode);
+      set_frequency_correction (d_channel, d_frequency_correction);
+      set_iq_balance (d_channel, d_iq_balance);
       if (d_clock_source.compare ("") != 0) {
         set_clock_source (d_clock_source);
       }
       std::vector<size_t> channs;
-      channs.resize(d_channel);
-      for(uint8_t chan=0; chan<d_channel; chan++){
-        channs[chan] = chan;
-      }
+      channs.resize(1);
+      channs[0] = d_channel;
       d_stream = d_device->setupStream (SOAPY_SDR_RX, "CF32", channs);
       d_device->activateStream (d_stream);
       d_mtu = d_device->getStreamMTU (d_stream);
-      d_bufs.resize (d_channel);
+      d_bufs.resize (1);
 
       message_port_register_in (d_message_port);
       set_msg_handler (
@@ -182,7 +178,7 @@ namespace gr
     {
       /* User can change gain only if gain mode is not set to automatic */
       if (!d_gain_auto_mode) {
-        d_device->setGain (SOAPY_SDR_RX, 0, gain);
+        d_device->setGain (SOAPY_SDR_RX, channel, gain);
         d_gain = gain;
       }
     }
@@ -193,29 +189,29 @@ namespace gr
     {
       /* If user specifies no automatic gain setting set gain value */
       if (!gain_auto_mode) {
-        d_device->setGain (SOAPY_SDR_RX, 0, gain);
+        d_device->setGain (SOAPY_SDR_RX, channel, gain);
       }
-      d_device->setGainMode (SOAPY_SDR_RX, 0, gain_auto_mode);
+      d_device->setGainMode (SOAPY_SDR_RX, channel, gain_auto_mode);
     }
 
     void
     source_impl::set_sample_rate (size_t channel, float sample_rate)
     {
-      d_device->setSampleRate (SOAPY_SDR_RX, 0, sample_rate);
+      d_device->setSampleRate (SOAPY_SDR_RX, channel, sample_rate);
       d_sampling_rate = sample_rate;
     }
 
     void
     source_impl::set_bandwidth (size_t channel, float bandwidth)
     {
-      d_device->setBandwidth (SOAPY_SDR_RX, 0, bandwidth);
+      d_device->setBandwidth (SOAPY_SDR_RX, channel, bandwidth);
       d_bandwidth = bandwidth;
     }
 
     void
     source_impl::set_antenna (const size_t channel, const std::string &name)
     {
-      d_device->setAntenna (SOAPY_SDR_RX, 0, name);
+      d_device->setAntenna (SOAPY_SDR_RX, channel, name);
       d_antenna = name;
     }
 
@@ -225,8 +221,8 @@ namespace gr
     {
       /* If DC Correction is supported but automatic mode is not set DC correction */
       if (!dc_offset_auto_mode
-          && d_device->hasDCOffset (SOAPY_SDR_RX, 0)) {
-        d_device->setDCOffset (SOAPY_SDR_TX, 0, dc_offset);
+          && d_device->hasDCOffset (SOAPY_SDR_RX, channel)) {
+        d_device->setDCOffset (SOAPY_SDR_TX, channel, dc_offset);
         d_dc_offset = dc_offset;
       }
     }
@@ -236,8 +232,8 @@ namespace gr
     {
       /* If user specifies automatic DC Correction and is supported activate it */
       if (dc_offset_auto_mode
-          && d_device->hasDCOffsetMode (SOAPY_SDR_RX, 0)) {
-        d_device->setDCOffsetMode (SOAPY_SDR_RX, 0, dc_offset_auto_mode);
+          && d_device->hasDCOffsetMode (SOAPY_SDR_RX, channel)) {
+        d_device->setDCOffsetMode (SOAPY_SDR_RX, channel, dc_offset_auto_mode);
         d_dc_offset_auto_mode = dc_offset_auto_mode;
       }
     }
@@ -247,8 +243,8 @@ namespace gr
                                            double freq_correction)
     {
       /* If the device supports Frequency correction set value */
-      if (d_device->hasFrequencyCorrection (SOAPY_SDR_RX, 0)) {
-        d_device->setFrequencyCorrection (SOAPY_SDR_RX, 0,
+      if (d_device->hasFrequencyCorrection (SOAPY_SDR_RX, channel)) {
+        d_device->setFrequencyCorrection (SOAPY_SDR_RX, channel,
                                           freq_correction);
         d_frequency_correction = freq_correction;
       }
@@ -258,8 +254,8 @@ namespace gr
     source_impl::set_iq_balance (size_t channel, gr_complexd iq_balance)
     {
       /* If the device supports IQ blance correction set value */
-      if (d_device->hasIQBalance (SOAPY_SDR_RX, 0)) {
-        d_device->setIQBalance (SOAPY_SDR_RX, 0, iq_balance);
+      if (d_device->hasIQBalance (SOAPY_SDR_RX, channel)) {
+        d_device->setIQBalance (SOAPY_SDR_RX, channel, iq_balance);
         d_iq_balance = iq_balance;
       }
     }
@@ -391,9 +387,7 @@ namespace gr
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items)
     {
-      for(uint8_t chan=0; chan <d_channel; chan++){
-        d_bufs[chan] = (gr_complex*) output_items[chan];
-      }
+      d_bufs[0] = (gr_complex*) output_items[0];
       int flags = 0;
       long long timeNs = 0;
       size_t total_samples = std::min (noutput_items, (int) d_mtu);
@@ -409,9 +403,7 @@ namespace gr
           read = d_device->readStream (d_stream, &d_bufs[0], total_samples,
                                        flags, timeNs, long (1e6));
         }
-        for(uint8_t chan=0; chan <d_channel; chan++){
-          d_bufs[chan] += read * sizeof(gr_complex);
-        }
+        d_bufs[0] += read * sizeof(gr_complex);
         index += read;
       }
       // Tell runtime system how many output items we produced.
