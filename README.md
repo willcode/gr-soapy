@@ -6,7 +6,7 @@ gr-soapy is a GNURadio wrapper for the SoapySDR library.
 ### Requirements
 * GNU Radio ( > 3.7.7 )
 * CMake ( > 3.1)
-* G++ (with C++11 support)
+* G++
 * VOLK
 * git
 * SoapySDR
@@ -24,7 +24,7 @@ on the device they want to use.
 5. `make`
 6. `sudo make install`
 
-If this is the first time you are building the gr-satnogs module run
+If this is the first time you are building the gr-soapy module run
 `sudo ldconfig`
 
 #### Advanced
@@ -36,7 +36,7 @@ E.g:
 `cmake -DCMAKE_INSTALL_PREFIX=/usr ..`
 
 
-Another common control option is the library sugffix of the Linux distribution.
+Another common control option is the library suffix of the Linux distribution.
 There are distributions like Fedora, openSUSE, e.t.c that the their 64-bit version
 use the `lib64` folder to store the 64-bit versions of their dynamic libraries.
 On the other hand, distributions like Ubuntu do the exact opposite. They use
