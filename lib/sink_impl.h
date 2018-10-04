@@ -56,7 +56,6 @@ namespace gr {
       bool d_gain_auto_mode;
       double d_frequency_correction;
       gr_complex d_iq_balance;
-      bool d_gain_mode;
       double d_clock_rate;
       std::string d_clock_source;
       std::string d_frontend_mapping;

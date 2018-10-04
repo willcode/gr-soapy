@@ -83,7 +83,7 @@ namespace gr
     {
       makeDevice (device);
       set_frequency (d_channel, d_frequency);
-      set_gain_mode (d_channel, d_gain, d_gain_mode);
+      set_gain_mode (d_channel, d_gain, d_gain_auto_mode);
       set_sample_rate (d_channel, d_sampling_rate);
       set_bandwidth (d_channel, d_bandwidth);
       if (d_antenna.compare ("") != 0) {
