@@ -55,7 +55,7 @@ namespace gr {
       float d_sampling_rate;
       float d_bandwidth;
       std::string d_antenna;
-      size_t d_channel;
+      size_t d_nchan;
       gr_complex d_dc_offset;
       bool d_dc_offset_auto_mode;
       bool d_gain_auto_mode;
@@ -69,11 +69,7 @@ namespace gr {
       std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
 
      public:
-      source_impl(float frequency, float gain, float sampling_rate,
-                  float bandwidth, const std::string antenna, size_t channel,
-                  gr_complexd dc_offset, bool dc_offset_auto_mode,
-                  bool gain_auto_mode, double correction, gr_complexd balance,
-                  const std::string clock_source, double clock_rate, const std::string device);
+      source_impl(size_t nchan, const std::string device);
       ~source_impl();
 
       // Where all the action really happens
