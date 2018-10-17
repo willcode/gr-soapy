@@ -38,73 +38,32 @@ namespace gr
   namespace soapy
   {
     source::sptr
-    source::make (float frequency, float gain, float sampling_rate,
-                  float bandwidth, const std::string antenna, size_t channel,
-                  gr_complexd dc_offset, bool dc_offset_auto_mode, bool gain_auto_mode,
-                  double freq_correction, gr_complexd iq_balance,
-                  const std::string clock_source, double clock_rate,const std::string device)
+    source::make (size_t nchan,const std::string device)
     {
       return gnuradio::get_initial_sptr (
-          new source_impl (frequency, gain, sampling_rate, bandwidth, antenna,
-                           channel, dc_offset, dc_offset_auto_mode, gain_auto_mode,
-                           freq_correction, iq_balance, clock_source, clock_rate, device));
+          new source_impl (nchan, device));
     }
 
     /*
      * The private constructor
      */
-    source_impl::source_impl (float frequency, float gain, float sampling_rate,
-                              float bandwidth, const std::string antenna,
-                              size_t channel, gr_complexd dc_offset,
-                              bool dc_offset_auto_mode, bool gain_auto_mode,
-                              double freq_correction, gr_complexd iq_balance,
-                              const std::string clock_source,
-                              double clock_rate,
-                              const std::string device) :
+    source_impl::source_impl (size_t nchan, const std::string device) :
             gr::sync_block ("source", gr::io_signature::make (0, 0, 0),
-                            gr::io_signature::make (1, 1, sizeof(gr_complex))),
+                            gr::io_signature::make (nchan, nchan, sizeof(gr_complex))),
             d_mtu (0),
             d_message_port (pmt::mp ("command")),
-            d_frequency (frequency),
-            d_gain (gain),
-            d_sampling_rate (sampling_rate),
-            d_bandwidth (bandwidth),
-            d_antenna (antenna),
-            d_channel (channel),
-            d_dc_offset (dc_offset),
-            d_dc_offset_auto_mode (dc_offset_auto_mode),
-            d_gain_auto_mode (gain_auto_mode),
-            d_frequency_correction (freq_correction),
-            d_iq_balance (iq_balance),
-            d_clock_rate (clock_rate),
-            d_clock_source (clock_source)
+            d_nchan (nchan)
     {
       makeDevice (device);
-      if (d_clock_rate) {
-        set_master_clock_rate (d_clock_rate);
-      }
-      set_frequency (d_channel, d_frequency);
-      set_gain_mode (d_channel, d_gain, d_gain_auto_mode);
-      set_sample_rate (d_channel, d_sampling_rate);
-      set_bandwidth (d_channel, d_bandwidth);
-      if (d_antenna.compare ("") != 0) {
-        set_antenna (d_channel, d_antenna);
-      }
-
-      set_dc_offset (d_channel, d_dc_offset, d_dc_offset_auto_mode);
-      set_dc_offset_mode (d_channel, d_dc_offset_auto_mode);
-      set_frequency_correction (d_channel, d_frequency_correction);
-      set_iq_balance (d_channel, d_iq_balance);
-      if (d_clock_source.compare ("") != 0) {
-        set_clock_source (d_clock_source);
-      }
       std::vector<size_t> channs;
-      channs.resize(1);
-      channs[0] = d_channel;
+      channs.resize(d_nchan);
+      for(int i=0; i< d_nchan; i++){
+        channs[i] = i;
+      }
       d_stream = d_device->setupStream (SOAPY_SDR_RX, "CF32", channs);
       d_device->activateStream (d_stream);
       d_mtu = d_device->getStreamMTU (d_stream);
-      d_bufs.resize (1);
+      d_bufs.resize (d_nchan);
 
       message_port_register_in (d_message_port);
       set_msg_handler (
@@ -387,7 +346,9 @@ namespace gr
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items)
     {
-      d_bufs[0] = (gr_complex*) output_items[0];
+      for (uint8_t chan = 0; chan < d_nchan; chan++) {
+        d_bufs[chan] = (gr_complex*) output_items[chan];
+      }
       int flags = 0;
       long long timeNs = 0;
       size_t total_samples = std::min (noutput_items, (int) d_mtu);
@@ -403,7 +364,9 @@ namespace gr
           read = d_device->readStream (d_stream, &d_bufs[0], total_samples,
                                        flags, timeNs, long (1e6));
         }
-        d_bufs[0] += read * sizeof(gr_complex);
+        for (uint8_t chan = 0; chan < d_nchan; chan++) {
+          d_bufs[chan] += read * sizeof(gr_complex);
+        }
         index += read;
       }
       // Tell runtime system how many output items we produced.

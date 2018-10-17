@@ -4,33 +4,286 @@
   <key>soapy_sink</key>
   <category>[soapy]</category>
   <import>import soapy</import>
-  <make>\
-      soapy.sink($freq, $gain, $samp_rate, $bw, $antenna, $chan, \ 
-      $dc_offset, $dc_offset_auto_mode, $gain_auto_mode, $correction, $balance, $clock_source, $dev)\
+
+  <make>soapy.sink($nchan, $dev) 
+#if $clock_rate()
+self.$(id).set_master_clock_rate($clock_rate)
+#end if
+#if $clock_source()
+self.$(id).set_clock_source($clock_source)
+#end if
+#if $nchan() > 0
+self.$(id).set_frequency(0, $center_freq0)
+self.$(id).set_gain_mode(0, $gain0, $gain_auto_mode0)
+	#if $ant0()
+self.$(id).set_antenna(0, $ant0)
+	#end if
+	#if $bw0()
+self.$(id).set_bandwidth(0, $bw0)
+	#end if
+	#if $dc_offset_auto_mode0()
+self.$(id).set_dc_offset(0, $dc_offset_auto_mode0)
+	#end if
+	#if $dc_offset0()
+self.$(id).set_dc_offset (0, $dc_offset0, $dc_offset_auto_mode0)
+	#end if
+	#if $balance0()
+self.$(id).set_iq_balance (0, $balance0)
+	#end if
+	#if $correction0()
+self.$(id).set_frequency_correction (0, $correction0)
+	#end if
+#end if
+#if $nchan() > 1
+self.$(id).set_frequency(1, $center_freq1)
+self.$(id).set_gain_mode (1, $gain1, $gain_auto_mode1)
+	#if $ant1()
+self.$(id).set_antenna(1, $ant1)
+	#end if
+	#if $bw1()
+self.$(id).set_bandwidth(1, $bw1)
+	#end if
+	#if $dc_offset_auto_mode1()
+self.$(id).set_dc_offset(1, $dc_offset_auto_mode1)
+	#end if
+	#if $dc_offset1()
+self.$(id).set_dc_offset (1, $dc_offset1, $dc_offset_auto_mode1)
+	#end if
+	#if $balance1()
+self.$(id).set_iq_balance (1, $balance1)
+	#end if
+	#if $correction1()
+self.$(id).set_frequency_correction (1, $correction1)
+	#end if
+#end if
+#if $nchan() > 2
+self.$(id).set_frequency(2, $center_freq2)
+self.$(id).set_gain_mode (2, $gain2, $gain_auto_mode2)
+	#if $ant2()
+self.$(id).set_antenna(2, $ant2)
+	#end if
+	#if $bw2()
+self.$(id).set_bandwidth(2, $bw2)
+	#end if
+	#if $dc_offset_auto_mode2()
+self.$(id).set_dc_offset(2, $dc_offset_auto_mode2)
+	#end if
+	#if $dc_offset2()
+self.$(id).set_dc_offset (2, $dc_offset2, $dc_offset_auto_mode2)
+	#end if
+	#if $balance2()
+self.$(id).set_iq_balance (2, $balance2)
+	#end if
+	#if $correction2()
+self.$(id).set_frequency_correction (2, $correction2)
+	#end if
+#end if
+#if $nchan() > 3
+self.$(id).set_frequency(3, $center_freq3)
+self.set_gain_mode (3, $gain3, $gain_auto_mode3)
+	#if $ant3()
+self.$(id).set_antenna(3, $ant3)
+	#end if
+	#if $bw3()
+self.$(id).set_bandwidth(3, $bw3)
+	#end if
+	#if $dc_offset_auto_mode3()
+self.$(id).set_dc_offset(3, $dc_offset_auto_mode3)
+	#end if
+	#if $dc_offset3()
+self.$(id).set_dc_offset (3, $dc_offset3, $dc_offset_auto_mode3)
+	#end if
+	#if $balance3()
+self.$(id).set_iq_balance (3, $balance3)
+	#end if
+	#if $correction3()
+self.$(id).set_frequency_correction (3, $correction3)
+	#end if
+#end if
+#if $nchan() > 4
+self.$(id).set_frequency(4, $center_freq4)
+self.set_gain_mode (4, $gain4, $gain_auto_mode4)
+	#if $ant4()
+self.$(id).set_antenna(4, $ant4)
+	#end if
+	#if $bw4()
+self.$(id).set_bandwidth(4, $bw4)
+	#end if
+	#if $dc_offset_auto_mode4()
+self.$(id).set_dc_offset(4, $dc_offset_auto_mode4)
+	#end if
+	#if $dc_offset4()
+self.$(id).set_dc_offset (4, $dc_offset4, $dc_offset_auto_mode4)
+	#end if
+	#if $balance4()
+self.$(id).set_iq_balance (4, $balance4)
+	#end if
+	#if $correction4()
+self.$(id).set_frequency_correction (4, $correction4)
+	#end if
+#end if
+#if $nchan() > 5
+self.$(id).set_frequency(5, $center_freq5)
+self.set_gain_mode (5, $gain5, $gain_auto_mode5)
+	#if $ant5()
+self.$(id).set_antenna(5, $ant5)
+	#end if
+	#if $bw5()
+self.$(id).set_bandwidth(5, $bw5)
+	#end if
+	#if $dc_offset_auto_mode5()
+self.$(id).set_dc_offset(5, $dc_offset_auto_mode5)
+	#end if
+	#if $dc_offset5()
+self.$(id).set_dc_offset (5, $dc_offset5, $dc_offset_auto_mode5)
+	#end if
+	#if $balance5()
+self.$(id).set_iq_balance (5, $balance5)
+	#end if
+	#if $correction5()
+self.$(id).set_frequency_correction (5, $correction5)
+	#end if
+#end if
+#if $nchan() > 6
+self.$(id).set_frequency(6, $center_freq6)
+self.$(id).set_gain_mode (6, $gain6, $gain_auto_mode6)
+	#if $ant6()
+self.$(id).set_antenna(6, $ant6)
+	#end if
+	#if $bw6()
+self.$(id).set_bandwidth(6, $bw6)
+	#end if
+	#if $dc_offset_auto_mode6()
+self.$(id).set_dc_offset(6, $dc_offset_auto_mode6)
+	#end if
+	#if $dc_offset6()
+self.$(id).set_dc_offset (6, $dc_offset6, $dc_offset_auto_mode6)
+	#end if
+	#if $balance6()
+self.$(id).set_iq_balance (6, $balance6)
+	#end if
+	#if $correction6()
+self.$(id).set_frequency_correction (6, $correction6)
+	#end if
+#end if
+#if $nchan() > 7
+self.$(id).set_frequency(7, $center_freq7)
+self.$(id).set_gain_mode (7, $gain7, $gain_auto_mode7)
+	#if $ant7()
+self.$(id).set_antenna(7, $ant7)
+	#end if
+	#if $bw7()
+self.$(id).set_bandwidth(7, $bw7)
+	#end if
+	#if $dc_offset_auto_mode7()
+self.$(id).set_dc_offset(7, $dc_offset_auto_mode7)
+	#end if
+	#if $dc_offset7()
+self.$(id).set_dc_offset (7, $dc_offset7, $dc_offset_auto_mode7)
+	#end if
+	#if $balance7()
+self.$(id).set_iq_balance (7, $balance7)
+	#end if
+	#if $correction7()
+self.$(id).set_frequency_correction (7, $correction7)
+	#end if
+#end if
+#if $nchan() > 8
+self.$(id).set_frequency(8, $center_freq8)
+self.$(id).set_gain_mode (8, $gain8, $gain_auto_mode8)
+	#if $ant8()
+self.$(id).set_antenna(8, $ant8)
+	#end if
+	#if $bw8()
+self.$(id).set_bandwidth(8, $bw8)
+	#end if
+	#if $dc_offset_auto_mode8()
+self.$(id).set_dc_offset(8, $dc_offset_auto_mode8)
+	#end if
+	#if $dc_offset8()
+self.$(id).set_dc_offset (8, $dc_offset8, $dc_offset_auto_mode8)
+	#end if
+	#if $balance8()
+self.$(id).set_iq_balance (8, $balance8)
+	#end if
+	#if $correction8()
+self.$(id).set_frequency_correction (8, $correction8)
+	#end if
+#end if
+#if $nchan() > 9
+self.$(id).set_frequency(9, $center_freq9)
+self.$(id).set_gain_mode (9, $gain9, $gain_auto_mode9)
+	#if $ant9()
+self.$(id).set_antenna(9, $ant9)
+	#end if
+	#if $bw9()
+self.$(id).set_bandwidth(9, $bw9)
+	#end if
+	#if $dc_offset_auto_mode9()
+self.$(id).set_dc_offset(9, $dc_offset_auto_mode9)
+	#end if
+	#if $dc_offset9()
+self.$(id).set_dc_offset (9, $dc_offset9, $dc_offset_auto_mode9)
+	#end if
+	#if $balance9()
+self.$(id).set_iq_balance (9, $balance9)
+	#end if
+	#if $correction9()
+self.$(id).set_frequency_correction (9, $correction9)
+	#end if
+#end if
   </make>
 
-  <callback>set_gain($chan, $gain)</callback>
-  <callback>set_frequency($chan, $freq)</callback>
+<callback>set_frequency(0, $center_freq0)</callback>
+<callback>set_gain(0, $gain0)</callback>
+<callback>set_antenna(0,$ant0)</callback>
+<callback>set_bandwidth(0,$bw0)</callback>
 
-  <param>
-    <name>Frequency</name>
-    <key>freq</key>
-    <type>float</type>
-  </param>
+<callback>set_frequency(1, $center_freq1)</callback>
+<callback>set_gain(1, $gain1)</callback>
+<callback>set_antenna(1,$ant1)</callback>
+<callback>set_bandwidth(1,$bw1)</callback>
 
-  <param>
-    <name>Gain</name>
-    <key>gain</key>
-    <type>float</type>
-  </param>
-  
-  <param>
-    <name>Automatic Gain</name>
-    <key>gain_auto_mode</key>
-    <value>False</value>
-    <type>bool</type>
-  </param>
-  
+<callback>set_frequency(2, $center_freq2)</callback>
+<callback>set_gain(2, $gain2)</callback>
+<callback>set_antenna(2,$ant2)</callback>
+<callback>set_bandwidth(2,$bw2)</callback>
+
+<callback>set_frequency(3, $center_freq3)</callback>
+<callback>set_gain(3, $gain3)</callback>
+<callback>set_antenna(3,$ant3)</callback>
+<callback>set_bandwidth(3,$bw3)</callback>
+
+<callback>set_frequency(4, $center_freq4)</callback>
+<callback>set_gain(4, $gain4)</callback>
+<callback>set_antenna(4,$ant4)</callback>
+<callback>set_bandwidth(4,$bw4)</callback>
+
+<callback>set_frequency(5, $center_freq5)</callback>
+<callback>set_gain(5, $gain5)</callback>
+<callback>set_antenna(5,$ant5)</callback>
+<callback>set_bandwidth(5,$bw5)</callback>
+
+<callback>set_frequency(6, $center_freq6)</callback>
+<callback>set_gain(6, $gain6)</callback>
+<callback>set_antenna(6,$ant6)</callback>
+<callback>set_bandwidth(6,$bw6)</callback>
+
+<callback>set_frequency(7, $center_freq7)</callback>
+<callback>set_gain(7, $gain7)</callback>
+<callback>set_antenna(7,$ant7)</callback>
+<callback>set_bandwidth(7,$bw7)</callback>
+
+<callback>set_frequency(8, $center_freq8)</callback>
+<callback>set_gain(8, $gain8)</callback>
+<callback>set_antenna(8,$ant8)</callback>
+<callback>set_bandwidth(8,$bw8)</callback>
+
+<callback>set_frequency(9, $center_freq9)</callback>
+<callback>set_gain(9, $gain9)</callback>
+<callback>set_antenna(9,$ant9)</callback>
+<callback>set_bandwidth(9,$bw9)</callback>
+
   <param>
     <name>Sampling Rate</name>
     <key>samp_rate</key>
@@ -38,54 +291,26 @@
   </param>
 
   <param>
-    <name>Bandwidth</name>
-    <key>bw</key>
-    <type>float</type>
-  </param>
-  
-  <param>
-      <name>Antenna</name>
-      <key>antenna</key>
-      <type>string</type>
-  </param>
-
-  <param>
-      <name>Channel</name>
-      <key>chan</key>
-      <value>0</value>
+      <name>Num Channels</name>
+      <key>nchan</key>
+      <value>1</value>
       <type>int</type>
+      <hide>part</hide>
   </param>
 
   <param>
-      <name>DC Offset</name>
-      <key>dc_offset</key>
-      <type>complex</type>
-  </param>
-
-  <param>
-      <name>Automatic DC Offset Mode</name>
-      <key>dc_offset_auto_mode</key>
-      <value>False</value>
-      <type>bool</type>
-  </param>
-
-  <param>
-      <name>Frequency Correction</name>
-      <key>correction</key>
+      <name>Master Clock Rate</name>
+      <key>clock_rate</key>
       <value>0</value>
       <type>real</type>
+      <hide>part</hide>
   </param>
-
-  <param>
-      <name>IQ Balance Correction</name>
-      <key>balance</key>
-      <type>complex</type>
-  </param>
-
+  
   <param>
       <name>Clock Source</name>
       <key>clock_source</key>
       <type>string</type>
+      <hide>part</hide>
   </param>
 
   <param>
@@ -93,10 +318,758 @@
     <key>dev</key>
     <type>string</type>
   </param>
+	<param>
+		<name>Ch0: Center Freq (Hz)</name>
+		<key>center_freq0</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 0 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch0: Gain Value</name>
+		<key>gain0</key>
+		<value>0</value>
+		<type>float</type>
+		<hide>#if $nchan() > 0 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+    	<name>Ch0: Automatic Gain</name>
+    	<key>gain_auto_mode0</key>
+    	<value>False</value>
+    	<type>bool</type>
+    	<hide>#if $nchan() > 0 then 'part' else 'all'#</hide>
+    	<tab>RF Options</tab>
+    </param>
+	<param>
+		<name>Ch0: Antenna</name>
+		<key>ant0</key>
+		<value></value>
+		<type>string</type>
+		<hide>#if $nchan() > 0 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch0: Bandwidth (Hz)</name>
+		<key>bw0</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	  <param>
+      <name>Ch0: DC Offset</name>
+      <key>dc_offset0</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+
+  <param>
+      <name>Ch0: Automatic DC Offset Mode</name>
+      <key>dc_offset_auto_mode0</key>
+      <value>False</value>
+      <type>bool</type>
+      <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
   
+  <param>
+      <name>Ch0: Frequency Correction</name>
+      <key>correction0</key>
+      <value>0</value>
+      <type>real</type>
+      <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch0: IQ Balance Correction</name>
+      <key>balance0</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+	<param>
+		<name>Ch1: Center Freq (Hz)</name>
+		<key>center_freq1</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 1 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch1: Gain Value</name>
+		<key>gain1</key>
+		<value>0</value>
+		<type>float</type>
+		<hide>#if $nchan() > 1 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+    	<name>Ch1: Automatic Gain</name>
+    	<key>gain_auto_mode1</key>
+    	<value>False</value>
+    	<type>bool</type>
+    	<hide>#if $nchan() > 1 then 'part' else 'all'#</hide>
+    	<tab>RF Options</tab>
+    </param>
+	<param>
+		<name>Ch1: Antenna</name>
+		<key>ant1</key>
+		<value></value>
+		<type>string</type>
+		<hide>#if $nchan() > 1 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch1: Bandwidth (Hz)</name>
+		<key>bw1</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 1 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	  <param>
+      <name>Ch1: DC Offset</name>
+      <key>dc_offset1</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 1 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+
+  <param>
+      <name>Ch1: Automatic DC Offset Mode</name>
+      <key>dc_offset_auto_mode1</key>
+      <value>False</value>
+      <type>bool</type>
+      <hide>#if $nchan() > 1 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch1: Frequency Correction</name>
+      <key>correction1</key>
+      <value>0</value>
+      <type>real</type>
+      <hide>#if $nchan() > 1 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch1: IQ Balance Correction</name>
+      <key>balance1</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 1 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+    </param>
+	<param>
+		<name>Ch2: Center Freq (Hz)</name>
+		<key>center_freq2</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 2 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch2: Gain Value</name>
+		<key>gain2</key>
+		<value>0</value>
+		<type>float</type>
+		<hide>#if $nchan() > 2 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+    	<name>Ch2: Automatic Gain</name>
+    	<key>gain_auto_mode2</key>
+    	<value>False</value>
+    	<type>bool</type>
+    	<hide>#if $nchan() > 2 then 'part' else 'all'#</hide>
+    	<tab>RF Options</tab>
+    </param>
+	<param>
+		<name>Ch2: Antenna</name>
+		<key>ant2</key>
+		<value></value>
+		<type>string</type>
+		<hide>#if $nchan() > 2 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch2: Bandwidth (Hz)</name>
+		<key>bw2</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 2 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	  <param>
+      <name>Ch2: DC Offset</name>
+      <key>dc_offset2</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 2 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+
+  <param>
+      <name>Ch2: Automatic DC Offset Mode</name>
+      <key>dc_offset_auto_mode2</key>
+      <value>False</value>
+      <type>bool</type>
+      <hide>#if $nchan() > 2 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch2: Frequency Correction</name>
+      <key>correction2</key>
+      <value>0</value>
+      <type>real</type>
+      <hide>#if $nchan() > 2 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch2: IQ Balance Correction</name>
+      <key>balance2</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 2 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+    </param>
+	<param>
+		<name>Ch3: Center Freq (Hz)</name>
+		<key>center_freq3</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 3 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch3: Gain Value</name>
+		<key>gain3</key>
+		<value>0</value>
+		<type>float</type>
+		<hide>#if $nchan() > 3 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+    	<name>Ch3: Automatic Gain</name>
+    	<key>gain_auto_mode3</key>
+    	<value>False</value>
+    	<type>bool</type>
+    	<hide>#if $nchan() > 3 then 'part' else 'all'#</hide>
+    	<tab>RF Options</tab>
+    </param>
+	<param>
+		<name>Ch3: Antenna</name>
+		<key>ant3</key>
+		<value></value>
+		<type>string</type>
+		<hide>#if $nchan() > 3 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch3: Bandwidth (Hz)</name>
+		<key>bw3</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 3 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+  <param>
+      <name>Ch3: DC Offset</name>
+      <key>dc_offset3</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 3 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+
+  <param>
+      <name>Ch3: Automatic DC Offset Mode</name>
+      <key>dc_offset_auto_mode3</key>
+      <value>False</value>
+      <type>bool</type>
+      <hide>#if $nchan() > 3 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch3: Frequency Correction</name>
+      <key>correction3</key>
+      <value>0</value>
+      <type>real</type>
+      <hide>#if $nchan() > 3 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch3: IQ Balance Correction</name>
+      <key>balance3</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 3 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+    </param>
+	<param>
+		<name>Ch4: Center Freq (Hz)</name>
+		<key>center_freq4</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 4 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch4: Gain Value</name>
+		<key>gain4</key>
+		<value>0</value>
+		<type>float</type>
+		<hide>#if $nchan() > 4 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+    	<name>Ch4: Automatic Gain</name>
+    	<key>gain_auto_mode4</key>
+    	<value>False</value>
+    	<type>bool</type>
+    	<hide>#if $nchan() > 4 then 'part' else 'all'#</hide>
+    	<tab>RF Options</tab>
+    </param>
+	<param>
+		<name>Ch4: Antenna</name>
+		<key>ant4</key>
+		<value></value>
+		<type>string</type>
+		<hide>#if $nchan() > 4 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch4: Bandwidth (Hz)</name>
+		<key>bw4</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 4 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	  <param>
+      <name>Ch4: DC Offset</name>
+      <key>dc_offset4</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 4 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+
+  <param>
+      <name>Ch4: Automatic DC Offset Mode</name>
+      <key>dc_offset_auto_mode4</key>
+      <value>False</value>
+      <type>bool</type>
+      <hide>#if $nchan() > 4 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch4: Frequency Correction</name>
+      <key>correction4</key>
+      <value>0</value>
+      <type>real</type>
+      <hide>#if $nchan() > 4 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch4: IQ Balance Correction</name>
+      <key>balance4</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 4 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+   </param>
+	<param>
+		<name>Ch5: Center Freq (Hz)</name>
+		<key>center_freq5</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 5 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch5: Gain Value</name>
+		<key>gain5</key>
+		<value>0</value>
+		<type>float</type>
+		<hide>#if $nchan() > 5 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+    	<name>Ch5: Automatic Gain</name>
+    	<key>gain_auto_mode5</key>
+    	<value>False</value>
+    	<type>bool</type>
+    	<hide>#if $nchan() > 5 then 'part' else 'all'#</hide>
+    	<tab>RF Options</tab>
+    </param>
+	<param>
+		<name>Ch5: Antenna</name>
+		<key>ant5</key>
+		<value></value>
+		<type>string</type>
+		<hide>#if $nchan() > 5 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch5: Bandwidth (Hz)</name>
+		<key>bw5</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 5 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	  <param>
+      <name>Ch5: DC Offset</name>
+      <key>dc_offset5</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 5 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+
+  <param>
+      <name>Ch5: Automatic DC Offset Mode</name>
+      <key>dc_offset_auto_mode5</key>
+      <value>False</value>
+      <type>bool</type>
+      <hide>#if $nchan() > 5 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch5: Frequency Correction</name>
+      <key>correction5</key>
+      <value>0</value>
+      <type>real</type>
+      <hide>#if $nchan() > 5 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch5: IQ Balance Correction</name>
+      <key>balance5</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 5 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+	<param>
+		<name>Ch6: Center Freq (Hz)</name>
+		<key>center_freq6</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 6 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch6: Gain Value</name>
+		<key>gain6</key>
+		<value>0</value>
+		<type>float</type>
+		<hide>#if $nchan() > 6 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+    	<name>Ch6: Automatic Gain</name>
+    	<key>gain_auto_mode6</key>
+    	<value>False</value>
+    	<type>bool</type>
+    	<hide>#if $nchan() > 6 then 'part' else 'all'#</hide>
+    </param>
+	<param>
+		<name>Ch6: Antenna</name>
+		<key>ant6</key>
+		<value></value>
+		<type>string</type>
+		<hide>#if $nchan() > 6 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch6: Bandwidth (Hz)</name>
+		<key>bw6</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 6 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	  <param>
+      <name>Ch6: DC Offset</name>
+      <key>dc_offset6</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 6 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+
+  <param>
+      <name>Ch6: Automatic DC Offset Mode</name>
+      <key>dc_offset_auto_mode6</key>
+      <value>False</value>
+      <type>bool</type>
+      <hide>#if $nchan() > 6 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch6: Frequency Correction</name>
+      <key>correction6</key>
+      <value>0</value>
+      <type>real</type>
+      <hide>#if $nchan() > 6 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch6: IQ Balance Correction</name>
+      <key>balance6</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 6 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+	<param>
+		<name>Ch7: Center Freq (Hz)</name>
+		<key>center_freq7</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 7 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch7: Gain Value</name>
+		<key>gain7</key>
+		<value>0</value>
+		<type>float</type>
+		<hide>#if $nchan() > 7 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+    	<name>Ch7: Automatic Gain</name>
+    	<key>gain_auto_mode7</key>
+    	<value>False</value>
+    	<type>bool</type>
+    	<hide>#if $nchan() > 7 then 'part' else 'all'#</hide>
+    </param>
+	<param>
+		<name>Ch7: Antenna</name>
+		<key>ant7</key>
+		<value></value>
+		<type>string</type>
+		<hide>#if $nchan() > 7 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch7: Bandwidth (Hz)</name>
+		<key>bw7</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 7 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	  <param>
+      <name>Ch7: DC Offset</name>
+      <key>dc_offset7</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 7 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+
+  <param>
+      <name>Ch7: Automatic DC Offset Mode</name>
+      <key>dc_offset_auto_mode7</key>
+      <value>False</value>
+      <type>bool</type>
+      <hide>#if $nchan() > 7 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch7: Frequency Correction</name>
+      <key>correction7</key>
+      <value>0</value>
+      <type>real</type>
+      <hide>#if $nchan() > 7 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch7: IQ Balance Correction</name>
+      <key>balance7</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 7 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+	<param>
+		<name>Ch8: Center Freq (Hz)</name>
+		<key>center_freq8</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 8 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch8: Gain Value</name>
+		<key>gain8</key>
+		<value>0</value>
+		<type>float</type>
+		<hide>#if $nchan() > 8 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+    	<name>Ch8: Automatic Gain</name>
+    	<key>gain_auto_mode8</key>
+    	<value>False</value>
+    	<type>bool</type>
+    	<hide>#if $nchan() > 8 then 'none' else 'all'#</hide>
+    </param>
+	<param>
+		<name>Ch8: Antenna</name>
+		<key>ant8</key>
+		<value></value>
+		<type>string</type>
+		<hide>#if $nchan() > 8 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch8: Bandwidth (Hz)</name>
+		<key>bw8</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 8 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	  <param>
+      <name>Ch8: DC Offset</name>
+      <key>dc_offset8</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 8 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+
+  <param>
+      <name>Ch8: Automatic DC Offset Mode</name>
+      <key>dc_offset_auto_mode8</key>
+      <value>False</value>
+      <type>bool</type>
+      <hide>#if $nchan() > 8 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch8: Frequency Correction</name>
+      <key>correction8</key>
+      <value>0</value>
+      <type>real</type>
+      <hide>#if $nchan() > 8 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch8: IQ Balance Correction</name>
+      <key>balance8</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 8 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+	<param>
+		<name>Ch9: Center Freq (Hz)</name>
+		<key>center_freq9</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 9 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch9: Gain Value</name>
+		<key>gain9</key>
+		<value>0</value>
+		<type>float</type>
+		<hide>#if $nchan() > 9 then 'none' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+    	<name>Ch9: Automatic Gain</name>
+    	<key>gain_auto_mode9</key>
+    	<value>False</value>
+    	<type>bool</type>
+    	<hide>#if $nchan() > 9 then 'part' else 'all'#</hide>
+    </param>
+	<param>
+		<name>Ch9: Antenna</name>
+		<key>ant9</key>
+		<value></value>
+		<type>string</type>
+		<hide>#if $nchan() > 9 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Ch9: Bandwidth (Hz)</name>
+		<key>bw9</key>
+		<value>0</value>
+		<type>real</type>
+		<hide>#if $nchan() > 9 then 'part' else 'all'#</hide>
+		<tab>RF Options</tab>
+	</param>
+	  <param>
+      <name>Ch9: DC Offset</name>
+      <key>dc_offset9</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 9 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+
+  <param>
+      <name>Ch9: Automatic DC Offset Mode</name>
+      <key>dc_offset_auto_mode9</key>
+      <value>False</value>
+      <type>bool</type>
+      <hide>#if $nchan() > 9 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch9: Frequency Correction</name>
+      <key>correction9</key>
+      <value>0</value>
+      <type>real</type>
+      <hide>#if $nchan() > 9 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+  
+  <param>
+      <name>Ch9: IQ Balance Correction</name>
+      <key>balance9</key>
+      <value>0</value>
+      <type>complex</type>
+      <hide>#if $nchan() > 9 then then 'part' else 'all'#</hide>
+      <tab>Corrections</tab>
+  </param>
+	<check>10 >= $nchan</check>
+	<check>$nchan > 0</check>
   <sink>
     <name>in</name>
     <type>complex</type>
+    <nports> $nchan</nports>
   </sink>
   
   <sink>
@@ -104,5 +1077,4 @@
     <type>message</type>
     <optional>1</optional>
   </sink>
-  
 </block>

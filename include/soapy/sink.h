@@ -29,6 +29,7 @@
 namespace gr {
   namespace soapy {
 
+
     /*!
      * \brief Sink block implements SoapySDR functionality for TX
      * \ingroup soapy
@@ -56,31 +57,38 @@ namespace gr {
        * constructor is in a private implementation
        * class. soapy::sink::make is the public interface for
        * creating new instances.
-       * @param frequency center frequency in Hz
-       * @param gain amplification value in dB
-       * @param sampling_rate samples per second
-       * @param bandwidth the baseband filter width in Hz
-       * @param antenna name of an available antenna
-       * @param channel an available channel on the device
-       * @param dc_offset the relative correction (1.0 max)
-       * @param dc_offset_mode true for automatic correction
-       * @param gain_auto_mode true for automatic gain control
-       * @param frequency_correction the correction value in PPM
-       * @param iq_balance the relative correction (1.0 max)
-       * @param clock_source the name of clock source
+       * @param nchan number of channels
        * @param device the device driver and type
+       *
+       * Driver name can be any of "uhd", "lime", "airspy",
+       * "rtlsdr" or others
        */
-      static sptr make(float frequency, float gain, float sampling_rate,
-                       float bandwidth, const std::string antenna,
-                       size_t channel, gr_complexd dc_offset,
-                       bool dc_offset_mode, bool gain_auto_mode, double frequency_correction,
-                       gr_complexd iq_balance, const std::string clock_source,
-                       const std::string device);
+      static sptr make(size_t nchan, const std::string device);
 
       /* Callbacks for source fields */
       virtual void set_gain(size_t channel, float gain) = 0;
 
       virtual void set_frequency(size_t channel, float freq) = 0;
+
+      virtual void set_gain_mode(size_t channel, float gain, bool gain_auto_mode) = 0;
+
+      virtual void set_sample_rate(size_t channel, float sample_rate) = 0;
+
+      virtual void set_bandwidth(size_t channel, float bandwidth) = 0;
+
+      virtual void set_antenna(size_t channel, const std::string &name) = 0;
+
+      virtual void set_dc_offset(size_t channel, gr_complexd dc_offset, bool dc_offset_auto_mode) = 0;
+
+      virtual void set_dc_offset_mode(size_t channel, bool dc_offset_auto_mode) = 0;
+
+      virtual void set_frequency_correction(size_t channel, double freq_correction) = 0;
+
+      virtual void set_iq_balance(size_t channel, gr_complexd iq_balance) = 0;
+
+      virtual void set_master_clock_rate(double clock_rate) = 0;
+
+      virtual void set_clock_source(const std::string &clock_source) = 0;
     };
 
   } // namespace soapy
