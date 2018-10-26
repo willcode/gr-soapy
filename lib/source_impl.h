@@ -69,7 +69,7 @@ namespace gr {
       std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
 
      public:
-      source_impl(size_t nchan, const std::string device);
+      source_impl(size_t nchan, const std::string device, float sampling_rate);
       ~source_impl();
 
       // Where all the action really happens
@@ -115,13 +115,21 @@ namespace gr {
       void set_gain(size_t channel, float gain);
 
       /*!
+       * Set the value for the specified gain for the specified TX chain.
+       * \param channel an available channel on the device
+       * \param name an available gain on the device
+       * \param gain gain the new amplification value in dB
+       */
+      void set_gain(size_t channel, const std::string name, float gain);
+
+      /*!
        * Set the automatic gain mode for the specified chain if supported.
        * If not supported set gain value manually.
        * \param channel an available channel on the device
        * \param gain the new amplification value in dB
        * \param gain_auto_mode true for automatic gain mode
        */
-      void set_gain_mode(size_t channel, float gain, bool gain_auto_mode);
+      void set_gain_mode(size_t channel, bool gain_auto_mode);
 
       /*!
        * Set the baseband sample rate for the RX chain.

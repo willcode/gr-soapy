@@ -38,27 +38,29 @@ namespace gr
   namespace soapy
   {
     source::sptr
-    source::make (size_t nchan,const std::string device)
+    source::make (size_t nchan, const std::string device, float sampling_rate)
     {
-      return gnuradio::get_initial_sptr (
-          new source_impl (nchan, device));
+      return gnuradio::get_initial_sptr (new source_impl (nchan, device, sampling_rate));
     }
 
     /*
      * The private constructor
      */
-    source_impl::source_impl (size_t nchan, const std::string device) :
-            gr::sync_block ("source", gr::io_signature::make (0, 0, 0),
-                            gr::io_signature::make (nchan, nchan, sizeof(gr_complex))),
+    source_impl::source_impl (size_t nchan, const std::string device, float sampling_rate) :
+            gr::sync_block (
+                "source", gr::io_signature::make (0, 0, 0),
+                gr::io_signature::make (nchan, nchan, sizeof(gr_complex))),
             d_mtu (0),
             d_message_port (pmt::mp ("command")),
-            d_nchan (nchan)
+            d_nchan (nchan),
+            d_sampling_rate (sampling_rate)
     {
       makeDevice (device);
       std::vector<size_t> channs;
-      channs.resize(d_nchan);
-      for(int i=0; i< d_nchan; i++){
+      channs.resize (d_nchan);
+      for (int i = 0; i < d_nchan; i++) {
         channs[i] = i;
+        set_sample_rate (i, d_sampling_rate);
       }
       d_stream = d_device->setupStream (SOAPY_SDR_RX, "CF32", channs);
       d_device->activateStream (d_stream);
@@ -135,21 +137,20 @@ namespace gr
     void
     source_impl::set_gain (size_t channel, float gain)
     {
-      /* User can change gain only if gain mode is not set to automatic */
-      if (!d_gain_auto_mode) {
-        d_device->setGain (SOAPY_SDR_RX, channel, gain);
-        d_gain = gain;
-      }
+      d_device->setGain (SOAPY_SDR_RX, channel, gain);
+      d_gain = d_device->getGain (SOAPY_SDR_RX, channel);
     }
 
     void
-    source_impl::set_gain_mode (size_t channel, float gain,
-                                bool gain_auto_mode)
+    source_impl::set_gain (size_t channel, const std::string name, float gain)
     {
-      /* If user specifies no automatic gain setting set gain value */
-      if (!gain_auto_mode) {
-        d_device->setGain (SOAPY_SDR_RX, channel, gain);
-      }
+      d_device->setGain (SOAPY_SDR_RX, channel, name, gain);
+      d_gain = d_device->getGain (SOAPY_SDR_RX, channel);
+    }
+
+    void
+    source_impl::set_gain_mode (size_t channel, bool gain_auto_mode)
+    {
       d_device->setGainMode (SOAPY_SDR_RX, channel, gain_auto_mode);
     }
 

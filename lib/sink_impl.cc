@@ -39,30 +39,35 @@ namespace gr
   {
 
     sink::sptr
-    sink::make (size_t nchan,const std::string device)
+    sink::make (size_t nchan, const std::string device, float sampling_rate)
     {
       return gnuradio::get_initial_sptr (
-          new sink_impl (nchan, device));
+          new sink_impl (nchan, device, sampling_rate));
     }
 
     /*
      * The private constructor
      */
-    sink_impl::sink_impl (size_t nchan, const std::string device) :
-            gr::sync_block ("sink",
-                            gr::io_signature::make (nchan, nchan, sizeof(gr_complex)),
-                            gr::io_signature::make (0, 0, 0)),
+    sink_impl::sink_impl (size_t nchan, const std::string device,
+                          float sampling_rate) :
+            gr::sync_block (
+                "sink",
+                gr::io_signature::make (nchan, nchan, sizeof(gr_complex)),
+                gr::io_signature::make (0, 0, 0)),
             d_mtu (0),
             d_message_port (pmt::mp ("command")),
-            d_nchan (nchan)
+            d_nchan (nchan),
+            d_sampling_rate (sampling_rate)
     {
       makeDevice (device);
       std::vector<size_t> channs;
-      channs.resize(d_nchan);
-      for(int i=0; i< d_nchan; i++){
+      channs.resize (d_nchan);
+      for (int i = 0; i < d_nchan; i++) {
         channs[i] = i;
+        set_sample_rate (i, d_sampling_rate);
       }
-      d_stream = d_device->setupStream (SOAPY_SDR_TX, "CF32",channs);
+
+      d_stream = d_device->setupStream (SOAPY_SDR_TX, "CF32", channs);
       d_device->activateStream (d_stream);
       d_mtu = d_device->getStreamMTU (d_stream);
       d_bufs.resize (d_nchan);
@@ -85,6 +90,7 @@ namespace gr
       register_msg_cmd_handler (
           CMD_ANTENNA_KEY,
           boost::bind (&sink_impl::cmd_handler_antenna, this, _1, _2));
+
     }
 
     /*
@@ -138,16 +144,19 @@ namespace gr
     sink_impl::set_gain (size_t channel, float gain)
     {
       d_device->setGain (SOAPY_SDR_TX, channel, gain);
+      d_gain = d_device->getGain (SOAPY_SDR_TX, channel);
     }
 
     void
-    sink_impl::set_gain_mode (size_t channel, float gain,
-                              bool gain_auto_mode)
+    sink_impl::set_gain (size_t channel, const std::string name, float gain)
     {
-      /* If user specifies no automatic gain setting set gain value */
-      if (!gain_auto_mode) {
-        d_device->setGain (SOAPY_SDR_TX, channel, gain);
-      }
+      d_device->setGain (SOAPY_SDR_TX, channel, name, gain);
+      d_gain = d_device->getGain (SOAPY_SDR_TX, channel);
+    }
+
+    void
+    sink_impl::set_gain_mode (size_t channel, bool gain_auto_mode)
+    {
       d_device->setGainMode (SOAPY_SDR_TX, channel, gain_auto_mode);
     }
 
