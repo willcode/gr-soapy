@@ -38,23 +38,32 @@ namespace gr
   namespace soapy
   {
     source::sptr
-    source::make (size_t nchan, const std::string device, float sampling_rate)
+    source::make (size_t nchan,const std::string device, float sampling_rate, const std::string type)
     {
-      return gnuradio::get_initial_sptr (new source_impl (nchan, device, sampling_rate));
+      return gnuradio::get_initial_sptr (new source_impl (nchan, device, sampling_rate, type));
     }
 
     /*
      * The private constructor
      */
-    source_impl::source_impl (size_t nchan, const std::string device, float sampling_rate) :
-            gr::sync_block (
-                "source", gr::io_signature::make (0, 0, 0),
-                gr::io_signature::make (nchan, nchan, sizeof(gr_complex))),
+    source_impl::source_impl (size_t nchan, const std::string device, float sampling_rate, const std::string type) :
+            gr::sync_block ("source",
+                            gr::io_signature::make (0, 0, 0),
+                            args_to_io_sig(type,nchan)),
             d_mtu (0),
             d_message_port (pmt::mp ("command")),
             d_nchan (nchan),
-            d_sampling_rate (sampling_rate)
+            d_type(type),
+            d_sampling_rate(sampling_rate)
     {
+      if (type == "fc32") {
+        d_type_size = 8;
+        d_type = "CF32";
+      }
+      if (type == "s16") {
+        d_type_size = 2;
+        d_type = "S16";
+      }
       makeDevice (device);
       std::vector<size_t> channs;
       channs.resize (d_nchan);
@@ -62,7 +71,7 @@ namespace gr
         channs[i] = i;
         set_sample_rate (i, d_sampling_rate);
       }
-      d_stream = d_device->setupStream (SOAPY_SDR_RX, "CF32", channs);
+      d_stream = d_device->setupStream (SOAPY_SDR_RX, d_type, channs);
       d_device->activateStream (d_stream);
       d_mtu = d_device->getStreamMTU (d_stream);
       d_bufs.resize (d_nchan);
@@ -348,7 +357,7 @@ namespace gr
                        gr_vector_void_star &output_items)
     {
       for (uint8_t chan = 0; chan < d_nchan; chan++) {
-        d_bufs[chan] = (gr_complex*) output_items[chan];
+        d_bufs[chan] = output_items[chan];
       }
       int flags = 0;
       long long timeNs = 0;
@@ -366,7 +375,7 @@ namespace gr
                                        flags, timeNs, long (1e6));
         }
         for (uint8_t chan = 0; chan < d_nchan; chan++) {
-          d_bufs[chan] += read * sizeof(gr_complex);
+          d_bufs[chan] += read * d_type_size;
         }
         index += read;
       }

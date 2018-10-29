@@ -6,7 +6,7 @@
   <import>import soapy</import>
 
  <make>\
-  soapy.source($nchan, $dev, $samp_rate)
+  soapy.source($nchan, $dev, $samp_rate, "$type")
 
   <!-- Set clock rate and clock source if available -->
   #if $clock_rate()
@@ -139,8 +139,24 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <type>string</type>
   <hide>part</hide>
  </param>
-
+	<param>
+		<name>Output Type</name>
+		<key>type</key>
+		<type>enum</type>
+		<option>
+			<name>Complex float32</name>
+			<key>fc32</key>
+			<opt>type:fc32</opt>
+		</option>
+		<option>
+			<name>int16</name>
+			<key>s16</key>
+			<opt>type:s16</opt>
+		</option>
+	</param>
  <!-- Channel 0 params -->
+    
+
  <param>
   <name>Ch0: Center Freq (Hz)</name>
   <key>center_freq0</key>
@@ -247,7 +263,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
   <tab>Corrections</tab>
  </param>
-
+	
  <param>
   <name>Ch0: Automatic DC Offset Mode</name>
   <key>dc_offset_auto_mode0</key>
@@ -466,7 +482,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   
   <source>
     <name>out</name>
-    <type>complex</type>
+    <type>$type.type</type>
     <nports>$nchan</nports>
   </source>
 </block>

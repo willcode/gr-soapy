@@ -64,7 +64,7 @@ namespace gr {
        * Driver name can be any of "uhd", "lime", "airspy",
        * "rtlsdr" or others
        */
-      static sptr make(size_t nchan, const std::string device, float sampling_rate);
+      static sptr make(size_t nchan, const std::string device, float sampling_rate, const std::string type);
 
       /* Callbacks for source fields */
       virtual void set_gain(size_t channel, float gain) = 0;

@@ -39,26 +39,34 @@ namespace gr
   {
 
     sink::sptr
-    sink::make (size_t nchan, const std::string device, float sampling_rate)
+    sink::make (size_t nchan, const std::string device, float sampling_rate, std::string type)
     {
       return gnuradio::get_initial_sptr (
-          new sink_impl (nchan, device, sampling_rate));
+          new sink_impl (nchan, device, sampling_rate, type));
     }
 
     /*
      * The private constructor
      */
     sink_impl::sink_impl (size_t nchan, const std::string device,
-                          float sampling_rate) :
-            gr::sync_block (
-                "sink",
-                gr::io_signature::make (nchan, nchan, sizeof(gr_complex)),
+                          float sampling_rate, const std::string type) :
+    gr::sync_block ("sink",
+                args_to_io_sig(type,nchan),
                 gr::io_signature::make (0, 0, 0)),
             d_mtu (0),
             d_message_port (pmt::mp ("command")),
             d_nchan (nchan),
-            d_sampling_rate (sampling_rate)
+            d_type(type),
+            d_sampling_rate(sampling_rate)
     {
+      if (type == "fc32") {
+        d_type_size = 8;
+        d_type = "CF32";
+      }
+      if (type == "s16") {
+        d_type_size = 2;
+        d_type = "S16";
+      }
       makeDevice (device);
       std::vector<size_t> channs;
       channs.resize (d_nchan);
@@ -350,7 +358,7 @@ namespace gr
     {
       int ninput_items = noutput_items;
       for (uint8_t chan = 0; chan < d_nchan; chan++) {
-        d_bufs[chan] = (gr_complex*) input_items[chan];
+        d_bufs[chan] = input_items[chan];
       }
       int flags = 0;
       long long timeNs = 0;
@@ -362,7 +370,7 @@ namespace gr
                                        timeNs, long (1e6));
         total_samples -= write;
         for (uint8_t chan = 0; chan < d_nchan; chan++) {
-          d_bufs[chan] += write * sizeof(gr_complex);
+          d_bufs[chan] += write * d_type_size;
         }
       }
       /* If total_samples < MTU write total_samples to device */
