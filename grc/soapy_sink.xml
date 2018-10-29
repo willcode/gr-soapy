@@ -3,6 +3,7 @@
  <name>Soapy Sink</name>
  <key>soapy_sink</key>
  <category>[soapy]</category>
+ <flags>throttle</flags>
  <import>import soapy</import>
 
  <make>\
@@ -48,7 +49,7 @@ self.$(id).set_antenna($i, $antenna_array[$i])
   #if $bandwidth_array[$i]()
 self.$(id).set_bandwidth($i, $bandwidth_array[$i])
   #end if
-  #if str($dc_auto_array[$i]) == 'False' and $dc_auto_array[$i]() != 0
+  #if str($dc_auto_array[$i]) == 'False' and $dc_offset_array[$i]() != 0
 self.$(id).set_dc_offset($i, $dc_offset_array[$i], $dc_auto_array[$i])
   #else if str($dc_auto_array[$i]) == 'True'
 self.$(id).set_dc_offset_mode($i, $dc_auto_array[$i])
@@ -234,7 +235,21 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <key>gain_auto_mode0</key>
   <value>False</value>
   <type>bool</type>
-  <hide>#if $nchan() > 0 then 'part' else 'all'#</hide>
+  <hide>
+  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <option>
+    <name>False</name>
+    <key>False</key>
+  </option>
+  <option>
+    <name>True</name>
+    <key>True</key>
+  </option>
   <tab>RF Options</tab>
  </param>
 
@@ -252,7 +267,29 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <key>bw0</key>
   <value>0</value>
   <type>real</type>
-  <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
+  <hide>#if $nchan() > 0 then 'part' else 'all'#</hide>
+  <tab>RF Options</tab>
+ </param>
+
+ <param>
+  <name>Ch0: Automatic DC Offset Mode</name>
+  <key>dc_offset_auto_mode0</key>
+  <type>bool</type>
+  <hide>
+  #if ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <option>
+    <name>False</name>
+    <key>False</key>
+  </option>
+  <option>
+    <name>True</name>
+    <key>True</key>
+  </option>
   <tab>RF Options</tab>
  </param>
 
@@ -261,17 +298,16 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <key>dc_offset0</key>
   <value>0</value>
   <type>complex</type>
-  <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
- </param>
-
- <param>
-  <name>Ch0: Automatic DC Offset Mode</name>
-  <key>dc_offset_auto_mode0</key>
-  <value>False</value>
-  <type>bool</type>
-  <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
+  <hide>
+  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr'
+    all
+  #else if $dc_offset_auto_mode0() == True
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <tab>RF Options</tab>
  </param>
 
  <param>
@@ -279,8 +315,14 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <key>correction0</key>
   <value>0</value>
   <type>real</type>
-  <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
+  <hide>
+  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <tab>RF Options</tab>
  </param>
 
  <param>
@@ -288,8 +330,14 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <key>balance0</key>
   <value>0</value>
   <type>complex</type>
-  <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
+  <hide>
+  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <tab>RF Options</tab>
  </param>
 
  <!-- Channel 1 params -->
@@ -309,9 +357,9 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>real</type>
   <hide>
-    #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or $nchan() &lt; 2
-      all
-    #end if
+  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or $nchan() &lt; 2
+    all
+  #end if
   </hide>
  <tab>RF Options</tab>
  </param>
@@ -323,11 +371,11 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if (($dev().split(',')[0]) == 'driver=uhd') and $nchan() >1
+  #if (($dev().split(',')[0]) == 'driver=uhd') and $nchan() >1
     none
-   #else
+  #else
     all
-   #end if
+  #end if
   </hide>
   <tab>RF Options</tab>
  </param>
@@ -339,11 +387,11 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if ($dev().split(',')[0]) == 'driver=lime' and $nchan() >1
+  #if ($dev().split(',')[0]) == 'driver=lime' and $nchan() >1
     none
-   #else
+  #else
     all
-   #end if
+  #end if
   </hide>
   <tab>RF Options</tab>
  </param>
@@ -355,11 +403,11 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if ($dev().split(',')[0]) == 'driver=lime' and $nchan() >1
+  #if ($dev().split(',')[0]) == 'driver=lime' and $nchan() >1
     none
-   #else
+  #else
     all
-   #end if
+  #end if
   </hide>
   <tab>RF Options</tab>
  </param>
@@ -369,7 +417,15 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <key>gain_auto_mode1</key>
   <value>False</value>
   <type>bool</type>
-  <hide>#if $nchan() > 1 then 'part' else 'all'#</hide>
+  <hide>
+  #if $nchan() &lt;= 1
+    all
+  #else if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
   <tab>RF Options</tab>
  </param>
 
@@ -392,21 +448,47 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
  </param>
 
  <param>
-  <name>Ch1: DC Offset</name>
-  <key>dc_offset1</key>
-  <value>0</value>
-  <type>complex</type>
-  <hide>#if $nchan() > 1 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
- </param>
-
- <param>
   <name>Ch1: Automatic DC Offset Mode</name>
   <key>dc_offset_auto_mode1</key>
   <value>False</value>
   <type>bool</type>
-  <hide>#if $nchan() > 1 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
+  <hide>
+  #if $nchan() &lt;= 1
+    all 
+  #else if ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr'
+    all
+  #else
+    part
+  #end if 
+  </hide>
+  <option>
+    <name>False</name>
+    <key>False</key>
+  </option>
+  <option>
+    <name>True</name>
+    <key>True</key>
+  </option>
+  <tab>RF Options</tab>
+ </param>
+ 
+ <param>
+  <name>Ch1: DC Offset</name>
+  <key>dc_offset1</key>
+  <value>0</value>
+  <type>complex</type>
+  <hide>
+  #if $nchan() &lt;= 1
+    all
+  #else if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr'
+    all
+  #else if $dc_offset_auto_mode0() == True
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <tab>RF Options</tab>
  </param>
 
  <param>
@@ -414,8 +496,16 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <key>correction1</key>
   <value>0</value>
   <type>real</type>
-  <hide>#if $nchan() > 1 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
+  <hide>
+  #if $nchan() &lt;= 1 
+    all
+  #else if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr'
+    all
+  #else
+    part
+  #end if 
+  </hide>
+  <tab>RF Options</tab>
  </param>
 
  <param>
@@ -423,8 +513,16 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <key>balance1</key>
   <value>0</value>
   <type>complex</type>
-  <hide>#if $nchan() > 1 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
+  <hide>
+  #if $nchan() &lt;= 1
+    all  
+  #else if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <tab>RF Options</tab>
  </param>
 
  <!-- Check number of channels -->
@@ -443,7 +541,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   #if ($dev().split(',')[0]) == 'driver=uhd'
   89.75 >= $pga_gain0 >= 0\
   #else if ($dev().split(',')[0]) == 'driver=plutosdr'
-  89 >= $pga_gain0 >= 0\
+  89 >= $pga_gain0 >= -89\
   #else
   0 == 0\
   #end if
