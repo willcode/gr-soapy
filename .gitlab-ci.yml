@@ -1,15 +1,16 @@
-image: debian:latest
-
-before_script:
-    - apt-get update -qq && apt-get install -y -qq libboost* libcppunit-dev swig cmake gcc gnuradio gnuradio-dev libconfig++-dev git
-
-
 stages:
-        - build
+  - debian_build
+  - suse_build
+  - ubuntu_build
 
-gr_soapy_build:
-    stage: build
-    script:
+debian_build:
+  image: debian:latest
+
+  before_script:
+      - apt-get update -qq && apt-get install -y -qq libboost* libcppunit-dev swig cmake gcc gnuradio gnuradio-dev libconfig++-dev git
+
+  stage: debian_build
+  script:         
         - git clone https://github.com/pothosware/SoapySDR.git
         - cd SoapySDR
         - mkdir build
@@ -23,3 +24,37 @@ gr_soapy_build:
         - cmake ..
         - make
         - cd ..
+
+suse_build:
+  image: opensuse/tumbleweed
+
+  before_script:
+      - zypper in -y libboost* cppunit-devel python python-devel swig cmake gcc-c++ gcc soapy-sdr soapy-sdr-devel gnuradio gnuradio-devel
+
+  stage: debian_build
+  script:
+        - mkdir -p build
+        - cd build
+        - cmake -DCMAKE_INSTALL_PREFIX=/usr -DLIB_SUFFIX=64 -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+        - make
+        - cd ..
+ubuntu_build:
+  image: ubuntu:16.04
+  
+  before_script: 
+        - apt-get update -qq -y && apt-get install -q -y libboost-all-dev libcppunit-dev swig cmake gcc gnuradio gnuradio-dev libconfig++-dev git 
+  stage: debian_build
+  script:
+        - git clone https://github.com/pothosware/SoapySDR.git
+        - cd SoapySDR
+        - mkdir build
+        - cd build
+        - cmake ..
+        - make
+        - make install
+        - cd ../..
+        - mkdir -p build
+        - cd build
+        - cmake  ..
+        - make
+  
