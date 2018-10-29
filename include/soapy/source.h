@@ -76,20 +76,23 @@ namespace gr {
        * constructor is in a private implementation
        * class. soapy::source::make is the public interface for
        * creating new instances.
-       * @param nchan number of channels
-       * @param device the device driver and type
+       * \param nchan number of channels
+       * \param device the device driver and type
+       * \param sampling_rate the sampling rate of the device
        *
        * Driver name can be any of "uhd", "lime", "airspy",
        * "rtlsdr" or others
        */
-      static sptr make(size_t nchan, const std::string device);
+      static sptr make(size_t nchan, const std::string device, float sampling_rate);
 
       /* Callbacks for source fields */
       virtual void set_gain(size_t channel, float gain) = 0;
 
+      virtual void set_gain(size_t channel, const std::string name, float gain) = 0;
+
       virtual void set_frequency(size_t channel, float freq) = 0;
 
-      virtual void set_gain_mode(size_t channel, float gain, bool gain_auto_mode) = 0;
+      virtual void set_gain_mode(size_t channel, bool gain_auto_mode) = 0;
 
       virtual void set_sample_rate(size_t channel, float sample_rate) = 0;
 
