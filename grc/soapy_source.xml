@@ -3,6 +3,7 @@
   <name>Soapy Source</name>
   <key>soapy_source</key>
   <category>[soapy]</category>
+  <flags>throttle</flags>
   <import>import soapy</import>
 
  <make>\
@@ -21,6 +22,9 @@ self.$(id).set_clock_source($clock_source)
   #set $pga_gain_array = [$pga_gain0, $pga_gain1]
   #set $lna_gain_array = [$lna_gain0, $lna_gain1]
   #set $tia_gain_array = [$tia_gain0, $tia_gain1]
+  #set $mix_gain_array = [$mix_gain0, $mix_gain1]
+  #set $vga_gain_array = [$vga_gain0, $vga_gain1]
+  #set $tuner_gain_array = [$tuner_gain0, $tuner_gain1]
   #set $gain_auto_array = [$gain_auto_mode0, $gain_auto_mode1]
   #set $antenna_array = [$ant0, $ant1]
   #set $bandwidth_array = [$bw0, $bw1]
@@ -39,6 +43,14 @@ self.$(id).set_gain($i, $overall_gain[$i])
   #if $dev().split(',')[0] == 'driver=lime'
 self.$(id).set_gain($i, 'LNA', $lna_gain_array[$i])
 self.$(id).set_gain($i, 'TIA', $tia_gain_array[$i])
+  #end if
+  #if $dev().split(',')[0] == 'driver=airspy'
+self.$(id).set_gain($i, 'LNA', $lna_gain_array[$i])
+self.$(id).set_gain($i, 'MIX', $mix_gain_array[$i])
+self.$(id).set_gain($i, 'VGA', $vga_gain_array[$i])
+  #end if
+  #if $dev().split(',')[0] == 'driver=rtlsdr'
+self.$(id).set_gain($i, 'TUNER', $tuner_gain_array[$i])
   #end if
 self.$(id).set_gain_mode($i, $gain_auto_array[$i])
   #if $antenna_array[$i]() != ''
@@ -84,6 +96,24 @@ self.$(id).set_gain(0, 'LNA', $lna_gain0)
  <callback>
   #if $dev().split(',')[0] == 'driver=lime'
 self.$(id).set_gain(0, 'TIA', $tia_gain0)
+  #end if
+ </callback>
+ <!-- Mix gain Channel 0 callback -->
+ <callback>
+  #if $dev().split(',')[0] == 'driver=airspy'
+self.$(id).set_gain(0, 'MIX', $mix_gain0)
+  #end if
+ </callback>
+  <!-- VGA gain Channel 0 callback -->
+ <callback>
+  #if $dev().split(',')[0] == 'driver=airspy'
+self.$(id).set_gain(0, 'VGA', $vga_gain0)
+  #end if
+ </callback>
+   <!-- TUNER gain Channel 0 callback -->
+ <callback>
+  #if $dev().split(',')[0] == 'driver=rtlsdr'
+self.$(id).set_gain(0, 'TUNER', $tuner_gain0)
   #end if
  </callback>
  <callback>set_antenna(0,$ant0)</callback>
@@ -173,7 +203,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>real</type>
   <hide>
-    #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime'
+    #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
       all
     #end if
   </hide>
@@ -203,7 +233,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if ($dev().split(',')[0]) == 'driver=lime'
+   #if ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy'
    none
    #else
    all
@@ -228,12 +258,74 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <tab>RF Options</tab>
  </param>
 
+ <!-- MIX Gain Channel 0 -->
+ <param>
+  <name>Ch0: MIX Gain Value</name>
+  <key>mix_gain0</key>
+  <value>0</value>
+  <type>float</type>
+  <hide>
+   #if ($dev().split(',')[0]) == 'driver=airspy'
+   none
+   #else
+   all
+   #end if
+  </hide>
+  <tab>RF Options</tab>
+ </param>
+ 
+ <!-- VGA Gain Channel 0 -->
+ <param>
+  <name>Ch0: VGA Gain Value</name>
+  <key>vga_gain0</key>
+  <value>0</value>
+  <type>float</type>
+  <hide>
+   #if ($dev().split(',')[0]) == 'driver=airspy'
+   none
+   #else
+   all
+   #end if
+  </hide>
+  <tab>RF Options</tab>
+ </param>
+ 
+  <!-- TUNER Gain Channel 0 -->
+ <param>
+  <name>Ch0: TUNER Gain Value</name>
+  <key>tuner_gain0</key>
+  <value>0</value>
+  <type>float</type>
+  <hide>
+   #if ($dev().split(',')[0]) == 'driver=rtlsdr'
+   none
+   #else
+   all
+   #end if
+  </hide>
+  <tab>RF Options</tab>
+ </param>
+ 
  <param>
   <name>Ch0: Automatic Gain</name>
   <key>gain_auto_mode0</key>
   <value>False</value>
   <type>bool</type>
-  <hide>#if $nchan() > 0 then 'part' else 'all'#</hide>
+  <hide>
+  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <option>
+    <name>False</name>
+    <key>False</key>
+  </option>
+  <option>
+    <name>True</name>
+    <key>True</key>
+  </option>
   <tab>RF Options</tab>
  </param>
 
@@ -256,21 +348,44 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
  </param>
 
  <param>
-  <name>Ch0: DC Offset</name>
-  <key>dc_offset0</key>
-  <value>0</value>
-  <type>complex</type>
-  <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
- </param>
-	
- <param>
+
   <name>Ch0: Automatic DC Offset Mode</name>
   <key>dc_offset_auto_mode0</key>
   <value>False</value>
   <type>bool</type>
-  <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
+  <hide>
+  #if ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <option>
+    <name>False</name>
+    <key>False</key>
+  </option>
+  <option>
+    <name>True</name>
+    <key>True</key>
+  </option>
+  <tab>RF Options</tab>
+ </param>
+
+ <param>
+  <name>Ch0: DC Offset</name>
+  <key>dc_offset0</key>
+  <value>0</value>
+  <type>complex</type>
+  <hide>
+  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+    all
+  #else if $dc_offset_auto_mode0() == True
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <tab>RF Options</tab>
  </param>
 
  <param>
@@ -278,8 +393,14 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <key>correction0</key>
   <value>0</value>
   <type>real</type>
-  <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
+  <hide>
+  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <tab>RF Options</tab>
  </param>
 
  <param>
@@ -287,8 +408,14 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <key>balance0</key>
   <value>0</value>
   <type>complex</type>
-  <hide>#if $nchan() > 0 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
+  <hide>
+  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <tab>RF Options</tab>
  </param>
 
  <!-- Channel 1 params -->
@@ -308,7 +435,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>real</type>
   <hide>
-    #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or $nchan() &lt; 2
+    #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr' or $nchan() &lt; 2
       all
     #end if
   </hide>
@@ -354,13 +481,56 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   </hide>
   <tab>RF Options</tab>
  </param>
+ 
+  <!-- MIX Gain Channel 1 -->
+ <param>
+  <name>Ch1: MIX Gain Value</name>
+  <key>mix_gain1</key>
+  <value>0</value>
+  <type>float</type>
+  <hide>
+  all
+  </hide>
+  <tab>RF Options</tab>
+ </param>
+
+ <!-- VGA Gain Channel 1 -->
+ <param>
+  <name>Ch1: VGA Gain Value</name>
+  <key>vga_gain1</key>
+  <value>0</value>
+  <type>float</type>
+  <hide>
+  all
+  </hide>
+  <tab>RF Options</tab>
+ </param>
+ 
+  <!-- TUNER Gain Channel 1 -->
+ <param>
+  <name>Ch1: TUNER Gain Value</name>
+  <key>tuner_gain1</key>
+  <value>0</value>
+  <type>float</type>
+  <hide>
+  all
+  </hide>
+  <tab>RF Options</tab>
+ </param>
 
  <param>
   <name>Ch1: Automatic Gain</name>
   <key>gain_auto_mode1</key>
   <value>False</value>
   <type>bool</type>
-  <hide>#if $nchan() > 1 then 'part' else 'all'#</hide>
+  <hide>
+  #if $nchan() &lt;= 1
+    all
+  #else if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+    all
+  #else
+    part
+  #end if  </hide>
   <tab>RF Options</tab>
  </param>
 
@@ -383,21 +553,47 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
  </param>
 
  <param>
-  <name>Ch1: DC Offset</name>
-  <key>dc_offset1</key>
-  <value>0</value>
-  <type>complex</type>
-  <hide>#if $nchan() > 1 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
- </param>
-
- <param>
   <name>Ch1: Automatic DC Offset Mode</name>
   <key>dc_offset_auto_mode1</key>
   <value>False</value>
   <type>bool</type>
-  <hide>#if $nchan() > 1 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
+  <hide>
+  #if $nchan() &lt;= 1
+    all 
+  #else if ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <option>
+    <name>False</name>
+    <key>False</key>
+  </option>
+  <option>
+    <name>True</name>
+    <key>True</key>
+  </option>
+  <tab>RF Options</tab>
+ </param>
+ 
+ <param>
+  <name>Ch1: DC Offset</name>
+  <key>dc_offset1</key>
+  <value>0</value>
+  <type>complex</type>
+  <hide>
+  #if $nchan() &lt;= 1
+    all
+  #else if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+    all
+  #else if $dc_offset_auto_mode0() == True
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <tab>RF Options</tab>
  </param>
 
  <param>
@@ -405,8 +601,16 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <key>correction1</key>
   <value>0</value>
   <type>real</type>
-  <hide>#if $nchan() > 1 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
+  <hide>
+  #if $nchan() &lt;= 1 
+    all
+  #else if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <tab>RF Options</tab>
  </param>
 
  <param>
@@ -414,15 +618,23 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <key>balance1</key>
   <value>0</value>
   <type>complex</type>
-  <hide>#if $nchan() > 1 then then 'part' else 'all'#</hide>
-  <tab>Corrections</tab>
+  <hide>
+  #if $nchan() &lt;= 1
+    all  
+  #else if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+    all
+  #else
+    part
+  #end if
+  </hide>
+  <tab>RF Options</tab>
  </param>
 
  <!-- Check number of channels -->
  <check>\
   #if ($dev().split(',')[0]) == 'driver=uhd'
   2 >= $nchan\
-  #else if ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime'
+  #else if ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
   1 == $nchan\
   #else
   2 >= $nchan\
@@ -446,6 +658,8 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
  <check>\
   #if ($dev().split(',')[0]) == 'driver=lime'
   30 >= $lna_gain0 >= 0\
+  #else if ($dev().split(',')[0]) == 'driver=airspy'
+  15 >= $lna_gain0 >= 0\
   #else
   0 == 0\
   #end if
@@ -459,7 +673,34 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   0 == 0\
   #end if
  </check>
-
+ 
+  <!-- Check MIX gain for Channel 0 -->
+ <check>\
+  #if ($dev().split(',')[0]) == 'driver=airspy'
+  15 >= $mix_gain0 >= 0\
+  #else
+  0 == 0\
+  #end if
+ </check>
+ 
+  <!-- Check VGA gain for Channel 0 -->
+ <check>\
+  #if ($dev().split(',')[0]) == 'driver=airspy'
+  15 >= $vga_gain0 >= 0\
+  #else
+  0 == 0\
+  #end if
+ </check>
+  
+  <!-- Check TUNER gain for Channel 0 -->
+ <check>\
+  #if ($dev().split(',')[0]) == 'driver=rtlsdr'
+  49.6 >= $tuner_gain0 >= 0\
+  #else
+  0 == 0\
+  #end if
+ </check>
+ 
  <!-- Check PGA gain for Channel 1 -->
  <check>\
   #if ($dev().split(',')[0]) == 'driver=uhd'
@@ -468,7 +709,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   0 == 0\
   #end if
  </check>
-
+ 
  <!-- Check Positive number of Channels -->
  <check>\
   $nchan > 0\
