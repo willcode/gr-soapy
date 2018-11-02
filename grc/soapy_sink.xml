@@ -397,7 +397,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>real</type>
   <hide>
-  #if (($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or $nchan() &lt; 2) and $fine_tune1()
+  #if ((($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime') and $fine_tune1()) or $nchan() &lt; 2
     all
   #end if
   </hide>
