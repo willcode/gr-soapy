@@ -222,6 +222,8 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <hide>
     #if (($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr') and $fine_tune0()
       all
+    #else if (($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy') and $gain_auto_mode0()
+      all
     #end if
   </hide>
   <tab>RF Options</tab>
@@ -234,7 +236,9 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-    #if (($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime') and $fine_tune0()
+    #if ($dev().split(',')[0]) == 'driver=plutosdr' and $gain_auto_mode0()
+      all
+    #else if (($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime') and $fine_tune0()
       none
     #else
       all
@@ -250,9 +254,11 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if (($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy') and $fine_tune0()
+   #if (($dev().split(',')[0]) == 'driver=airspy') and $gain_auto_mode0()
+    all
+   #else if (($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy') and $fine_tune0()
     none
-   #else
+   #else 
     all
    #end if
   </hide>
@@ -267,9 +273,9 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <type>float</type>
   <hide>
    #if ($dev().split(',')[0]) == 'driver=lime' and $fine_tune0()
-   none
+    none
    #else
-   all
+    all
    #end if
   </hide>
   <tab>RF Options</tab>
@@ -282,10 +288,12 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if ($dev().split(',')[0]) == 'driver=airspy' and $fine_tune0()
-   none
+   #if (($dev().split(',')[0]) == 'driver=airspy') and $gain_auto_mode0()
+    all
+   #else if ($dev().split(',')[0]) == 'driver=airspy' and $fine_tune0()
+    none
    #else
-   all
+    all
    #end if
   </hide>
   <tab>RF Options</tab>
@@ -298,10 +306,12 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if ($dev().split(',')[0]) == 'driver=airspy' and $fine_tune0()
-   none
-   #else
-   all
+    #if (($dev().split(',')[0]) == 'driver=airspy') and $gain_auto_mode0()
+      all
+    #else if ($dev().split(',')[0]) == 'driver=airspy' and $fine_tune0()
+      none
+    #else
+      all
    #end if
   </hide>
   <tab>RF Options</tab>
@@ -329,7 +339,9 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>False</value>
   <type>bool</type>
   <hide>
-  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+  #if (($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=plutosdr') and $gain_auto_mode0()
+    none
+  #else if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=rtlsdr'
     all
   #else
     part
@@ -370,7 +382,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>False</value>
   <type>bool</type>
   <hide>
-  #if ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+  #if ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
     all
   #else
     part
@@ -410,7 +422,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>real</type>
   <hide>
-  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy'
     all
   #else
     part
@@ -474,7 +486,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>real</type>
   <hide>
-    #if (($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr') or $nchan() &lt; 2 and $fine_tune1()
+    #if ((($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr') and $fine_tune1()) or $nchan() &lt; 2
       all
     #end if
   </hide>
