@@ -168,6 +168,23 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <tab>RF Options</tab>
  </param>
 
+  <param>
+    <name>Ch0: Gain Mode</name>
+    <key>fine_tune0</key>
+    <value>False</value>
+    <type>bool</type>
+    <hide>part</hide>
+    <option>
+      <name>Auto</name>
+      <key>False</key>
+    </option>
+    <option>
+      <name>Manual</name>
+      <key>True</key>
+    </option>
+    <tab>RF Options</tab>
+  </param>
+
  <!-- Overall Gain Channel 0 -->
  <param>
   <name>Ch0: Gain Value</name>
@@ -175,7 +192,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>real</type>
   <hide>
-    #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime'
+    #if $fine_tune0()
       all
     #end if
   </hide>
@@ -189,7 +206,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr'
+   #if (($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr') and $fine_tune0()
     none
    #else
     all
@@ -205,7 +222,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if ($dev().split(',')[0]) == 'driver=lime'
+   #if ($dev().split(',')[0]) == 'driver=lime' and $fine_tune0()
     none
    #else
     all
@@ -221,7 +238,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if ($dev().split(',')[0]) == 'driver=lime'
+   #if ($dev().split(',')[0]) == 'driver=lime' and $fine_tune0()
     none
    #else
     all
@@ -350,6 +367,29 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <tab>RF Options</tab>
  </param>
 
+  <param>
+    <name>Ch1: Gain Mode</name>
+    <key>fine_tune1</key>
+    <value>False</value>
+    <type>bool</type>
+    <hide>
+      #if $nchan() &lt; 2
+        all
+      #else
+        part
+      #end if
+    </hide>
+    <option>
+      <name>Auto</name>
+      <key>False</key>
+    </option>
+    <option>
+      <name>Manual</name>
+      <key>True</key>
+    </option>
+    <tab>RF Options</tab>
+  </param>
+
  <!-- Overall Gain Channel 1 -->
  <param>
   <name>Ch1: Gain Value</name>
@@ -357,7 +397,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>real</type>
   <hide>
-  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or $nchan() &lt; 2
+  #if ((($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime') and $fine_tune1()) or $nchan() &lt; 2
     all
   #end if
   </hide>
@@ -371,7 +411,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-  #if (($dev().split(',')[0]) == 'driver=uhd') and $nchan() >1
+  #if (($dev().split(',')[0]) == 'driver=uhd') and $nchan() >1 and $fine_tune1()
     none
   #else
     all
@@ -387,7 +427,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-  #if ($dev().split(',')[0]) == 'driver=lime' and $nchan() >1
+  #if ($dev().split(',')[0]) == 'driver=lime' and $nchan() >1 and $fine_tune1()
     none
   #else
     all
@@ -403,7 +443,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-  #if ($dev().split(',')[0]) == 'driver=lime' and $nchan() >1
+  #if ($dev().split(',')[0]) == 'driver=lime' and $nchan() >1 and $fine_tune1()
     none
   #else
     all
@@ -590,4 +630,5 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <type>message</type>
   <optional>1</optional>
  </sink>
+
 </block>
