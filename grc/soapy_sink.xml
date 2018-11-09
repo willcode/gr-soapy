@@ -40,7 +40,7 @@ self.$(id).set_gain($i, 'PAD', $pad_gain_array[$i])
 self.$(id).set_gain($i, 'IAMP', $iamp_gain_array[$i])
   #end if
   #if ($dev().split(',')[0]) != 'driver=uhd' and ($dev().split(',')[0]) != 'driver=plutosdr' and $dev().split(',')[0] != 'driver=lime'
-self.$(id).set_gai($i, $overall_gain[$i])
+self.$(id).set_gain($i, $overall_gain[$i])
   #end if
 self.$(id).set_gain_mode($i, $gain_auto_array[$i])
   #if $antenna_array[$i]() != ''
