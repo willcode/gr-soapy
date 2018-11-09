@@ -168,6 +168,23 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <tab>RF Options</tab>
  </param>
 
+  <param>
+    <name>Ch0: Gain Mode</name>
+    <key>fine_tune0</key>
+    <value>False</value>
+    <type>bool</type>
+    <hide>part</hide>
+    <option>
+      <name>Auto</name>
+      <key>False</key>
+    </option>
+    <option>
+      <name>Manual</name>
+      <key>True</key>
+    </option>
+    <tab>RF Options</tab>
+  </param>
+
  <!-- Overall Gain Channel 0 -->
  <param>
   <name>Ch0: Gain Value</name>
@@ -175,7 +192,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>real</type>
   <hide>
-    #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime'
+    #if $fine_tune0()
       all
     #end if
   </hide>
@@ -189,7 +206,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr'
+   #if (($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr') and $fine_tune0()
     none
    #else
     all
@@ -205,7 +222,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if ($dev().split(',')[0]) == 'driver=lime'
+   #if ($dev().split(',')[0]) == 'driver=lime' and $fine_tune0()
     none
    #else
     all
@@ -221,7 +238,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-   #if ($dev().split(',')[0]) == 'driver=lime'
+   #if ($dev().split(',')[0]) == 'driver=lime' and $fine_tune0()
     none
    #else
     all
@@ -350,6 +367,29 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <tab>RF Options</tab>
  </param>
 
+  <param>
+    <name>Ch1: Gain Mode</name>
+    <key>fine_tune1</key>
+    <value>False</value>
+    <type>bool</type>
+    <hide>
+      #if $nchan() &lt; 2
+        all
+      #else
+        part
+      #end if
+    </hide>
+    <option>
+      <name>Auto</name>
+      <key>False</key>
+    </option>
+    <option>
+      <name>Manual</name>
+      <key>True</key>
+    </option>
+    <tab>RF Options</tab>
+  </param>
+
  <!-- Overall Gain Channel 1 -->
  <param>
   <name>Ch1: Gain Value</name>
@@ -357,7 +397,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>real</type>
   <hide>
-  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or $nchan() &lt; 2
+  #if ((($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime') and $fine_tune1()) or $nchan() &lt; 2
     all
   #end if
   </hide>
@@ -371,7 +411,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-  #if (($dev().split(',')[0]) == 'driver=uhd') and $nchan() >1
+  #if (($dev().split(',')[0]) == 'driver=uhd') and $nchan() >1 and $fine_tune1()
     none
   #else
     all
@@ -387,7 +427,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-  #if ($dev().split(',')[0]) == 'driver=lime' and $nchan() >1
+  #if ($dev().split(',')[0]) == 'driver=lime' and $nchan() >1 and $fine_tune1()
     none
   #else
     all
@@ -403,7 +443,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>float</type>
   <hide>
-  #if ($dev().split(',')[0]) == 'driver=lime' and $nchan() >1
+  #if ($dev().split(',')[0]) == 'driver=lime' and $nchan() >1 and $fine_tune1()
     none
   #else
     all
@@ -590,4 +630,59 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <type>message</type>
   <optional>1</optional>
  </sink>
+
+ <doc>
+Soapy Sink Block:
+
+Device:
+The device argument is a comma delimited string used to create a device
+instance that uses the specified driver. Device driver should always be
+specified. 
+Usage examples:
+Device: driver=limesdr
+Device: driver=uhd,type=b200
+Device: driver=uhd,serial=12345678
+
+Sample Rate:
+The sample rate is the number of samples per second input by this block.
+If the requested rate is not possible the driver decides internally how
+to handle it.
+
+Center frequency:
+The center frequency of the RF chain. 
+If the device cannot tune to the specified frequency the driver decides
+internally how to handle it.
+
+Master Clock Rate:
+The rate of the master clock. 
+Can be assigned zero for automatic tuning.
+
+Clock Source:
+Specifies a valid external clock source. 
+Can be left empty.
+
+Input Type:
+This parameter controls the data type of the stream in gnuradio.
+
+Gain:
+Depending the device driver specified in the Device field various
+gains parameters can be configured. If a driver is not explicitly
+supported from the block an Overal Gain parameter can be configured.
+E.g 1:
+Gain Value: 10
+E.g 2:
+Device: driver=uhd
+PGA Gain: 10
+
+Antenna:
+Specified antenna used in RF chain.
+Can be left empty for auto assignment, else it must correspond to an
+antenna name of the device used.
+
+Bandwidth:
+The digital filter bandwidth of the RF chain.
+Can be left empty for auto assignment, else it must be a correct filter
+bandwidth of the device.
+ </doc>
+ 
 </block>

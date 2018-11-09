@@ -139,7 +139,6 @@ namespace gr {
        * Set the automatic gain mode for the specified chain if supported.
        * If not supported set gain value manually.
        * \param channel an available channel on the device
-       * \param gain the new amplification value in dB
        * \param gain_auto_mode true for automatic gain mode
        */
       void set_gain_mode(size_t channel, bool gain_auto_mode);
