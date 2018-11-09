@@ -27,31 +27,16 @@
 #include <gnuradio/sync_block.h>
 
 
-
-
 namespace gr {
-  /// \defgroup messages
 
-  /*!
-   * \ingroup messages
-   * \section cmd_handler PMT message syntax
-   * Message handlers expect a dictionary for
-   * setting device parameters from asynchronous input messages.
-   * Key must be a pmt dictionary mapping the parameter to its
-   * value to be updated. pmt::dict keys can be any of the following: \n
-   * "chann"     : Corresponding channel index (int)\n
-   * "freq"      : Center frequency (Hz) \n
-   * "gain"      : Gain value (dB) \n
-   * "antenna"   : Antenna (string)\n
-   * "samp_rate" : Sampling rate (samples/second)\n
-   * "bw"        : Bandwidth (Hz)
-   */
+
   namespace soapy {
 
     /*!
-     * \brief Source block implements SoapySDR functionality for RX.
+     * \addtogroup block
+     * \brief <b>Source</b> block implements SoapySDR functionality for RX.
      * \ingroup soapy
-     *
+     * \section source Soapy Source
      * The soapy source block receives samples and writes to a stream.
      * The source block also provides Soapy API calls for receiver settings.
      * Includes all parameters for full RX implementation.
@@ -59,10 +44,12 @@ namespace gr {
      * device the user wants to use according to the Soapy* module
      * documentation.
      * Make parameters are passed through the xml block.
+     * Some of the available parameters can be seen at Figure 2
      * Antenna and clock source can be left empty and default values
      * will be used.
      * This block has a message port, which consumes PMT messages.
      * For a description of the command syntax , see \ref cmd_handler.
+     * \image html source_params.png "Figure 2"
      */
     class SOAPY_API source : virtual public gr::sync_block
     {
@@ -79,37 +66,102 @@ namespace gr {
        * \param nchan number of channels
        * \param device the device driver and type
        * \param sampling_rate the sampling rate of the device
+       * \param type output stream format
        *
        * Driver name can be any of "uhd", "lime", "airspy",
        * "rtlsdr" or others
        */
       static sptr make(size_t nchan, const std::string device, float sampling_rate, const std::string type);
 
-      /* Callbacks for source fields */
+      /*!
+       * Callback to set overall gain
+       * \param channel an available channel of the device
+       * \param gain the overall gain value
+       */
       virtual void set_gain(size_t channel, float gain) = 0;
 
+      /*!
+       * Callback to set specific gain value
+       * \param channel an available channel on the device
+       * \param name the gain name to set value
+       * \param gain the gain value
+       */
       virtual void set_gain(size_t channel, const std::string name, float gain) = 0;
 
+      /*!
+       * Callback to change the RF frequency of the device
+       * \param channel an available channel of the device
+       * \param freq the frequency to be set in Hz
+       */
       virtual void set_frequency(size_t channel, float freq) = 0;
 
+      /*!
+       * Callback to set automatic gain mode
+       * \param channel an available channel on the device
+       * \param gain_auto_mode true if automatic gain mode
+       */
       virtual void set_gain_mode(size_t channel, bool gain_auto_mode) = 0;
 
+      /*!
+       * Callback to set sample rate
+       * \param channel an available channel of the device
+       * \param sample_rate number of samples in samples per second
+       */
       virtual void set_sample_rate(size_t channel, float sample_rate) = 0;
 
+      /*!
+       * Callback to set digital filter bandwidth
+       * \param channel an available channel on the device
+       * \param bandwidth filter width in Hz
+       */
       virtual void set_bandwidth(size_t channel, float bandwidth) = 0;
 
+      /*!
+       * Callback to set antenna for RF chain
+       * \param channel an available channel of the device
+       * \param name an available antenna string name
+       */
       virtual void set_antenna(size_t channel, const std::string &name) = 0;
 
+      /*!
+       * Callback to set dc offset correction and mode
+       * \param channel an available channel of the device
+       * \param dc_offset complex for dc offset correction
+       * \param dc_offset_auto_mode true if automatic dc offset correction
+       */
       virtual void set_dc_offset(size_t channel, gr_complexd dc_offset, bool dc_offset_auto_mode) = 0;
 
+      /*!
+       * Callback to set automatic dc offset mode
+       * \param channel an available channel of the device
+       * \param dc_offset_auto_mode true if automatic dc offset correction
+       */
       virtual void set_dc_offset_mode(size_t channel, bool dc_offset_auto_mode) = 0;
 
+      /*!
+       * Callback to set frequency correction
+       * \param channel an available channel of the device
+       * \param freq_correction relative value for frequency correction (1.0 max)
+       */
       virtual void set_frequency_correction(size_t channel, double freq_correction) = 0;
 
+      /*!
+       * Callback to set iq balance correction
+       * \param channel an available channel of the device
+       * \param iq_balance complex value for iq balance correction
+       */
       virtual void set_iq_balance(size_t channel, gr_complexd iq_balance) = 0;
 
+      /*!
+       * Callback to change master clock rate
+       * \param clock_rate the clock rate in Hz
+       */
       virtual void set_master_clock_rate(double clock_rate) = 0;
 
+      /*!
+       * Callback to set the clock source
+       * \param clock_source an available clock source
+       */
       virtual void set_clock_source(const std::string &clock_source) = 0;
 
     };

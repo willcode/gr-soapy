@@ -35,6 +35,10 @@ typedef boost::function<void(pmt::pmt_t , size_t)> cmd_handler_t;
 namespace gr {
   namespace soapy {
 
+    /*!
+     * \brief Sink block implementation for SDR devices.
+     */
+
     class sink_impl : public sink
     {
      private:
@@ -134,7 +138,6 @@ namespace gr {
        * Set the automatic gain mode for the TX chain if supported.
        * If not supported set gain value manually.
        * \param channel an available channel on the device
-       * \param gain the new amplification value in dB
        * \param gain_auto_mode true for automatic gain mode
        */
       void set_gain_mode(size_t channel, bool gain_auto_mode);
