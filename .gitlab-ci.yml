@@ -2,6 +2,7 @@ stages:
   - debian_build
   - suse_build
   - ubuntu_build
+  - deploy_dox
 
 debian_build:
   image: debian:latest
@@ -57,4 +58,30 @@ ubuntu_build:
         - cd build
         - cmake  ..
         - make
+
+pages: 
+  image: ubuntu:16.04
   
+  before_script:
+    - apt-get update -qq -y && apt-get install -q -y doxygen libboost-all-dev libcppunit-dev swig cmake gcc gnuradio gnuradio-dev libconfig++-dev git
+  stage: deploy_dox
+  script:
+    - git clone https://github.com/pothosware/SoapySDR.git
+    - cd SoapySDR
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+    - make install
+    - cd ../..
+    - mkdir -p build
+    - cd build
+    - cmake  .. 
+    - make doxygen_target
+    - rm -rf public/*
+    - mv docs/doxygen/html public/  
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
