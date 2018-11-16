@@ -39,7 +39,8 @@ namespace gr
   {
 
     sink::sptr
-    sink::make (size_t nchan, const std::string device, float sampling_rate, std::string type)
+    sink::make (size_t nchan, const std::string device, float sampling_rate,
+                std::string type)
     {
       return gnuradio::get_initial_sptr (
           new sink_impl (nchan, device, sampling_rate, type));
@@ -50,14 +51,13 @@ namespace gr
      */
     sink_impl::sink_impl (size_t nchan, const std::string device,
                           float sampling_rate, const std::string type) :
-    gr::sync_block ("sink",
-                args_to_io_sig(type,nchan),
-                gr::io_signature::make (0, 0, 0)),
+            gr::sync_block ("sink", args_to_io_sig (type, nchan),
+                            gr::io_signature::make (0, 0, 0)),
             d_mtu (0),
             d_message_port (pmt::mp ("command")),
             d_nchan (nchan),
-            d_type(type),
-            d_sampling_rate(sampling_rate)
+            d_type (type),
+            d_sampling_rate (sampling_rate)
     {
       if (type == "fc32") {
         d_type_size = 8;
@@ -146,6 +146,14 @@ namespace gr
     sink_impl::set_frequency (size_t channel, float frequency)
     {
       d_device->setFrequency (SOAPY_SDR_TX, channel, frequency);
+      d_frequency = d_device->getFrequency (SOAPY_SDR_RX, channel);
+    }
+
+    void
+    sink_impl::set_frequency (size_t channel, const std::string &name,
+                              float frequency)
+    {
+      d_device->setFrequency (SOAPY_SDR_TX, channel, name, frequency);
     }
 
     void

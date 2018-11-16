@@ -38,23 +38,25 @@ namespace gr
   namespace soapy
   {
     source::sptr
-    source::make (size_t nchan,const std::string device, float sampling_rate, const std::string type)
+    source::make (size_t nchan, const std::string device, float sampling_rate,
+                  const std::string type)
     {
-      return gnuradio::get_initial_sptr (new source_impl (nchan, device, sampling_rate, type));
+      return gnuradio::get_initial_sptr (
+          new source_impl (nchan, device, sampling_rate, type));
     }
 
     /*
      * The private constructor
      */
-    source_impl::source_impl (size_t nchan, const std::string device, float sampling_rate, const std::string type) :
-            gr::sync_block ("source",
-                            gr::io_signature::make (0, 0, 0),
-                            args_to_io_sig(type,nchan)),
+    source_impl::source_impl (size_t nchan, const std::string device,
+                              float sampling_rate, const std::string type) :
+            gr::sync_block ("source", gr::io_signature::make (0, 0, 0),
+                            args_to_io_sig (type, nchan)),
             d_mtu (0),
             d_message_port (pmt::mp ("command")),
             d_nchan (nchan),
-            d_type(type),
-            d_sampling_rate(sampling_rate)
+            d_type (type),
+            d_sampling_rate (sampling_rate)
     {
       if (type == "fc32") {
         d_type_size = 8;
@@ -139,8 +141,15 @@ namespace gr
     void
     source_impl::set_frequency (size_t channel, float frequency)
     {
-      d_device->setFrequency (SOAPY_SDR_RX, 0, frequency);
-      d_frequency = frequency;
+      d_device->setFrequency (SOAPY_SDR_RX, channel, frequency);
+      d_frequency = d_device->getFrequency (SOAPY_SDR_RX, channel);
+    }
+
+    void
+    source_impl::set_frequency (size_t channel, const std::string &name,
+                                float frequency)
+    {
+      d_device->setFrequency (SOAPY_SDR_RX, channel, name, frequency);
     }
 
     void
