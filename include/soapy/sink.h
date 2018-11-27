@@ -94,6 +94,14 @@ namespace gr {
       virtual void set_frequency(size_t channel, float freq) = 0;
 
       /*!
+       * Callback to change center frequency of a tunable element
+       * \param channel an available channel of the device
+       * \param name an available element name
+       * \param frequency the frequency to be set in Hz
+       */
+      virtual void set_frequency(size_t channel, const std::string &name, float frequency) = 0;
+
+      /*!
        * Callback to set automatic gain mode
        * \param channel an available channel on the device
        * \param gain_auto_mode true if automatic gain mode

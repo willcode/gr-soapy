@@ -119,6 +119,17 @@ namespace gr {
       void set_frequency (size_t channel, float frequency);
 
       /*!
+       * Set the center frequency for the specified RX chain of the element.
+       * Default implementation tunes RF component frequency as close as
+       * possible to the requested frequency. See specific device module
+       * for more information
+       * \param channel an available channel on the device
+       * \param name an available element name
+       * \param frequency center frequency in Hz
+       */
+      void set_frequency(size_t channel, const std::string &name, float frequency);
+
+      /*!
        * Set the overall gain for the specified RX chain.
        * The gain will be distributed automatically across available
        * elements according to Soapy API.
