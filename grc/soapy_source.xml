@@ -7,7 +7,7 @@
   <import>import soapy</import>
 
  <make>\
-  soapy.source($nchan, $dev, $samp_rate, "$type")
+  soapy.source($nchan, $dev, $args, $samp_rate, "$type")
 
   <!-- Set clock rate and clock source if available -->
   #if $clock_rate()
@@ -36,9 +36,9 @@ self.$(id).set_clock_source($clock_source)
 
   #for $i in range(0, $nchan())
 self.$(id).set_frequency($i, $center_freq_array[$i])
-self.$(id).set_gain($i, $overall_gain_array[$i])
+#self.$(id).set_gain($i, $overall_gain_array[$i])
   #if $dev().split(',')[0] == 'driver=uhd' or $dev().split(',')[0] == 'driver=plutosdr' or $dev().split(',')[0] == 'driver=lime'
-self.$(id).set_gain($i, 'PGA', $pga_gain_array[$i])
+#self.$(id).set_gain($i, 'PGA', $pga_gain_array[$i])
   #end if
   #if $dev().split(',')[0] == 'driver=lime'
 self.$(id).set_gain($i, 'LNA', $lna_gain_array[$i])
@@ -145,6 +145,12 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
  <param>
   <name>Device</name>
   <key>dev</key>
+  <type>string</type>
+ </param>
+ 
+  <param>
+  <name>Args</name>
+  <key>args</key>
   <type>string</type>
  </param>
 
@@ -819,14 +825,25 @@ The device argument is a comma delimited string used to create a device
 instance that uses the specified driver. Device driver should always be
 specified. 
 Usage examples:
-Device: driver=limesdr
+Device: driver=lime
+----------------------------------
 Device: driver=uhd,type=b200
+----------------------------------
 Device: driver=uhd,serial=12345678
+
+Args:
+Comma delimited list of key-word dictionary arguments specific for each 
+device. Device driver handles internally invalid arguments.
+Usage examples:
+Device: driver=lime
+Args: skipCal=true
+----------------------
+Device: driver=airspy
+Args: biastee=true
 
 Sample Rate:
 The sample rate is the number of samples per second input by this block.
-If the requested rate is not possible the driver decides internally how
-to handle it.
+If the requested rate is not possible the driver handles it internally.
 
 Center frequency:
 The center frequency of the RF chain. 

@@ -7,7 +7,7 @@
  <import>import soapy</import>
 
  <make>\
-  soapy.sink($nchan, $dev, $samp_rate, "$type")
+  soapy.sink($nchan, $dev, $args, $samp_rate, "$type")
 
   <!-- Set clock rate and clock source if available -->
   #if $clock_rate()
@@ -122,6 +122,12 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <type>string</type>
  </param>
 
+  <param>
+  <name>Args</name>
+  <key>args</key>
+  <type>string</type>
+ </param>
+ 
  <param>
   <name>Sampling Rate</name>
   <key>samp_rate</key>
@@ -151,24 +157,24 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <hide>part</hide>
  </param>
 
-	<param>
-		<name>Input Type</name>
-		<key>type</key>
-		<type>enum</type>
-		<option>
-			<name>Complex float32</name>
-			<key>fc32</key>
-			<opt>type:fc32</opt>
-		</option>
-		<option>
-			<name>int16</name>
-			<key>s16</key>
-			<opt>type:s16</opt>
-		</option>
-	</param>
+ <param>
+  <name>Input Type</name>
+  <key>type</key>
+  <type>enum</type>
+  <option>
+  <name>Complex float32</name>
+    <key>fc32</key>
+    <opt>type:fc32</opt>
+    </option>
+    <option>
+    <name>int16</name>
+    <key>s16</key>
+    <opt>type:s16</opt>
+    </option>
+ </param>
  <!-- Channel 0 params -->
 
-	<param>
+ <param>
   <name>Ch0: Center Freq (Hz)</name>
   <key>center_freq0</key>
   <value>0</value>
@@ -177,20 +183,20 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <tab>RF Options</tab>
  </param>
 
-  <param>
-    <name>Ch0: NCO Freq (Hz)</name>
-    <key>nco_freq0</key>
-    <value>0</value>
-    <type>real</type>
-    <hide>
-      #if (($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr')
-        all
-      #else
-        part
-      #end if
-    </hide>
-    <tab>RF Options</tab>
-  </param>
+ <param>
+  <name>Ch0: NCO Freq (Hz)</name>
+  <key>nco_freq0</key>
+  <value>0</value>
+  <type>real</type>
+  <hide>
+    #if (($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr')
+      all
+    #else
+      part
+    #end if
+  </hide>
+  <tab>RF Options</tab>
+ </param>
 
   <param>
     <name>Ch0: Gain Mode</name>
@@ -315,6 +321,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
  <param>
   <name>Ch0: Automatic DC Offset Mode</name>
   <key>dc_offset_auto_mode0</key>
+  <value>False</value>
   <type>bool</type>
   <hide>
   #if ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr'
@@ -677,6 +684,16 @@ Usage examples:
 Device: driver=limesdr
 Device: driver=uhd,type=b200
 Device: driver=uhd,serial=12345678
+
+Args:
+Comma delimited list of key-word dictionary arguments specific for each 
+device. Device driver handles internally invalid arguments.
+Usage examples:
+Device: driver=lime
+Args: skipCal=true
+----------------------
+Device: driver=airspy
+Args: biastee=true
 
 Sample Rate:
 The sample rate is the number of samples per second input by this block.

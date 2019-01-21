@@ -65,13 +65,14 @@ namespace gr {
        * creating new instances.
        * \param nchan number of channels
        * \param device the device driver and type
+       * \param args the arguments passed to the device
        * \param sampling_rate the sampling rate of the device
        * \param type output stream format
        *
        * Driver name can be any of "uhd", "lime", "airspy",
        * "rtlsdr" or others
        */
-      static sptr make(size_t nchan, const std::string device, float sampling_rate, const std::string type);
+      static sptr make(size_t nchan, const std::string device, const std::string args, float sampling_rate, const std::string type);
 
       /*!
        * Callback to set overall gain
