@@ -38,18 +38,20 @@ namespace gr
   namespace soapy
   {
     source::sptr
-    source::make (size_t nchan, const std::string device, float sampling_rate,
+    source::make (size_t nchan, const std::string device,
+                  const std::string args, float sampling_rate,
                   const std::string type)
     {
       return gnuradio::get_initial_sptr (
-          new source_impl (nchan, device, sampling_rate, type));
+          new source_impl (nchan, device, args, sampling_rate, type));
     }
 
     /*
      * The private constructor
      */
     source_impl::source_impl (size_t nchan, const std::string device,
-                              float sampling_rate, const std::string type) :
+                              const std::string args, float sampling_rate,
+                              const std::string type) :
             gr::sync_block ("source", gr::io_signature::make (0, 0, 0),
                             args_to_io_sig (type, nchan)),
             d_mtu (0),
@@ -66,14 +68,17 @@ namespace gr
         d_type_size = 2;
         d_type = "S16";
       }
-      makeDevice (device);
+      std::string str_args = device + ", " + args;
+      SoapySDR::Kwargs d_args = SoapySDR::KwargsFromString (str_args);
+      makeDevice (str_args);
       std::vector<size_t> channs;
       channs.resize (d_nchan);
       for (int i = 0; i < d_nchan; i++) {
         channs[i] = i;
         set_sample_rate (i, d_sampling_rate);
       }
-      d_stream = d_device->setupStream (SOAPY_SDR_RX, d_type, channs);
+
+      d_stream = d_device->setupStream (SOAPY_SDR_RX, d_type, channs, d_args);
       d_device->activateStream (d_stream);
       d_mtu = d_device->getStreamMTU (d_stream);
       d_bufs.resize (d_nchan);

@@ -81,7 +81,7 @@ namespace gr {
       }
 
      public:
-      sink_impl(size_t nchan, const std::string device, float sampling_rate, const std::string type);
+      sink_impl(size_t nchan, const std::string device, const std::string args, float sampling_rate, const std::string type);
       ~sink_impl();
 
       // Where all the action really happens

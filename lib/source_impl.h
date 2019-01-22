@@ -45,6 +45,7 @@ namespace gr {
      private:
       SoapySDR::Device* d_device;
       SoapySDR::Stream* d_stream;
+      const SoapySDR::Kwargs d_args;
 
       size_t d_mtu;
       gr_vector_void_star d_bufs;
@@ -82,7 +83,7 @@ namespace gr {
       }
 
      public:
-      source_impl(size_t nchan, const std::string device, float sampling_rate, const std::string type);
+      source_impl(size_t nchan, const std::string device, const std::string args, float sampling_rate, const std::string type);
       ~source_impl();
 
       // Where all the action really happens
