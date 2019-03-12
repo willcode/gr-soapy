@@ -389,7 +389,7 @@ namespace gr
                                        flags, timeNs, long (1e6));
         }
         for (uint8_t chan = 0; chan < d_nchan; chan++) {
-          d_bufs[chan] += read * d_type_size;
+          d_bufs[chan] = (char *)d_bufs[chan] + (read * d_type_size);
         }
         index += read;
       }

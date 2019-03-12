@@ -381,7 +381,7 @@ namespace gr
                                        timeNs, long (1e6));
         total_samples -= write;
         for (uint8_t chan = 0; chan < d_nchan; chan++) {
-          d_bufs[chan] += write * d_type_size;
+          d_bufs[chan] = (const char *)d_bufs[chan] + (write * d_type_size);
         }
       }
       /* If total_samples < MTU write total_samples to device */
