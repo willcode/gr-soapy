@@ -51,6 +51,9 @@ set(VERSION_INFO_MAINT_VERSION git)
 # This will suppress developer warnings during the cmake process that can occur
 # if a newer cmake version than the minimum is used.
 
+if(POLICY CMP0025)
+    cmake_policy(SET CMP0025 NEW)
+endif()
 if(POLICY CMP0026)
     cmake_policy(SET CMP0026 OLD)
 endif()
@@ -72,6 +75,13 @@ if(CMAKE_COMPILER_IS_GNUCXX AND NOT WIN32)
     add_definitions(-fvisibility=hidden)
 endif()
 
+if (CMAKE_VERSION VERSION_LESS "3.1")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+    endif ()
+else ()
+    set (CMAKE_CXX_STANDARD 11)
+endif ()
 ########################################################################
 # Find boost
 ########################################################################
