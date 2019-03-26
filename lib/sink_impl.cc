@@ -371,7 +371,7 @@ namespace gr
       int flags = 0;
       long long timeNs = 0;
       int write = d_device->writeStream (d_stream, &input_items[0], ninput_items, flags,
-          timeNs);
+                                         timeNs);
       // Tell runtime system how many output items we produced.
       if (write < 0) return 0;
       return write;
