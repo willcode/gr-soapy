@@ -81,7 +81,6 @@ namespace gr
       d_stream = d_device->setupStream (SOAPY_SDR_TX, "CF32", channs, d_args);
       d_device->activateStream (d_stream);
       d_mtu = d_device->getStreamMTU (d_stream);
-      d_bufs.resize (d_nchan);
 
       message_port_register_in (d_message_port);
       set_msg_handler (d_message_port,
@@ -102,6 +101,7 @@ namespace gr
           CMD_ANTENNA_KEY,
           boost::bind (&sink_impl::cmd_handler_antenna, this, _1, _2));
 
+      set_max_noutput_items (d_mtu); // limit max samples per call to MTU
     }
 
     /*
@@ -368,28 +368,13 @@ namespace gr
                      gr_vector_void_star &output_items)
     {
       int ninput_items = noutput_items;
-      for (uint8_t chan = 0; chan < d_nchan; chan++) {
-        d_bufs[chan] = input_items[chan];
-      }
       int flags = 0;
       long long timeNs = 0;
-      size_t total_samples = ninput_items;
-      int write;
-      /* While total_samples > MTU write MTU samples to device */
-      while (total_samples > d_mtu) {
-        write = d_device->writeStream (d_stream, &d_bufs[0], d_mtu, flags,
-                                       timeNs, long (1e6));
-        total_samples -= write;
-        for (uint8_t chan = 0; chan < d_nchan; chan++) {
-          d_bufs[chan] = (const char *)d_bufs[chan] + (write * d_type_size);
-        }
-      }
-      /* If total_samples < MTU write total_samples to device */
-      write = d_device->writeStream (d_stream, &d_bufs[0], total_samples, flags,
-                                     timeNs, long (1e6));
-      total_samples -= write;
+      int write = d_device->writeStream (d_stream, &input_items[0], ninput_items, flags,
+          timeNs);
       // Tell runtime system how many output items we produced.
-      return noutput_items;
+      if (write < 0) return 0;
+      return write;
     }
 
     void

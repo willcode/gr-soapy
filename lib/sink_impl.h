@@ -46,7 +46,6 @@ namespace gr {
       SoapySDR::Stream* d_stream;
 
       size_t d_mtu;
-      std::vector<const void*> d_bufs;
       pmt::pmt_t d_message_port;
 
       float d_frequency;
