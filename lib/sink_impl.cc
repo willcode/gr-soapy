@@ -40,10 +40,10 @@ namespace gr
 
     sink::sptr
     sink::make (size_t nchan, const std::string device, const std::string args,
-                float sampling_rate, std::string type)
+                float sampling_rate, std::string type, const std::string length_tag_name)
     {
       return gnuradio::get_initial_sptr (
-          new sink_impl (nchan, device, args, sampling_rate, type));
+          new sink_impl (nchan, device, args, sampling_rate, type, length_tag_name));
     }
 
     /*
@@ -51,14 +51,16 @@ namespace gr
      */
     sink_impl::sink_impl (size_t nchan, const std::string device,
                           const std::string args, float sampling_rate,
-                          const std::string type) :
+                          const std::string type, const std::string length_tag_name) :
             gr::sync_block ("sink", args_to_io_sig (type, nchan),
                             gr::io_signature::make (0, 0, 0)),
             d_mtu (0),
             d_message_port (pmt::mp ("command")),
             d_nchan (nchan),
             d_type (type),
-            d_sampling_rate (sampling_rate)
+            d_sampling_rate (sampling_rate),
+            d_length_tag_key(length_tag_name.empty()? pmt::PMT_NIL : pmt::string_to_symbol(length_tag_name)),
+            d_burst_remaining(0)
     {
       if (type == "fc32") {
         d_type_size = 8;
@@ -370,11 +372,48 @@ namespace gr
       int ninput_items = noutput_items;
       int flags = 0;
       long long timeNs = 0;
+
+      // Handle tags
+      if (!pmt::is_null (d_length_tag_key)) {
+        // Here we update d_burst_remaining when we find a length tag
+        this->tag_work (noutput_items);
+        // If a burst is active, check if we finish it on this call
+        if (d_burst_remaining > 0) {
+          ninput_items = std::min<long>(d_burst_remaining, ninput_items);
+          if (d_burst_remaining == long(ninput_items)) {
+            flags |= SOAPY_SDR_END_BURST;
+          }
+        } else {
+          // No new length tag was found immediately following previous burst
+          // Drop samples until next length tag is found, and notify of tag gap
+          std::cerr << "tG" << std::flush;
+          return ninput_items;
+        }
+      }
+
       int write = d_device->writeStream (d_stream, &input_items[0], ninput_items, flags,
                                          timeNs);
       // Tell runtime system how many output items we produced.
       if (write < 0) return 0;
+      if (d_burst_remaining > 0) d_burst_remaining -= write;
       return write;
+    }
+
+    void
+    sink_impl::tag_work (int noutput_items)
+    {
+      std::vector<tag_t> length_tags;
+      get_tags_in_window(length_tags, 0, 0, noutput_items, d_length_tag_key);
+      for (const tag_t &tag : length_tags) {
+        // If there are still items left to send, the current burst has been preempted.
+        // Set the items remaining counter to the new burst length. Notify the user of
+        // the tag preemption.
+        if (d_burst_remaining > 0) {
+          std::cerr << "tP" << std::flush; // tag preempted
+        }
+        d_burst_remaining = pmt::to_long(tag.value);
+        break;
+      }
     }
 
     void

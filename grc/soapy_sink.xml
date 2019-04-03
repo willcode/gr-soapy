@@ -7,7 +7,7 @@
  <import>import soapy</import>
 
  <make>\
-  soapy.sink($nchan, $dev, $args, $samp_rate, "$type")
+  soapy.sink($nchan, $dev, $args, $samp_rate, "$type", $length_tag_name)
 
   <!-- Set clock rate and clock source if available -->
   #if $clock_rate()
@@ -172,6 +172,13 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
     <opt>type:s16</opt>
     </option>
  </param>
+
+ <param>
+  <name>Length tag name</name>
+  <key>length_tag_name</key>
+  <type>string</type>
+ </param>
+
  <!-- Channel 0 params -->
 
  <param>

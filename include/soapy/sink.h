@@ -70,7 +70,7 @@ namespace gr {
        * Driver name can be any of "uhd", "lime", "airspy",
        * "rtlsdr" or others
        */
-      static sptr make(size_t nchan, const std::string device, const std::string args, float sampling_rate, const std::string type);
+      static sptr make(size_t nchan, const std::string device, const std::string args, float sampling_rate, const std::string type, const std::string length_tag_name = "");
 
       /*!
        * Callback to set overall gain

@@ -65,6 +65,9 @@ namespace gr {
       std::string d_type;
       uint8_t d_type_size;
 
+      const pmt::pmt_t d_length_tag_key;
+      long d_burst_remaining;
+
       void register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler);
       std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
 
@@ -79,8 +82,10 @@ namespace gr {
         return io_signature::make(nchan, nchan, size);
       }
 
+      void tag_work(int noutput_items);
+
      public:
-      sink_impl(size_t nchan, const std::string device, const std::string args, float sampling_rate, const std::string type);
+      sink_impl(size_t nchan, const std::string device, const std::string args, float sampling_rate, const std::string type, const std::string length_tag_name);
       ~sink_impl();
 
       // Where all the action really happens
