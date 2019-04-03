@@ -48,7 +48,6 @@ namespace gr {
       const SoapySDR::Kwargs d_args;
 
       size_t d_mtu;
-      gr_vector_void_star d_bufs;
       pmt::pmt_t d_message_port;
 
       float d_frequency;

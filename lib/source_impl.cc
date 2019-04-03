@@ -81,7 +81,6 @@ namespace gr
       d_stream = d_device->setupStream (SOAPY_SDR_RX, d_type, channs, d_args);
       d_device->activateStream (d_stream);
       d_mtu = d_device->getStreamMTU (d_stream);
-      d_bufs.resize (d_nchan);
 
       message_port_register_in (d_message_port);
       set_msg_handler (
@@ -102,6 +101,8 @@ namespace gr
       register_msg_cmd_handler (
           CMD_ANTENNA_KEY,
           boost::bind (&source_impl::cmd_handler_antenna, this, _1, _2));
+
+      set_max_noutput_items (d_mtu);
     }
 
     source_impl::~source_impl ()
@@ -370,31 +371,13 @@ namespace gr
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items)
     {
-      for (uint8_t chan = 0; chan < d_nchan; chan++) {
-        d_bufs[chan] = output_items[chan];
-      }
       int flags = 0;
       long long timeNs = 0;
-      size_t total_samples = std::min (noutput_items, (int) d_mtu);
-      size_t index = 0;
-      int read;
-      while (index < noutput_items) {
-        if (total_samples + index > noutput_items) {
-          read = d_device->readStream (d_stream, &d_bufs[0],
-                                       noutput_items - index, flags, timeNs,
-                                       long (1e6));
-        }
-        else {
-          read = d_device->readStream (d_stream, &d_bufs[0], total_samples,
-                                       flags, timeNs, long (1e6));
-        }
-        for (uint8_t chan = 0; chan < d_nchan; chan++) {
-          d_bufs[chan] = (char *)d_bufs[chan] + (read * d_type_size);
-        }
-        index += read;
-      }
+      int read = d_device->readStream (d_stream, &output_items[0], noutput_items,
+                                       flags, timeNs);
       // Tell runtime system how many output items we produced.
-      return noutput_items;
+      if (read < 0) return 0;
+      return read;
     }
 
     void
