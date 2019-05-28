@@ -30,19 +30,24 @@ self.$(id).set_clock_source($clock_source)
   #set $dc_offset_array = [$dc_offset0, $dc_offset1]
   #set $iq_balance_array = [$balance0, $balance1,]
   #set $frequency_correction_array = [$correction0, $correction1]
+  #set $fine_tune_array = [$fine_tune0, $fine_tune1]
 
   #for $i in range(0, $nchan())
 self.$(id).set_frequency($i, $center_freq_array[$i])
+  #if not $fine_tune_array[$i]()
 self.$(id).set_gain($i, $overall_gain_array[$i])
-  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr'
+  #end if
+  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' and $fine_tune_array[$i]()
 self.$(id).set_gain($i, 'PGA', $pga_gain_array[$i])
   #end if
-  #if $dev().split(',')[0] == 'driver=lime'
+  #if $dev().split(',')[0] == 'driver=lime' and $fine_tune_array[$i]()
 self.$(id).set_gain($i, 'PAD', $pad_gain_array[$i])
 self.$(id).set_gain($i, 'IAMP', $iamp_gain_array[$i])
+  #end if
+  #if $dev().split(',')[0] == 'driver=lime'
 self.$(id).set_frequency($i, "BB", $nco_freq_array[$i])
   #end if
-  #if ($dev().split(',')[0]) != 'driver=uhd' and ($dev().split(',')[0]) != 'driver=plutosdr' and $dev().split(',')[0] != 'driver=lime'
+  #if ($dev().split(',')[0]) != 'driver=uhd' and ($dev().split(',')[0]) != 'driver=plutosdr' and $dev().split(',')[0] != 'driver=lime' and $fine_tune_array[$i]()
 self.$(id).set_gain($i, $overall_gain_array[$i])
   #end if
 self.$(id).set_gain_mode($i, $gain_auto_array[$i])
