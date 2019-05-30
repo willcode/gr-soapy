@@ -26,6 +26,7 @@ self.$(id).set_clock_source($clock_source)
   #set $mix_gain_array = [$mix_gain0, $mix_gain1]
   #set $vga_gain_array = [$vga_gain0, $vga_gain1]
   #set $tuner_gain_array = [$tuner_gain0, $tuner_gain1]
+  #set $amp_gain_array = [$amp_gain0]
   #set $gain_auto_array = [$gain_auto_mode0, $gain_auto_mode1]
   #set $antenna_array = [$ant0, $ant1]
   #set $bandwidth_array = [$bw0, $bw1]
@@ -57,6 +58,11 @@ self.$(id).set_gain($i, 'VGA', $vga_gain_array[$i])
   #end if
   #if $dev().split(',')[0] == 'driver=rtlsdr' and $fine_tune_array[$i]()
 self.$(id).set_gain($i, 'TUNER', $tuner_gain_array[$i])
+  #end if
+  #if $dev().split(',')[0] == 'driver=harckrf' and $fine_tune_array[$i]()
+self.$(id).set_gain($i, 'LNA', $lna_gain_array[$i])
+self.$(id).set_gain($i, 'AMP', $amp_gain_array[$i])
+self.$(id).set_gain($i, 'VGA', $vga_gain_array[$i])
   #end if
 self.$(id).set_gain_mode($i, $gain_auto_array[$i])
   #if $antenna_array[$i]() != ''
@@ -100,7 +106,7 @@ self.$(id).set_gain(0,'PGA', $pga_gain0)
 </callback>
 <!-- LNA gain Channel 0 callback -->
  <callback>
-  #if ($dev().split(',')[0] == 'driver=lime') and $fine_tune0()
+  #if ($dev().split(',')[0] == 'driver=lime' or $dev().split(',')[0] == 'driver=hackrf') and $fine_tune0()
 self.$(id).set_gain(0, 'LNA', $lna_gain0)
   #end if
 </callback>
@@ -118,7 +124,7 @@ self.$(id).set_gain(0, 'MIX', $mix_gain0)
 </callback>
 <!-- VGA gain Channel 0 callback -->
 <callback>
-  #if ($dev().split(',')[0] == 'driver=airspy') and $fine_tune0()
+  #if ($dev().split(',')[0] == 'driver=airspy' or $dev().split(',')[0] == 'driver=hackrf') and $fine_tune0()
 self.$(id).set_gain(0, 'VGA', $vga_gain0)
   #end if
 </callback>
@@ -126,6 +132,12 @@ self.$(id).set_gain(0, 'VGA', $vga_gain0)
 <callback>
   #if ($dev().split(',')[0] == 'driver=rtlsdr') and $fine_tune0()
 self.$(id).set_gain(0, 'TUNER', $tuner_gain0)
+  #end if
+</callback>
+<!-- AMP gain Channel 0 callback -->
+<callback>
+  #if ($dev().split(',')[0] == 'driver=hackrf') and $fine_tune0()
+self.$(id).set_gain(0, 'AMP', $amp_gain0)
   #end if
 </callback>
 <callback>set_antenna(0,$ant0)</callback>
@@ -187,23 +199,23 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <type>string</type>
   <hide>part</hide>
  </param>
-	<param>
-		<name>Output Type</name>
-		<key>type</key>
-		<type>enum</type>
-		<option>
-			<name>Complex float32</name>
-			<key>fc32</key>
-			<opt>type:fc32</opt>
-		</option>
-		<option>
-			<name>int16</name>
-			<key>s16</key>
-			<opt>type:s16</opt>
-		</option>
-	</param>
+
+ <param>
+  <name>Output Type</name>
+  <key>type</key>
+  <type>enum</type>
+  <option>
+   <name>Complex float32</name>
+   <key>fc32</key>
+   <opt>type:fc32</opt>
+  </option>
+  <option>
+   <name>int16</name>
+   <key>s16</key>
+   <opt>type:s16</opt>
+  </option>
+ </param>
  <!-- Channel 0 params -->
-    
 
  <param>
   <name>Ch0: Center Freq (Hz)</name>
@@ -358,9 +370,25 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <type>float</type>
   <hide>
    #if ($dev().split(',')[0]) == 'driver=rtlsdr' and $fine_tune0()
-   none
+     none
    #else
-   all
+     all
+   #end if
+  </hide>
+  <tab>RF Options</tab>
+ </param>
+ 
+  <!-- TUNER Gain Channel 0 -->
+ <param>
+  <name>Ch0: AMP Gain Value</name>
+  <key>amp_gain0</key>
+  <value>0</value>
+  <type>float</type>
+  <hide>
+   #if ($dev().split(',')[0]) == 'driver=hackrf' and $fine_tune0()
+     none
+   #else
+     all
    #end if
   </hide>
   <tab>RF Options</tab>
@@ -729,7 +757,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
  <check>\
   #if ($dev().split(',')[0]) == 'driver=uhd'
   2 >= $nchan\
-  #else if ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+  #else if ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr' or ($dev().split(',')[0]) == 'driver=hackrf'
   1 == $nchan\
   #else
   2 >= $nchan\
@@ -755,6 +783,8 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   30 >= $lna_gain0 >= 0\
   #else if ($dev().split(',')[0]) == 'driver=airspy'
   15 >= $lna_gain0 >= 0\
+  #else if ($dev().split(',')[0]) == 'driver=hackrf'
+  40 >= $lna_gain0 >= 0\
   #else
   0 == 0\
   #end if
@@ -782,6 +812,8 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
  <check>\
   #if ($dev().split(',')[0]) == 'driver=airspy'
   15 >= $vga_gain0 >= 0\
+  #else if ($dev().split(',')[0]) == 'driver=hackrf'
+  62 >= $vga_gain0 >= 0\
   #else
   0 == 0\
   #end if
@@ -796,6 +828,14 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   #end if
  </check>
  
+  <!-- Check AMP gain for Channel 0 -->
+ <check>\
+ #if ($dev().split(',')[0]) == 'driver=hackrf'
+ 14 >= $amp_gain0 >= 0\
+ #else
+ 0 == 0\
+ #end if
+ </check>
  <!-- Check PGA gain for Channel 1 -->
  <check>\
   #if ($dev().split(',')[0]) == 'driver=uhd'
