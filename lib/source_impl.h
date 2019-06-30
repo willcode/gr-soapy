@@ -45,7 +45,6 @@ namespace gr {
      private:
       SoapySDR::Device* d_device;
       SoapySDR::Stream* d_stream;
-      const SoapySDR::Kwargs d_args;
 
       size_t d_mtu;
       pmt::pmt_t d_message_port;
@@ -353,6 +352,8 @@ namespace gr {
        * @param chann an available channel on the device
        */
       void cmd_handler_antenna(pmt::pmt_t val, size_t chann);
+      
+      bool stop();
     };
   } // namespace soapy
 } // namespace gr

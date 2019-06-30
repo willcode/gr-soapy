@@ -25,7 +25,7 @@
 
 #include <soapy/api.h>
 #include <gnuradio/sync_block.h>
-
+#include <cstdint>
 
 namespace gr {
 
@@ -72,7 +72,9 @@ namespace gr {
        * Driver name can be any of "uhd", "lime", "airspy",
        * "rtlsdr" or others
        */
-      static sptr make(size_t nchan, const std::string device, const std::string args, float sampling_rate, const std::string type);
+      static sptr make(size_t nchan, const std::string device,
+                       const std::string args,
+                       float sampling_rate, const std::string type);
 
       /*!
        * Callback to set overall gain
@@ -87,7 +89,8 @@ namespace gr {
        * \param name the gain name to set value
        * \param gain the gain value
        */
-      virtual void set_gain(size_t channel, const std::string name, float gain) = 0;
+      virtual void set_gain(size_t channel, const std::string name,
+                            float gain) = 0;
 
       /*!
        * Callback to change the RF frequency of the device
@@ -102,7 +105,8 @@ namespace gr {
        * \param name an available element name
        * \param frequency the frequency to be set in Hz
        */
-      virtual void set_frequency(size_t channel, const std::string &name, float frequency) = 0;
+      virtual void set_frequency(size_t channel, const std::string &name,
+                                 float frequency) = 0;
 
       /*!
        * Callback to set automatic gain mode
@@ -138,21 +142,24 @@ namespace gr {
        * \param dc_offset complex for dc offset correction
        * \param dc_offset_auto_mode true if automatic dc offset correction
        */
-      virtual void set_dc_offset(size_t channel, gr_complexd dc_offset, bool dc_offset_auto_mode) = 0;
+      virtual void set_dc_offset(size_t channel, gr_complexd dc_offset,
+                                 bool dc_offset_auto_mode) = 0;
 
       /*!
        * Callback to set automatic dc offset mode
        * \param channel an available channel of the device
        * \param dc_offset_auto_mode true if automatic dc offset correction
        */
-      virtual void set_dc_offset_mode(size_t channel, bool dc_offset_auto_mode) = 0;
+      virtual void set_dc_offset_mode(size_t channel,
+                                      bool dc_offset_auto_mode) = 0;
 
       /*!
        * Callback to set frequency correction
        * \param channel an available channel of the device
        * \param freq_correction relative value for frequency correction (1.0 max)
        */
-      virtual void set_frequency_correction(size_t channel, double freq_correction) = 0;
+      virtual void set_frequency_correction(size_t channel,
+                                            double freq_correction) = 0;
 
       /*!
        * Callback to set iq balance correction

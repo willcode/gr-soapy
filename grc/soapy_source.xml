@@ -5,10 +5,17 @@
   <category>[soapy]</category>
   <flags>throttle</flags>
   <import>import soapy</import>
-
+ 
  <make>\
-  soapy.source($nchan, $dev, $args, $samp_rate, "$type")
-
+ #if $dev().split(',')[0] == 'driver=sdrplay'
+ #set $f = 'if_mode=' + str($sdrplay_if_mode) + ',' + 'agc_setpoint=' + str($sdrplay_agc_setpoint) + ',' + 'biasT_ctrl=' + str($sdrplay_biastee) + ',' + 'rfnotch_ctrl=' + str($sdrplay_rfnotch) + ',' + 'dabnotch_ctrl=' + str($sdrplay_dabnotch) + ',' + str($args)
+ #set $f = $f.replace('"', '')
+ #set $f = $f.replace('\'', '')
+ #set $f = $f.strip(',')
+ soapy.source($nchan, $dev, "$f", $samp_rate, "$type")
+ #else
+ soapy.source($nchan, $dev, $args, $samp_rate, "$type")
+ #end if
   <!-- Set clock rate and clock source if available -->
   #if $clock_rate()
 self.$(id).set_master_clock_rate($clock_rate)
@@ -26,6 +33,8 @@ self.$(id).set_clock_source($clock_source)
   #set $mix_gain_array = [$mix_gain0, $mix_gain1]
   #set $vga_gain_array = [$vga_gain0, $vga_gain1]
   #set $tuner_gain_array = [$tuner_gain0, $tuner_gain1]
+  #set $ifgr_gain_array = [$ifgr_gain]
+  #set $rfgr_gain_array = [$rfgr_gain]
   #set $amp_gain_array = [$amp_gain0]
   #set $gain_auto_array = [$gain_auto_mode0, $gain_auto_mode1]
   #set $antenna_array = [$ant0, $ant1]
@@ -140,6 +149,21 @@ self.$(id).set_gain(0, 'TUNER', $tuner_gain0)
 self.$(id).set_gain(0, 'AMP', $amp_gain0)
   #end if
 </callback>
+
+<!-- SDRPlay IFGR gain Channel 0 callback -->
+<callback>
+    #if ($dev().split(',')[0] == 'driver=sdrplay') and $fine_tune0()
+    self.$(id).set_gain(0, 'IFGR', $ifgr_gain)
+    #end if
+</callback>
+
+<!-- SDRPlay RFGR gain Channel 0 callback -->
+<callback>
+    #if ($dev().split(',')[0] == 'driver=sdrplay') and $fine_tune0()
+    self.$(id).set_gain(0, 'RFGR', $rfgr_gain)
+    #end if
+</callback>
+
 <callback>set_antenna(0,$ant0)</callback>
 <callback>set_bandwidth(0,$bw0)</callback>
 
@@ -265,9 +289,9 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>real</type>
   <hide>
-    #if (($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr') and $fine_tune0()
+    #if (($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr' or ($dev().split(',')[0]) == 'driver=sdrplay') and $fine_tune0()
       all
-    #else if (($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy') and $gain_auto_mode0()
+      #else if (($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=sdrplay') and $gain_auto_mode0()
       all
     #end if
   </hide>
@@ -394,19 +418,51 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <tab>RF Options</tab>
  </param>
  
+ <!-- SDRPlay IFGR Gain Channel 0 -->
+ <param>
+     <name>Ch0: IFGR Gain Value</name>
+     <key>ifgr_gain</key>
+     <value>59</value>
+     <type>float</type>
+     <hide>
+         #if ($dev().split(',')[0]) == 'driver=sdrplay' and $fine_tune0()
+         none
+         #else
+         all
+         #end if
+     </hide>
+     <tab>RF Options</tab>
+ </param>
+ 
+ <!-- SDRPlay IFGR Gain Channel 0 -->
+ <param>
+     <name>Ch0: RFGR Gain Value</name>
+     <key>rfgr_gain</key>
+     <value>9</value>
+     <type>float</type>
+     <hide>
+         #if ($dev().split(',')[0]) == 'driver=sdrplay' and $fine_tune0()
+         none
+         #else
+         all
+         #end if
+     </hide>
+     <tab>RF Options</tab>
+ </param>
+ 
  <param>
   <name>Ch0: Automatic Gain</name>
   <key>gain_auto_mode0</key>
   <value>False</value>
   <type>bool</type>
   <hide>
-  #if (($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=plutosdr') and $gain_auto_mode0()
-    none
-  #else if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=rtlsdr'
-    all
-  #else
-    part
-  #end if
+    #if (($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=sdrplay') and $gain_auto_mode0()
+        none
+    #else if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+        all
+    #else
+        part
+    #end if
   </hide>
   <option>
     <name>False</name>
@@ -476,6 +532,121 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   </hide>
   <tab>RF Options</tab>
  </param>
+ 
+ <param>
+     <name>IF Mode</name>
+     <key>sdrplay_if_mode</key>
+     <value>Zero-IF</value>
+     <type>string</type>
+     <hide>
+         #if ($dev().split(',')[0]) == 'driver=sdrplay'
+            none
+         #else
+            all
+         #end if
+     </hide>
+     <option>
+         <name>Zero-IF</name>
+         <key>Zero-IF</key>
+     </option>
+     <option>
+         <name>450kHz</name>
+         <key>450kHz</key>
+     </option>
+     <option>
+         <name>1620kHz</name>
+         <key>1620kHz</key>
+     </option>
+     <option>
+         <name>2048kHz</name>
+         <key>2048kHz</key>
+     </option>
+     <tab>RF Options</tab>
+ </param>
+ 
+ <param>
+     <name>Bias Tee</name>
+     <key>sdrplay_biastee</key>
+     <value>true</value>
+     <type>string</type>
+     <hide>
+         #if ($dev().split(',')[0]) == 'driver=sdrplay'
+         none
+         #else
+         all
+         #end if
+     </hide>
+     <option>
+         <name>Enable</name>
+         <key>true</key>
+     </option>
+     <option>
+         <name>Disable</name>
+         <key>false</key>
+     </option>
+     <tab>RF Options</tab>
+ </param>
+ 
+ <param>
+     <name>AGC Setpoint (dBfs)</name>
+     <key>sdrplay_agc_setpoint</key>
+     <value>-30</value>
+     <type>int</type>
+     <hide>
+         #if ($dev().split(',')[0]) == 'driver=sdrplay'
+         none
+         #else
+         all
+         #end if
+     </hide>
+     <tab>RF Options</tab>
+ </param>
+ 
+ <param>
+     <name>RF Notch Filter</name>
+     <key>sdrplay_rfnotch</key>
+     <value>false</value>
+     <type>string</type>
+     <hide>
+         #if ($dev().split(',')[0]) == 'driver=sdrplay'
+         none
+         #else
+         all
+         #end if
+     </hide>
+     <option>
+         <name>Enable</name>
+         <key>true</key>
+     </option>
+     <option>
+         <name>Disable</name>
+         <key>false</key>
+     </option>
+     <tab>RF Options</tab>
+ </param>
+ 
+ <param>
+     <name>DAB Notch Filter</name>
+     <key>sdrplay_dabnotch</key>
+     <value>false</value>
+     <type>string</type>
+     <hide>
+         #if ($dev().split(',')[0]) == 'driver=sdrplay'
+         none
+         #else
+         all
+         #end if
+     </hide>
+     <option>
+         <name>Enable</name>
+         <key>true</key>
+     </option>
+     <option>
+         <name>Disable</name>
+         <key>false</key>
+     </option>
+     <tab>RF Options</tab>
+ </param>
 
  <param>
   <name>Ch0: Frequency Correction</name>
@@ -483,7 +654,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>real</type>
   <hide>
-  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy'
+      #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=sdrplay'
     all
   #else
     part
@@ -498,7 +669,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   <value>0</value>
   <type>complex</type>
   <hide>
-  #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr'
+      #if ($dev().split(',')[0]) == 'driver=uhd' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr' or ($dev().split(',')[0]) == 'driver=sdrplay'
     all
   #else
     part
@@ -757,7 +928,7 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
  <check>\
   #if ($dev().split(',')[0]) == 'driver=uhd'
   2 >= $nchan\
-  #else if ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr' or ($dev().split(',')[0]) == 'driver=hackrf'
+  #else if ($dev().split(',')[0]) == 'driver=plutosdr' or ($dev().split(',')[0]) == 'driver=lime' or ($dev().split(',')[0]) == 'driver=airspy' or ($dev().split(',')[0]) == 'driver=rtlsdr' or ($dev().split(',')[0]) == 'driver=hackrf' or ($dev().split(',')[0]) == 'driver=sdrplay'
   1 == $nchan\
   #else
   2 >= $nchan\
@@ -845,6 +1016,24 @@ self.$(id).set_gain(1,'PGA', $pga_gain1)
   #end if
  </check>
  
+ <!-- Check SDRPlay IFGR gain for Channel 0 -->
+ <check>\
+  #if ($dev().split(',')[0]) == 'driver=sdrplay'
+  59 >= $ifgr_gain >= 20\
+  #else
+  0 == 0\
+  #end if
+  </check>
+
+  <!-- Check SDRPlay RFGR gain for Channel 0 -->
+  <check>\
+  #if ($dev().split(',')[0]) == 'driver=sdrplay'
+  9 >= $rfgr_gain >= 0\
+  #else
+  0 == 0\
+  #end if
+  </check>
+  
  <!-- Check Positive number of Channels -->
  <check>\
   $nchan > 0\

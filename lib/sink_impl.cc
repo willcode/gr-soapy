@@ -56,9 +56,9 @@ namespace gr
                             gr::io_signature::make (0, 0, 0)),
             d_mtu (0),
             d_message_port (pmt::mp ("command")),
+            d_sampling_rate (sampling_rate),
             d_nchan (nchan),
             d_type (type),
-            d_sampling_rate (sampling_rate),
             d_length_tag_key(length_tag_name.empty()? pmt::PMT_NIL : pmt::string_to_symbol(length_tag_name)),
             d_burst_remaining(0)
     {
@@ -70,19 +70,24 @@ namespace gr
         d_type_size = 2;
         d_type = "S16";
       }
-      std::string str_args = device + ", " + args;
-      SoapySDR::Kwargs d_args = SoapySDR::KwargsFromString (str_args);
-      makeDevice (str_args);
+      std::string str_args = device;
+      SoapySDR::Kwargs dev_args = SoapySDR::KwargsFromString (args);
+      makeDevice (device);
       std::vector<size_t> channs;
       channs.resize (d_nchan);
-      for (int i = 0; i < d_nchan; i++) {
+      for (size_t i = 0; i < d_nchan; i++) {
         channs[i] = i;
         set_sample_rate (i, d_sampling_rate);
       }
 
-      d_stream = d_device->setupStream (SOAPY_SDR_TX, "CF32", channs, d_args);
+      d_stream = d_device->setupStream (SOAPY_SDR_TX, "CF32", channs, dev_args);
       d_device->activateStream (d_stream);
       d_mtu = d_device->getStreamMTU (d_stream);
+      
+      /* Apply device settings */
+      for(const std::pair<std::string, std::string>& iter: dev_args) {
+        d_device->writeSetting(iter.first, iter.second);
+      }
 
       message_port_register_in (d_message_port);
       set_msg_handler (d_message_port,
