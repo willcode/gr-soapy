@@ -74,7 +74,7 @@ ubuntu:
   script:
     - mkdir -p build
     - cd build
-    - cmake  ..
+    - cmake ..
     - make
 docs:
   image: ubuntu:18.04
@@ -100,7 +100,7 @@ docs:
   script:
     - mkdir -p build
     - cd build
-    - cmake  ..
+    - cmake ..
     - make doxygen_target
   artifacts:
     expire_in: 1 week
