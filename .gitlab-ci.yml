@@ -1,65 +1,56 @@
 stages:
   - build
   - deploy
-
 debian:
   image: debian:latest
-
   before_script:
-      - apt-get update -qq && apt-get install -y -qq libboost* libcppunit-dev swig cmake gcc gnuradio gnuradio-dev libconfig++-dev git
-
+    - apt-get update -qq && apt-get install -y -qq libboost* libcppunit-dev swig cmake gcc gnuradio gnuradio-dev libconfig++-dev git
   stage: build
-  script:         
-        - git clone https://github.com/pothosware/SoapySDR.git
-        - cd SoapySDR
-        - mkdir build
-        - cd build
-        - cmake ..
-        - make
-        - make install
-        - cd ../..
-        - mkdir -p build
-        - cd build
-        - cmake ..
-        - make
-        - cd ..
-
+  script:
+    - git clone https://github.com/pothosware/SoapySDR.git
+    - cd SoapySDR
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+    - make install
+    - cd ../..
+    - mkdir -p build
+    - cd build
+    - cmake ..
+    - make
+    - cd ..
 suse:
   image: opensuse/tumbleweed
-
   before_script:
-      - zypper in -y libboost* cppunit-devel python python-devel swig cmake gcc-c++ gcc soapy-sdr soapy-sdr-devel gnuradio gnuradio-devel
-
+    - zypper in -y libboost* cppunit-devel python python-devel swig cmake gcc-c++ gcc soapy-sdr soapy-sdr-devel gnuradio gnuradio-devel
   stage: build
   script:
-        - mkdir -p build
-        - cd build
-        - cmake -DCMAKE_INSTALL_PREFIX=/usr -DLIB_SUFFIX=64 -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
-        - make
-        - cd ..
+    - mkdir -p build
+    - cd build
+    - cmake -DCMAKE_INSTALL_PREFIX=/usr -DLIB_SUFFIX=64 -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+    - make
+    - cd ..
 ubuntu:
   image: ubuntu:16.04
-  
-  before_script: 
-        - apt-get update -qq -y && apt-get install -q -y libboost-all-dev libcppunit-dev swig cmake gcc gnuradio gnuradio-dev libconfig++-dev git 
+  before_script:
+    - apt-get update -qq -y && apt-get install -q -y libboost-all-dev libcppunit-dev swig cmake gcc gnuradio gnuradio-dev libconfig++-dev git
   stage: build
   script:
-        - git clone https://github.com/pothosware/SoapySDR.git
-        - cd SoapySDR
-        - mkdir build
-        - cd build
-        - cmake ..
-        - make
-        - make install
-        - cd ../..
-        - mkdir -p build
-        - cd build
-        - cmake  ..
-        - make
-
-pages: 
+    - git clone https://github.com/pothosware/SoapySDR.git
+    - cd SoapySDR
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+    - make install
+    - cd ../..
+    - mkdir -p build
+    - cd build
+    - cmake  ..
+    - make
+pages:
   image: ubuntu:16.04
-  
   before_script:
     - apt-get update -qq -y && apt-get install -q -y doxygen libboost-all-dev libcppunit-dev swig cmake gcc gnuradio gnuradio-dev libconfig++-dev git
   stage: deploy
@@ -74,12 +65,12 @@ pages:
     - cd ../..
     - mkdir -p build
     - cd build
-    - cmake  .. 
+    - cmake  ..
     - make doxygen_target
     - rm -rf public/*
-    - mv docs/doxygen/html public/  
+    - mv docs/doxygen/html public/
   artifacts:
     paths:
-    - public
+      - public
   only:
-  - master
+    - master
