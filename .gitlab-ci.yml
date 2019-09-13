@@ -2,7 +2,7 @@ stages:
   - build
   - deploy
 debian:
-  image: debian:latest
+  image: debian:buster
   before_script:
     - apt-get update -qq
     - |
