@@ -1,0 +1,45 @@
+Source: gr-soapy
+Section: science
+Priority: optional
+Maintainer: Libre Space Foundation <info@libre.space>
+Build-Depends: cmake,
+               debhelper (>= 9.0.0~),
+               dh-python,
+               doxygen,
+               git,
+               gnuradio-dev (>=3.7.10),
+               libboost-dev,
+               libboost-filesystem-dev,
+               libboost-system-dev,
+               libcppunit-dev,
+               libsoapysdr-dev,
+               pkg-config,
+               python-dev,
+               swig
+X-Python-Version: >= 2.7, << 2.8
+Standards-Version: 3.9.8
+Homepage: https://gitlab.com/librespacefoundation/gr-soapy
+Vcs-Git: https://gitlab.com/librespacefoundation/gr-soapy.git
+Vcs-Browser: https://gitlab.com/librespacefoundation/gr-soapy
+
+Package: gr-soapy
+Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
+Depends: libgnuradio-soapy (= ${binary:Version}),
+         ${python:Depends},
+         ${shlibs:Depends},
+         ${misc:Depends}
+Recommends: gnuradio
+Description: SoapySDR GNU Radio Out-Of-Tree Module
+ gr-soapy is a GNURadio wrapper for the SoapySDR library.
+
+Package: libgnuradio-soapy
+Section: libs
+Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Multi-Arch: same
+Description: SoapySDR GNU Radio Out-Of-Tree Module
+ gr-soapy is a GNURadio wrapper for the SoapySDR library.
+ .
+ This package contains the shared library.

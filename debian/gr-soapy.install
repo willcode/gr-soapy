@@ -1,0 +1,5 @@
+usr/include/*
+usr/lib/*/libgnuradio-soapy.so
+usr/lib/*/cmake/*
+usr/lib/python*
+usr/share/*
