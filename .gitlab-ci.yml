@@ -7,12 +7,13 @@ debian:
     - apt-get update -qq
     - |
       apt-get install -y -qq \
-          libboost* \
+          libboost-dev \
+          libboost-filesystem-dev \
+          libboost-system-dev \
           libcppunit-dev \
           swig \
           cmake \
           gcc \
-          gnuradio \
           gnuradio-dev \
           libconfig++-dev \
           git
@@ -36,7 +37,9 @@ suse:
   before_script:
     - |
       zypper in -y \
-          libboost* \
+          boost-devel \
+          libboost_filesystem-devel \
+          libboost_system-devel \
           cppunit-devel \
           python \
           python-devel \
@@ -61,12 +64,13 @@ ubuntu:
     - apt-get update -qq -y
     - |
       apt-get install -q -y \
-          libboost-all-dev \
+          libboost-dev \
+          libboost-filesystem-dev \
+          libboost-system-dev \
           libcppunit-dev \
           swig \
           cmake \
           gcc \
-          gnuradio \
           gnuradio-dev \
           libconfig++-dev \
           git
@@ -90,13 +94,14 @@ pages:
     - apt-get update -qq -y
     - |
       apt-get install -q -y \
+          libboost-dev \
+          libboost-filesystem-dev \
+          libboost-system-dev \
           doxygen \
-          libboost-all-dev \
           libcppunit-dev \
           swig \
           cmake \
           gcc \
-          gnuradio \
           gnuradio-dev \
           libconfig++-dev \
           git
