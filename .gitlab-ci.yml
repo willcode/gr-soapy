@@ -59,7 +59,7 @@ suse:
     - make
     - cd ..
 ubuntu:
-  image: ubuntu:16.04
+  image: ubuntu:18.04
   before_script:
     - apt-get update -qq -y
     - |
@@ -89,7 +89,7 @@ ubuntu:
     - cmake  ..
     - make
 pages:
-  image: ubuntu:16.04
+  image: ubuntu:18.04
   before_script:
     - apt-get update -qq -y
     - |
