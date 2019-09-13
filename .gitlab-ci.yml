@@ -76,7 +76,7 @@ ubuntu:
     - cd build
     - cmake  ..
     - make
-pages:
+docs:
   image: ubuntu:18.04
   variables:
     DEBIAN_FRONTEND: noninteractive
@@ -96,14 +96,24 @@ pages:
           libsoapysdr-dev \
           libconfig++-dev \
           git
-  stage: deploy
+  stage: build
   script:
     - mkdir -p build
     - cd build
     - cmake  ..
     - make doxygen_target
-    - rm -rf public/*
-    - mv docs/doxygen/html public/
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+      - build/docs/doxygen/html
+  only:
+    - master
+pages:
+  stage: deploy
+  image: alpine
+  script:
+    - mv build/docs/doxygen/html/ public/
   artifacts:
     paths:
       - public
