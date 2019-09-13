@@ -15,18 +15,11 @@ debian:
           cmake \
           gcc \
           gnuradio-dev \
+          libsoapysdr-dev \
           libconfig++-dev \
           git
   stage: build
   script:
-    - git clone https://github.com/pothosware/SoapySDR.git
-    - cd SoapySDR
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make
-    - make install
-    - cd ../..
     - mkdir -p build
     - cd build
     - cmake ..
@@ -72,18 +65,11 @@ ubuntu:
           cmake \
           gcc \
           gnuradio-dev \
+          libsoapysdr-dev \
           libconfig++-dev \
           git
   stage: build
   script:
-    - git clone https://github.com/pothosware/SoapySDR.git
-    - cd SoapySDR
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make
-    - make install
-    - cd ../..
     - mkdir -p build
     - cd build
     - cmake  ..
@@ -103,18 +89,11 @@ pages:
           cmake \
           gcc \
           gnuradio-dev \
+          libsoapysdr-dev \
           libconfig++-dev \
           git
   stage: deploy
   script:
-    - git clone https://github.com/pothosware/SoapySDR.git
-    - cd SoapySDR
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make
-    - make install
-    - cd ../..
     - mkdir -p build
     - cd build
     - cmake  ..
