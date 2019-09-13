@@ -4,7 +4,18 @@ stages:
 debian:
   image: debian:latest
   before_script:
-    - apt-get update -qq && apt-get install -y -qq libboost* libcppunit-dev swig cmake gcc gnuradio gnuradio-dev libconfig++-dev git
+    - apt-get update -qq
+    - |
+      apt-get install -y -qq \
+          libboost* \
+          libcppunit-dev \
+          swig \
+          cmake \
+          gcc \
+          gnuradio \
+          gnuradio-dev \
+          libconfig++-dev \
+          git
   stage: build
   script:
     - git clone https://github.com/pothosware/SoapySDR.git
@@ -23,7 +34,20 @@ debian:
 suse:
   image: opensuse/tumbleweed
   before_script:
-    - zypper in -y libboost* cppunit-devel python python-devel swig cmake gcc-c++ gcc soapy-sdr soapy-sdr-devel gnuradio gnuradio-devel
+    - |
+      zypper in -y \
+          libboost* \
+          cppunit-devel \
+          python \
+          python-devel \
+          swig \
+          cmake \
+          gcc-c++ \
+          gcc \
+          soapy-sdr \
+          soapy-sdr-devel \
+          gnuradio \
+          gnuradio-devel
   stage: build
   script:
     - mkdir -p build
@@ -34,7 +58,18 @@ suse:
 ubuntu:
   image: ubuntu:16.04
   before_script:
-    - apt-get update -qq -y && apt-get install -q -y libboost-all-dev libcppunit-dev swig cmake gcc gnuradio gnuradio-dev libconfig++-dev git
+    - apt-get update -qq -y
+    - |
+      apt-get install -q -y \
+          libboost-all-dev \
+          libcppunit-dev \
+          swig \
+          cmake \
+          gcc \
+          gnuradio \
+          gnuradio-dev \
+          libconfig++-dev \
+          git
   stage: build
   script:
     - git clone https://github.com/pothosware/SoapySDR.git
@@ -52,7 +87,19 @@ ubuntu:
 pages:
   image: ubuntu:16.04
   before_script:
-    - apt-get update -qq -y && apt-get install -q -y doxygen libboost-all-dev libcppunit-dev swig cmake gcc gnuradio gnuradio-dev libconfig++-dev git
+    - apt-get update -qq -y
+    - |
+      apt-get install -q -y \
+          doxygen \
+          libboost-all-dev \
+          libcppunit-dev \
+          swig \
+          cmake \
+          gcc \
+          gnuradio \
+          gnuradio-dev \
+          libconfig++-dev \
+          git
   stage: deploy
   script:
     - git clone https://github.com/pothosware/SoapySDR.git
