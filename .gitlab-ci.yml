@@ -2,6 +2,7 @@ stages:
   - build
   - deploy
 debian:
+  stage: build
   image: debian:buster
   before_script:
     - apt-get update -qq
@@ -18,7 +19,6 @@ debian:
           libsoapysdr-dev \
           libconfig++-dev \
           git
-  stage: build
   script:
     - mkdir -p build
     - cd build
@@ -26,6 +26,7 @@ debian:
     - make
     - cd ..
 suse:
+  stage: build
   image: opensuse/tumbleweed
   before_script:
     - |
@@ -44,7 +45,6 @@ suse:
           soapy-sdr-devel \
           gnuradio \
           gnuradio-devel
-  stage: build
   script:
     - mkdir -p build
     - cd build
@@ -52,6 +52,7 @@ suse:
     - make
     - cd ..
 ubuntu:
+  stage: build
   image: ubuntu:18.04
   variables:
     DEBIAN_FRONTEND: noninteractive
@@ -70,13 +71,13 @@ ubuntu:
           libsoapysdr-dev \
           libconfig++-dev \
           git
-  stage: build
   script:
     - mkdir -p build
     - cd build
     - cmake ..
     - make
 docs:
+  stage: build
   image: ubuntu:18.04
   variables:
     DEBIAN_FRONTEND: noninteractive
@@ -96,7 +97,6 @@ docs:
           libsoapysdr-dev \
           libconfig++-dev \
           git
-  stage: build
   script:
     - mkdir -p build
     - cd build
