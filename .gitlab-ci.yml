@@ -112,8 +112,6 @@ docs:
     when: always
     paths:
       - build/docs/doxygen/html
-  only:
-    - master
 deploy:
   stage: deploy
   image: debian:buster
