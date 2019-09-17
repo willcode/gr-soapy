@@ -163,4 +163,5 @@ pages:
     paths:
       - public
   only:
-    - master
+    refs:
+      - tags
