@@ -1,6 +1,18 @@
 stages:
+  - style
   - build
   - deploy
+
+style:
+  stage: style
+  image: debian:buster
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq astyle git
+  script:
+    - if (test $(astyle --dry-run --options=.astylerc --formatted lib/*.cc | wc -l) -eq 0); then (exit 0); else (exit 1); fi
+    - if (test $(astyle --dry-run --options=.astylerc --formatted lib/*.h | wc -l) -eq 0); then (exit 0); else (exit 1); fi
+    - if (test $(astyle --dry-run --options=.astylerc --formatted include/soapy/*.h | wc -l) -eq 0); then (exit 0); else (exit 1); fi
+
 debian:
   stage: build
   image: debian:buster

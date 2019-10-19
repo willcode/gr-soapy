@@ -34,11 +34,12 @@
 #include <fstream>
 
 int
-main (int argc, char **argv)
+main(int argc, char **argv)
 {
   CppUnit::TextTestRunner runner;
   std::ofstream xmlfile(get_unittest_path("soapy.xml").c_str());
-  CppUnit::XmlOutputter *xmlout = new CppUnit::XmlOutputter(&runner.result(), xmlfile);
+  CppUnit::XmlOutputter *xmlout = new CppUnit::XmlOutputter(&runner.result(),
+      xmlfile);
 
   runner.addTest(qa_soapy::suite());
   runner.setOutputter(xmlout);

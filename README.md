@@ -48,6 +48,26 @@ can be specified with the `LIB_SUFFIX` variable. For example:
 
 will install the libraries at the `/usr/lib64` directory.
 
+### Coding style
+For the C++ code, `gr-soapy` uses a slightly modified version of the 
+**Stroustrup** style, which is a nicer adaptation of the well known K&R style.
+In addition, we decided to decrease the indentation from 4 to 2 spaces.
+This choice was made mainly to avoid braking statements with long namespaces.
+We also found ourselves, that with smaller indentation we use more descriptive
+variable names, avoiding frustrating abbreviations without phoenixes etc. 
+
+At the root directory of the project there is the `astyle` options 
+file `.astylerc` containing the proper configuration.
+Developers can import this configuration to their favorite editor. 
+In addition the `hooks/pre-commit` file contains a Git hook, 
+that can be used to perform before every commit, code style formatting
+with `astyle` and the `.astylerc` parameters.
+To enable this hook developers should copy the hook at their `.git/hooks` 
+directory. 
+Failing to comply with the coding style described by the `.astylerc` 
+will result to failure of the automated tests running on our CI services. 
+So make sure that you either import on your editor the coding style rules 
+or use the `pre-commit` Git hook.
 
 ## License
 
