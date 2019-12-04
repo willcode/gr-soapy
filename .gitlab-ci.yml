@@ -44,7 +44,7 @@ debian:
       - artifacts
 suse:
   stage: build
-  image: opensuse/tumbleweed
+  image: opensuse/leap
   before_script:
     - |
       zypper in -y \
