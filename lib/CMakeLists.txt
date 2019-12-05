@@ -23,11 +23,6 @@
 ########################################################################
 include(GrPlatform) #define LIB_SUFFIX
 
-include_directories(${Boost_INCLUDE_DIR})
-include_directories(${SoapySDR_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
-link_directories(${SoapySDR_LIBRARY_DIRS})
-
 list(APPEND soapy_sources
     source_impl.cc
     sink_impl.cc
@@ -40,9 +35,14 @@ if(NOT soapy_sources)
 endif(NOT soapy_sources)
 
 add_library(gnuradio-soapy SHARED ${soapy_sources})
-target_link_libraries(gnuradio-soapy gnuradio::gnuradio-runtime ${Boost_LIBRARIES} ${SoapySDR_LIBRARIES})
+
+target_link_libraries(gnuradio-soapy gnuradio::gnuradio-runtime 
+    ${Boost_LIBRARIES} 
+    ${SoapySDR_LIBRARIES}
+)
 target_include_directories(gnuradio-soapy
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/>
     PUBLIC $<INSTALL_INTERFACE:include>
   )
 set_target_properties(gnuradio-soapy PROPERTIES DEFINE_SYMBOL "gnuradio_soapy_EXPORTS")
@@ -74,8 +74,6 @@ include(GrTest)
 #include_directories()
 # List all files that contain Boost.UTF unit tests here
 list(APPEND test_soapy_sources
-#    ${CMAKE_CURRENT_SOURCE_DIR}/test_soapy.cc
-#    ${CMAKE_CURRENT_SOURCE_DIR}/qa_soapy.cc
 )
 
 # Anything we need to link to for the unit tests go here
