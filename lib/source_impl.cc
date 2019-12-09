@@ -2,8 +2,8 @@
 /*
  * gr-soapy: Soapy SDR Radio Out-Of-Tree Module
  *
- *  Copyright (C) 2018
- *  Libre Space Foundation <http://librespacefoundation.org/>
+ *  Copyright (C) 2018, 2019
+ *  Libre Space Foundation <http://libre.space>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -54,17 +54,20 @@ source_impl::source_impl(size_t nchan, const std::string device,
                          const std::string type) :
   gr::sync_block("source", gr::io_signature::make(0, 0, 0),
                  args_to_io_sig(type, nchan)),
+  d_dev_str(device),
+  d_devname(devname),
+  /*
+   * Swig does not guarantee C++ destructors are called from python,
+   *  so recommends against relying on them for cleanup.
+   */
+  d_stopped(true),
+  d_use_uhd(false),
   d_mtu(0),
   d_message_port(pmt::mp("command")),
   d_sampling_rate(sampling_rate),
   d_nchan(nchan),
   d_type(type)
 {
-  // Swig does not guarantee C++ destructors are called from python, so recommends against relying on them for cleanup.
-  // overloaded block stop() function and moved cleanup there with a flag isStopped just in case destructor is called.
-  isStopped = false;
-  d_devname = devname;
-
   _recv_timeout = 0.1;  // seconds
   timeoutUs = (long)(_recv_timeout * 1.0e6);
   // std::cout << "TimeoutUs = " << timeoutUs << std::endl;
@@ -84,25 +87,21 @@ source_impl::source_impl(size_t nchan, const std::string device,
 
   // one-off setting for UHD
   if (d_devname == "uhd") {
-    isUHD = true;
+    d_use_uhd = true;
     flags = SOAPY_SDR_ONE_PACKET + SOAPY_SDR_END_BURST;
   }
   else {
-    isUHD = false;
+    d_use_uhd = false;
     flags = 0;
   }
 
-  int madeDevice = makeDevice(device);
-
-  if (madeDevice == EXIT_FAILURE) {
-    exit(0);
-  }
+  makeDevice(device);
 
   if (d_nchan > d_device->getNumChannels(SOAPY_SDR_RX)) {
     std::string msgString =
       "[Soapy Source] ERROR: Unsupported number of channels. Only  " + std::to_string(
         d_device->getNumChannels(SOAPY_SDR_RX)) + " channels available.";
-    throw std::runtime_error(msgString);
+    throw std::invalid_argument(msgString);
   }
 
   std::vector<size_t> channs;
@@ -126,13 +125,13 @@ source_impl::source_impl(size_t nchan, const std::string device,
         std::string msgString =
           "[Soapy Source] ERROR: Unsupported sample rate.  Rate must be between " +
           std::to_string(minRate) + " and " + std::to_string(maxRate);
-        throw std::runtime_error(msgString);
+        throw std::invalid_argument(msgString);
       }
     }
     else {
       if (((long)d_sampling_rate != 2500000) && ((long)d_sampling_rate != 10000000)) {
-        throw std::runtime_error("[Soapy Source] Airspy only supports 2.5 MSPS and 10 MSPS rates.  Requested "
-                                 + std::to_string((long)d_sampling_rate));
+        throw std::invalid_argument("[Soapy Source] Airspy only supports 2.5 MSPS and 10 MSPS rates.  Requested "
+                                    + std::to_string((long)d_sampling_rate));
 
       }
     }
@@ -141,9 +140,6 @@ source_impl::source_impl(size_t nchan, const std::string device,
 
   SoapySDR::Kwargs dev_args = SoapySDR::KwargsFromString(args);
   d_stream = d_device->setupStream(SOAPY_SDR_RX, d_type, channs, dev_args);
-  d_device->activateStream(d_stream);
-
-
   d_mtu = d_device->getStreamMTU(d_stream);
 
   /* Apply device settings */
@@ -174,23 +170,34 @@ source_impl::source_impl(size_t nchan, const std::string device,
   set_max_noutput_items(d_mtu);
 }
 
-bool source_impl::stop()
+bool
+source_impl::start()
 {
+  d_device->activateStream(d_stream);
+  return true;
+}
 
-  if (!isStopped) {
+bool
+source_impl::stop()
+{
+  if (!d_stopped) {
     d_device->closeStream(d_stream);
     unmakeDevice(d_device);
-
-    isStopped = true;
+    d_stopped = true;
   }
-
   return true;
 }
 
 source_impl::~source_impl()
 {
-  // Swig does not guarantee C++ destructors are called from python, so recommends against relying on them for cleanup.
-  // overloaded block stop() function and moved cleanup there with a flag isStopped just in case destructor is called.
+  /*
+   * Guarded with the d_stopped flag.
+   * if \ref stop() has not yet called for relasing hardware etc,
+   * it will be called by this destructor.
+   *
+   * If the scheduler has already called \ref stop() calling it again should have
+   * no impact.
+   */
   stop();
 }
 
@@ -201,40 +208,29 @@ source_impl::register_msg_cmd_handler(const pmt::pmt_t &cmd,
   d_cmd_handlers[cmd] = handler;
 }
 
-int
+void
 source_impl::makeDevice(const std::string &argStr)
 {
-  try {
-    d_device = SoapySDR::Device::make(argStr);
-  }
-  catch (const std::exception &ex) {
-    std::cerr << "Error making device: " << ex.what() << std::endl;
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  d_device = SoapySDR::Device::make(argStr);
+  d_stopped = false;
 }
 
-int
+void
 source_impl::unmakeDevice(SoapySDR::Device *dev)
 {
-  try {
-    SoapySDR::Device::unmake(dev);
-  }
-  catch (const std::exception &ex) {
-    std::cerr << "Error unmaking device: " << ex.what() << std::endl;
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  SoapySDR::Device::unmake(dev);
 }
 
 bool source_impl::hasDCOffset(int channel)
 {
   return d_device->hasDCOffset(SOAPY_SDR_RX, channel);
 }
+
 bool source_impl::hasIQBalance(int channel)
 {
   return d_device->hasIQBalance(SOAPY_SDR_RX, channel);
 }
+
 bool source_impl::hasFrequencyCorrection(int channel)
 {
   return d_device->hasFrequencyCorrection(SOAPY_SDR_RX, channel);

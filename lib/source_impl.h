@@ -2,8 +2,8 @@
 /*
  * gr-soapy: Soapy SDR Radio Out-Of-Tree Module
  *
- *  Copyright (C) 2018
- *  Libre Space Foundation <http://librespacefoundation.org/>
+ *  Copyright (C) 2018, 2019
+ *  Libre Space Foundation <http://libre.space>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -43,13 +43,16 @@ namespace soapy {
 
 class source_impl : public source {
 private:
+  const std::string d_dev_str;
+  const std::string d_devname;
+  const std::string d_args;
+
   SoapySDR::Device *d_device;
-  std::string d_devname;
   SoapySDR::Stream *d_stream;
 
-  bool isStopped;
+  bool d_stopped;
   boost::recursive_mutex d_mutex;
-  bool isUHD;
+  bool d_use_uhd;
   int flags = 0;
   long long timeNs = 0;
 
@@ -99,11 +102,30 @@ private:
     return io_signature::make(nchan, nchan, size);
   }
 
+  /*!
+   * Create and store a new Device object using the make function of SoapySDR
+   * API.
+   * For every makeDevice call an unmakeDevice call is also made.
+   *
+   * \param argStr device construction key/value argument string
+   */
+  void
+  makeDevice(const std::string &argStr);
+
+  /*!
+   * Destroy a Device object created by makeDevice call.
+   * Called for every makeDevice call.
+   * \param dev a pointer to a Device object
+   */
+  void
+  unmakeDevice(SoapySDR::Device *dev);
+
 public:
   source_impl(size_t nchan, const std::string device, const std::string devname,
               const std::string args, double sampling_rate, const std::string type);
   ~source_impl();
 
+  virtual bool start();
   virtual bool stop();
 
   // Where all the action really happens
@@ -112,24 +134,6 @@ public:
            gr_vector_void_star &output_items);
 
   virtual std::vector<std::string> listAntennas(int channel);
-
-  /*!
-   * Create and store a new Device object using the make function of SoapySDR
-   * API.
-   * For every makeDevice call an unmakeDevice call is also made.
-   *
-   * \param argStr device construction key/value argument string
-   * \return integer indicating success or failure
-   */
-  int makeDevice(const std::string &argStr);
-
-  /*!
-   * Destroy a Device object created by makeDevice call.
-   * Called for every makeDevice call.
-   * \param dev a pointer to a Device object
-   * \return integer indicating success or failure
-   */
-  int unmakeDevice(SoapySDR::Device *dev);
 
   /*!
    * Set the center frequency for the specified RX chain.

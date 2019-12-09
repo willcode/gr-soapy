@@ -2,8 +2,8 @@
 /*
  * gr-soapy: Soapy SDR Radio Out-Of-Tree Module
  *
- *  Copyright (C) 2018
- *  Libre Space Foundation <http://librespacefoundation.org/>
+ *  Copyright (C) 2018, 2019
+ *  Libre Space Foundation <http://libre.space>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -56,6 +56,8 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
                      const std::string type, const std::string length_tag_name) :
   gr::sync_block("sink", args_to_io_sig(type, nchan),
                  gr::io_signature::make(0, 0, 0)),
+  d_devname(devname),
+  d_stopped(true),
   d_mtu(0),
   d_message_port(pmt::mp("command")),
   d_sampling_rate(sampling_rate),
@@ -65,8 +67,7 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
                      length_tag_name)),
   d_burst_remaining(0)
 {
-  isStopped = false;
-  d_devname = devname;
+  d_stopped = false;
 
   if (type == "fc32") {
     d_type_size = 8;
@@ -81,17 +82,13 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
     d_type = SOAPY_SDR_CS8;
   }
 
-  int madeDevice = makeDevice(device);
-
-  if (madeDevice == EXIT_FAILURE) {
-    exit(0);
-  }
-
+  makeDevice(device);
+  d_stopped = false;
   if (d_nchan > d_device->getNumChannels(SOAPY_SDR_TX)) {
     std::string msgString =
       "[Soapy Sink] ERROR: Unsupported number of channels. Only  " + std::to_string(
         d_device->getNumChannels(SOAPY_SDR_TX)) + " channels available.";
-    throw std::runtime_error(msgString);
+    throw std::invalid_argument(msgString);
   }
 
   std::vector<size_t> channs;
@@ -116,7 +113,7 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
         "[Soapy Sink] ERROR: Unsupported sample rate.  Rate must be between " +
         std::to_string(sampRange.front().minimum()) + " and " + std::to_string(
           sampRange.back().maximum());
-      throw std::runtime_error(msgString);
+      throw std::invalid_argument(msgString);
     }
 
     set_sample_rate(i, d_sampling_rate);
@@ -124,7 +121,6 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
 
   SoapySDR::Kwargs dev_args = SoapySDR::KwargsFromString(args);
   d_stream = d_device->setupStream(SOAPY_SDR_TX, d_type, channs, dev_args);
-  d_device->activateStream(d_stream);
   d_mtu = d_device->getStreamMTU(d_stream);
 
   /* Apply device settings */
@@ -154,16 +150,21 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
   set_max_noutput_items(d_mtu);  // limit max samples per call to MTU
 }
 
+bool sink_impl::start()
+{
+  d_device->activateStream(d_stream);
+  return true;
+}
 
 bool sink_impl::stop()
 {
-  if (!isStopped) {
+  if (!d_stopped) {
     unmakeDevice(d_device);
-    isStopped = true;
+    d_stopped = true;
   }
-
   return true;
 }
+
 /*
  * Our virtual destructor.
  */
@@ -179,30 +180,16 @@ sink_impl::register_msg_cmd_handler(const pmt::pmt_t &cmd,
   d_cmd_handlers[cmd] = handler;
 }
 
-int
+void
 sink_impl::makeDevice(const std::string &argStr)
 {
-  try {
-    d_device = SoapySDR::Device::make(argStr);
-  }
-  catch (const std::exception &ex) {
-    std::cerr << "Error making device: " << ex.what() << std::endl;
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  d_device = SoapySDR::Device::make(argStr);
 }
 
-int
+void
 sink_impl::unmakeDevice(SoapySDR::Device *dev)
 {
-  try {
-    SoapySDR::Device::unmake(dev);
-  }
-  catch (const std::exception &ex) {
-    std::cerr << "Error unmaking device: " << ex.what() << std::endl;
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  SoapySDR::Device::unmake(dev);
 }
 
 bool sink_impl::hasDCOffset(int channel)
