@@ -51,10 +51,10 @@ private:
   size_t d_mtu;
   pmt::pmt_t d_message_port;
 
-  float d_frequency;
+  double d_frequency;
   float d_gain;
-  float d_sampling_rate;
-  float d_bandwidth;
+  double d_sampling_rate;
+  double d_bandwidth;
   std::string d_antenna;
   size_t d_nchan;
   gr_complex d_dc_offset;
@@ -96,7 +96,7 @@ private:
 
 public:
   sink_impl(size_t nchan, const std::string device, const std::string devname,
-            const std::string args, float sampling_rate, const std::string type,
+            const std::string args, double sampling_rate, const std::string type,
             const std::string length_tag_name);
   ~sink_impl();
 
@@ -135,7 +135,7 @@ public:
    * \param channel an available channel on the device
    * \param frequency center frequency in Hz
    */
-  void set_frequency(size_t channel, float frequency);
+  void set_frequency(size_t channel, double frequency);
 
   /*!
    * Set the center frequency for the specified TX chain of the element.
@@ -146,7 +146,7 @@ public:
    * \param name an available element name
    * \param frequency center frequency in Hz
    */
-  void set_frequency(size_t channel, const std::string &name, float frequency);
+  void set_frequency(size_t channel, const std::string &name, double frequency);
 
   virtual void set_overall_gain(size_t channel, float gain, bool manual_mode);
 
@@ -185,14 +185,14 @@ public:
    * \param channel an available channel on the device
    * \param sample_rate the sample rate samples per second
    */
-  void set_sample_rate(size_t channel, float sample_rate);
+  void set_sample_rate(size_t channel, double sample_rate);
 
   /*!
    * Set the baseband filter width of the TX chain
    * \param channel an available channel on the device
    * \param bandwidth the baseband filter width in Hz
    */
-  void set_bandwidth(size_t channel, float bandwidth);
+  void set_bandwidth(size_t channel, double bandwidth);
 
   /*!
    * Set the antenna element for the TX chain.

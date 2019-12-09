@@ -40,7 +40,7 @@ namespace soapy {
 sink::sptr
 sink::make(size_t nchan, const std::string device, const std::string devname,
            const std::string args,
-           float sampling_rate, std::string type, const std::string length_tag_name)
+           double sampling_rate, std::string type, const std::string length_tag_name)
 {
   return gnuradio::get_initial_sptr(
            new sink_impl(nchan, device, devname, args, sampling_rate, type,
@@ -52,7 +52,7 @@ sink::make(size_t nchan, const std::string device, const std::string devname,
  */
 sink_impl::sink_impl(size_t nchan, const std::string device,
                      const std::string devname,
-                     const std::string args, float sampling_rate,
+                     const std::string args, double sampling_rate,
                      const std::string type, const std::string length_tag_name) :
   gr::sync_block("sink", args_to_io_sig(type, nchan),
                  gr::io_signature::make(0, 0, 0)),
@@ -101,8 +101,16 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
 
     SoapySDR::RangeList sampRange = d_device->getSampleRateRange(SOAPY_SDR_TX, i);
 
-    if ((d_sampling_rate < sampRange.front().minimum())
-        || (d_sampling_rate > sampRange.back().maximum())) {
+    double minRate = sampRange.front().minimum();
+    double maxRate = sampRange.back().maximum();
+
+    // for some reason the airspy provides them backwards
+    if (minRate > maxRate) {
+      std::swap(minRate, maxRate);
+    }
+
+    if ((d_sampling_rate < minRate)
+        || (d_sampling_rate > maxRate)) {
       //std::string msgString = boost::format("[Soapy Source] ERROR: Unsupported sample rate.   %f <= rate <= %f") % sampRange.front().minimum() % sampRange.back().maximum();
       std::string msgString =
         "[Soapy Sink] ERROR: Unsupported sample rate.  Rate must be between " +
@@ -211,7 +219,7 @@ bool sink_impl::hasFrequencyCorrection(int channel)
 }
 
 void
-sink_impl::set_frequency(size_t channel, float frequency)
+sink_impl::set_frequency(size_t channel, double frequency)
 {
   if (channel >= d_nchan) {
     return;
@@ -223,7 +231,7 @@ sink_impl::set_frequency(size_t channel, float frequency)
 
 void
 sink_impl::set_frequency(size_t channel, const std::string &name,
-                         float frequency)
+                         double frequency)
 {
   if (channel >= d_nchan) {
     return;
@@ -315,7 +323,7 @@ sink_impl::set_gain_mode(size_t channel, bool gain_auto_mode)
 }
 
 void
-sink_impl::set_sample_rate(size_t channel, float sample_rate)
+sink_impl::set_sample_rate(size_t channel, double sample_rate)
 {
   if (channel >= d_nchan) {
     return;
@@ -325,7 +333,7 @@ sink_impl::set_sample_rate(size_t channel, float sample_rate)
 }
 
 void
-sink_impl::set_bandwidth(size_t channel, float bandwidth)
+sink_impl::set_bandwidth(size_t channel, double bandwidth)
 {
   if (channel >= d_nchan) {
     return;

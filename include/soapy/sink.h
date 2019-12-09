@@ -70,7 +70,7 @@ public:
    * "rtlsdr" or others
    */
   static sptr make(size_t nchan, const std::string device,
-                   const std::string devname, const std::string args, float sampling_rate,
+                   const std::string devname, const std::string args, double sampling_rate,
                    const std::string type, const std::string length_tag_name = "");
 
   /*!
@@ -101,7 +101,7 @@ public:
    * \param channel an available channel of the device
    * \param freq the frequency to be set in Hz
    */
-  virtual void set_frequency(size_t channel, float freq) = 0;
+  virtual void set_frequency(size_t channel, double freq) = 0;
 
   /*!
    * Callback to change center frequency of a tunable element
@@ -110,7 +110,7 @@ public:
    * \param frequency the frequency to be set in Hz
    */
   virtual void set_frequency(size_t channel, const std::string &name,
-                             float frequency) = 0;
+                             double frequency) = 0;
 
   /*!
    * Callback to set automatic gain mode
@@ -124,14 +124,14 @@ public:
    * \param channel an available channel of the device
    * \param sample_rate number of samples in samples per second
    */
-  virtual void set_sample_rate(size_t channel, float sample_rate) = 0;
+  virtual void set_sample_rate(size_t channel, double sample_rate) = 0;
 
   /*!
    * Callback to set digital filter bandwidth
    * \param channel an available channel on the device
    * \param bandwidth filter width in Hz
    */
-  virtual void set_bandwidth(size_t channel, float bandwidth) = 0;
+  virtual void set_bandwidth(size_t channel, double bandwidth) = 0;
 
   /*!
    * Callback to set antenna for RF chain

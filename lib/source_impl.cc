@@ -38,7 +38,7 @@ namespace gr {
 namespace soapy {
 source::sptr
 source::make(size_t nchan, const std::string device, const std::string devname,
-             const std::string args, float sampling_rate,
+             const std::string args, double sampling_rate,
              const std::string type)
 {
   return gnuradio::get_initial_sptr(
@@ -50,7 +50,7 @@ source::make(size_t nchan, const std::string device, const std::string devname,
  */
 source_impl::source_impl(size_t nchan, const std::string device,
                          const std::string devname,
-                         const std::string args, float sampling_rate,
+                         const std::string args, double sampling_rate,
                          const std::string type) :
   gr::sync_block("source", gr::io_signature::make(0, 0, 0),
                  args_to_io_sig(type, nchan)),
@@ -112,8 +112,8 @@ source_impl::source_impl(size_t nchan, const std::string device,
 
     SoapySDR::RangeList sampRange = d_device->getSampleRateRange(SOAPY_SDR_RX, i);
 
-    float minRate = sampRange.front().minimum();
-    float maxRate = sampRange.back().maximum();
+    double minRate = sampRange.front().minimum();
+    double maxRate = sampRange.back().maximum();
 
     // for some reason the airspy provides them backwards
     if (minRate > maxRate) {
@@ -241,7 +241,7 @@ bool source_impl::hasFrequencyCorrection(int channel)
 }
 
 void
-source_impl::set_frequency(size_t channel, float frequency)
+source_impl::set_frequency(size_t channel, double frequency)
 {
   if (channel >= d_nchan) {
     return;
@@ -253,7 +253,7 @@ source_impl::set_frequency(size_t channel, float frequency)
 
 void
 source_impl::set_frequency(size_t channel, const std::string &name,
-                           float frequency)
+                           double frequency)
 {
   if (channel >= d_nchan) {
     return;
@@ -353,7 +353,7 @@ source_impl::set_gain_mode(size_t channel, bool gain_auto_mode)
 }
 
 void
-source_impl::set_sample_rate(size_t channel, float sample_rate)
+source_impl::set_sample_rate(size_t channel, double sample_rate)
 {
   if (channel >= d_nchan) {
     return;
@@ -373,7 +373,7 @@ std::vector<std::string> source_impl::listAntennas(int channel)
 }
 
 void
-source_impl::set_bandwidth(size_t channel, float bandwidth)
+source_impl::set_bandwidth(size_t channel, double bandwidth)
 {
   if (channel >= d_nchan) {
     return;
