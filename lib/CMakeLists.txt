@@ -57,7 +57,7 @@ endif(APPLE)
 # Install built library files
 ########################################################################
 include(GrMiscUtils)
-GR_LIBRARY_FOO(gnuradio-soapy)
+GR_LIBRARY_FOO(gnuradio-soapy ${SoapySDR_LIBRARIES})
 
 ########################################################################
 # Print summary
