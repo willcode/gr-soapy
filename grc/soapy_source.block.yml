@@ -342,9 +342,9 @@ templates:
             f = f.replace('\"', '')
             f = f.replace("\\'", '')
             f = f.strip(',') 
-            self.${id} = soapy.source(${nchan}, dev, "${devname}", f, ${samp_rate}, "${type}")
+            self.${id} = soapy.source(${nchan}, dev, f, ${samp_rate}, "${type}")
         else:
-            self.${id} = soapy.source(${nchan}, dev, "${devname}", ${args}, ${samp_rate}, "${type}")
+            self.${id} = soapy.source(${nchan}, dev, ${args}, ${samp_rate}, "${type}")
 
         if ${clock_rate} != 0:
             self.${id}.set_master_clock_rate(${clock_rate})

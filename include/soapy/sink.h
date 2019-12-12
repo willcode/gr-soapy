@@ -70,7 +70,7 @@ public:
    * "rtlsdr" or others
    */
   static sptr make(size_t nchan, const std::string device,
-                   const std::string devname, const std::string args, double sampling_rate,
+                   const std::string args, double sampling_rate,
                    const std::string type, const std::string length_tag_name = "");
 
   /*!

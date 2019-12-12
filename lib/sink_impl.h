@@ -113,7 +113,7 @@ private:
   void unmakeDevice(SoapySDR::Device *dev);
 
 public:
-  sink_impl(size_t nchan, const std::string device, const std::string devname,
+  sink_impl(size_t nchan, const std::string device,
             const std::string args, double sampling_rate, const std::string type,
             const std::string length_tag_name);
   ~sink_impl();

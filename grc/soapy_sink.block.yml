@@ -258,7 +258,7 @@ templates:
             print("ERROR: Please check device type and driver string.  Device name is not showing up in the driver string (mismatch?)")
             exit(0)
                     
-        self.${id} = soapy.sink(${nchan}, ${dev}, "${devname}", ${args}, ${samp_rate}, "${type}", ${length_tag_name})
+        self.${id} = soapy.sink(${nchan}, ${dev}, ${args}, ${samp_rate}, "${type}", ${length_tag_name})
 
         self.${id}.set_gain_mode(0,${gain_auto_mode0})
         self.${id}.set_gain_mode(1,${gain_auto_mode1})

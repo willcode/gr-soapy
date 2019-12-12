@@ -38,12 +38,13 @@ namespace gr {
 namespace soapy {
 
 sink::sptr
-sink::make(size_t nchan, const std::string device, const std::string devname,
+sink::make(size_t nchan, const std::string device,
            const std::string args,
-           double sampling_rate, std::string type, const std::string length_tag_name)
+           double sampling_rate, std::string type,
+           const std::string length_tag_name)
 {
   return gnuradio::get_initial_sptr(
-           new sink_impl(nchan, device, devname, args, sampling_rate, type,
+           new sink_impl(nchan, device, args, sampling_rate, type,
                          length_tag_name));
 }
 
@@ -51,12 +52,10 @@ sink::make(size_t nchan, const std::string device, const std::string devname,
  * The private constructor
  */
 sink_impl::sink_impl(size_t nchan, const std::string device,
-                     const std::string devname,
                      const std::string args, double sampling_rate,
                      const std::string type, const std::string length_tag_name) :
   gr::sync_block("sink", args_to_io_sig(type, nchan),
                  gr::io_signature::make(0, 0, 0)),
-  d_devname(devname),
   d_stopped(true),
   d_mtu(0),
   d_message_port(pmt::mp("command")),
@@ -67,8 +66,6 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
                      length_tag_name)),
   d_burst_remaining(0)
 {
-  d_stopped = false;
-
   if (type == "fc32") {
     d_type_size = 8;
     d_type = SOAPY_SDR_CF32;
@@ -86,8 +83,9 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
   d_stopped = false;
   if (d_nchan > d_device->getNumChannels(SOAPY_SDR_TX)) {
     std::string msgString =
-      "[Soapy Sink] ERROR: Unsupported number of channels. Only  " + std::to_string(
-        d_device->getNumChannels(SOAPY_SDR_TX)) + " channels available.";
+      "[Soapy Sink] ERROR: Unsupported number of channels. Only  "
+      + std::to_string(d_device->getNumChannels(SOAPY_SDR_TX))
+      + " channels available.";
     throw std::invalid_argument(msgString);
   }
 
@@ -101,18 +99,12 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
     double minRate = sampRange.front().minimum();
     double maxRate = sampRange.back().maximum();
 
-    // for some reason the airspy provides them backwards
-    if (minRate > maxRate) {
-      std::swap(minRate, maxRate);
-    }
-
     if ((d_sampling_rate < minRate)
         || (d_sampling_rate > maxRate)) {
-      //std::string msgString = boost::format("[Soapy Source] ERROR: Unsupported sample rate.   %f <= rate <= %f") % sampRange.front().minimum() % sampRange.back().maximum();
       std::string msgString =
         "[Soapy Sink] ERROR: Unsupported sample rate.  Rate must be between " +
-        std::to_string(sampRange.front().minimum()) + " and " + std::to_string(
-          sampRange.back().maximum());
+        std::to_string(sampRange.front().minimum()) + " and "
+        + std::to_string(sampRange.back().maximum());
       throw std::invalid_argument(msgString);
     }
 
@@ -147,7 +139,8 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
     CMD_ANTENNA_KEY,
     boost::bind(&sink_impl::cmd_handler_antenna, this, _1, _2));
 
-  set_max_noutput_items(d_mtu);  // limit max samples per call to MTU
+  // limit max samples per call to MTU
+  set_max_noutput_items(d_mtu);
 }
 
 bool sink_impl::start()

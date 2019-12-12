@@ -5,7 +5,7 @@ gr-soapy is a GNURadio wrapper for the SoapySDR library.
 
 ### Requirements
 * GNU Radio ( >= 3.8)
-* CMake ( > 3.1)
+* CMake ( > 3.8)
 * G++
 * VOLK
 * git
@@ -25,7 +25,9 @@ on the device they want to use.
 6. `sudo make install`
 
 If this is the first time you are building the gr-soapy module run
-`sudo ldconfig`
+```bash
+sudo ldconfig
+```
 
 #### Advanced
 By default, the **gr-soapy** module will use the default installation prefix.
@@ -33,7 +35,9 @@ This highly depends on the Linux distribution. You can use the `CMAKE_INSTALL_PR
 variable to alter the default installation path.
 E.g:
 
-`cmake -DCMAKE_INSTALL_PREFIX=/usr ..`
+```bash
+cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+```
 
 
 Another common control option is the library suffix of the Linux distribution.
@@ -44,7 +48,9 @@ On the other hand, distributions like Ubuntu do the exact opposite. They use
 on the `lib32` directory. In any case the correct library directory suffix
 can be specified with the `LIB_SUFFIX` variable. For example:
 
-`cmake -DLIB_SUFFIX=64 -DCMAKE_INSTALL_PREFIX=/usr -DINCLUDE_DEBUG_BLOCKS=OFF ..`
+```bash
+cmake -DLIB_SUFFIX=64 -DCMAKE_INSTALL_PREFIX=/usr -DINCLUDE_DEBUG_BLOCKS=OFF ..
+```
 
 will install the libraries at the `/usr/lib64` directory.
 
@@ -71,6 +77,6 @@ or use the `pre-commit` Git hook.
 
 ## License
 
-&copy; 2018 [Libre Space Foundation](http://librespacefoundation.org).
+&copy; 2018,2019 [Libre Space Foundation](http://librespacefoundation.org).
 
 Licensed under the [GPLv3](LICENSE).

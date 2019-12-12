@@ -37,40 +37,43 @@ const pmt::pmt_t CMD_BW_KEY = pmt::mp("bw");
 namespace gr {
 namespace soapy {
 source::sptr
-source::make(size_t nchan, const std::string device, const std::string devname,
+source::make(size_t nchan, const std::string device,
              const std::string args, double sampling_rate,
              const std::string type)
 {
   return gnuradio::get_initial_sptr(
-           new source_impl(nchan, device, devname, args, sampling_rate, type));
+           new source_impl(nchan, device, args, sampling_rate, type));
 }
 
 /*
  * The private constructor
  */
 source_impl::source_impl(size_t nchan, const std::string device,
-                         const std::string devname,
                          const std::string args, double sampling_rate,
                          const std::string type) :
   gr::sync_block("source", gr::io_signature::make(0, 0, 0),
                  args_to_io_sig(type, nchan)),
   d_dev_str(device),
-  d_devname(devname),
   /*
    * Swig does not guarantee C++ destructors are called from python,
    *  so recommends against relying on them for cleanup.
    */
   d_stopped(true),
-  d_use_uhd(false),
   d_mtu(0),
   d_message_port(pmt::mp("command")),
   d_sampling_rate(sampling_rate),
   d_nchan(nchan),
   d_type(type)
 {
+  /*
+   * Get the device in a key, value way. The device string should contain the
+   * driver=xxxx and therefore we can identify the device type
+   */
+  SoapySDR::Kwargs kwargs = SoapySDR::KwargsFromString(device);
+
+
   _recv_timeout = 0.1;  // seconds
   timeoutUs = (long)(_recv_timeout * 1.0e6);
-  // std::cout << "TimeoutUs = " << timeoutUs << std::endl;
 
   if (type == "fc32") {
     d_type_size = 8;
@@ -86,12 +89,10 @@ source_impl::source_impl(size_t nchan, const std::string device,
   }
 
   // one-off setting for UHD
-  if (d_devname == "uhd") {
-    d_use_uhd = true;
+  if (kwargs["driver"] == "uhd") {
     flags = SOAPY_SDR_ONE_PACKET + SOAPY_SDR_END_BURST;
   }
   else {
-    d_use_uhd = false;
     flags = 0;
   }
 
@@ -119,9 +120,8 @@ source_impl::source_impl(size_t nchan, const std::string device,
       std::swap(minRate, maxRate);
     }
 
-    if (d_devname != "airspy") {
+    if (kwargs["driver"] != "airspy") {
       if ((d_sampling_rate < minRate) || (d_sampling_rate > maxRate)) {
-        //std::string msgString = boost::format("[Soapy Source] ERROR: Unsupported sample rate.   %f <= rate <= %f") % sampRange.front().minimum() % sampRange.back().maximum();
         std::string msgString =
           "[Soapy Source] ERROR: Unsupported sample rate.  Rate must be between " +
           std::to_string(minRate) + " and " + std::to_string(maxRate);
@@ -130,7 +130,8 @@ source_impl::source_impl(size_t nchan, const std::string device,
     }
     else {
       if (((long)d_sampling_rate != 2500000) && ((long)d_sampling_rate != 10000000)) {
-        throw std::invalid_argument("[Soapy Source] Airspy only supports 2.5 MSPS and 10 MSPS rates.  Requested "
+        throw std::invalid_argument("[Soapy Source] Airspy only supports 2.5 MSPS "
+                                    "and 10 MSPS rates.  Requested "
                                     + std::to_string((long)d_sampling_rate));
 
       }

@@ -44,7 +44,6 @@ namespace soapy {
 class source_impl : public source {
 private:
   const std::string d_dev_str;
-  const std::string d_devname;
   const std::string d_args;
 
   SoapySDR::Device *d_device;
@@ -52,7 +51,6 @@ private:
 
   bool d_stopped;
   boost::recursive_mutex d_mutex;
-  bool d_use_uhd;
   int flags = 0;
   long long timeNs = 0;
 
@@ -121,8 +119,9 @@ private:
   unmakeDevice(SoapySDR::Device *dev);
 
 public:
-  source_impl(size_t nchan, const std::string device, const std::string devname,
-              const std::string args, double sampling_rate, const std::string type);
+  source_impl(size_t nchan, const std::string device,
+              const std::string args, double sampling_rate,
+              const std::string type);
   ~source_impl();
 
   virtual bool start();
