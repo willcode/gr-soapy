@@ -15,8 +15,12 @@ style:
 
 debian:
   stage: build
-  image: debian:bullseye
+  image: debian:buster
   before_script:
+    - apt-get update -qq
+    - apt-get install -qq -y gnupg libcurl4
+    - echo 'deb http://download.opensuse.org/repositories/home:/librespace:/satnogs-unstable/Debian_10/ /' > /etc/apt/sources.list.d/home:librespace:satnogs-unstable.list
+    - apt-key adv --fetch-keys https://download.opensuse.org/repositories/home:librespace:satnogs-unstable/Debian_10/Release.key
     - apt-get update -qq
     - apt-get install -qq -y devscripts git-buildpackage
   script:
