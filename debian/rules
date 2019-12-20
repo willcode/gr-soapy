@@ -10,7 +10,7 @@ GITREV=$(shell echo $(VER) | sed -rne 's,^[0-9]{8}\.([0-f]{7})$$,\1,p' -e 's,^([
 	dh $@ --with python3 --parallel
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DLIB_SUFFIX="/$(DEB_HOST_MULTIARCH)" -DPythonLibs_FIND_VERSION:STRING="3.7" -DPYTHON_EXECUTABLE:STRING="/usr/bin/python3"
+	dh_auto_configure -- -DLIB_SUFFIX="/$(DEB_HOST_MULTIARCH)"
 
 override_dh_auto_install:
 	dh_auto_install
