@@ -14,8 +14,8 @@ override_dh_auto_configure:
 
 override_dh_auto_install:
 	dh_auto_install
-	rm -f debian/gr-soapy/usr/lib/python3.7/dist-packages/soapy/*pyc
-	rm -f debian/gr-soapy/usr/lib/python3.7/dist-packages/soapy/*pyo
+	rm -f debian/gr-soapy/usr/lib/python3/dist-packages/soapy/*pyc
+	rm -f debian/gr-soapy/usr/lib/python3/dist-packages/soapy/*pyo
 
 version-to-get:
 	echo $(VER) is $(GITREV)
