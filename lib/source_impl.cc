@@ -274,11 +274,19 @@ bool source_impl::hasThisGain(size_t channel, std::string gainType)
 void source_impl::setGain(size_t channel, float gain, bool manual_mode,
                           std::string gainType)
 {
+  /*
+   * This setter is for manual mode gain. There is a known limitation of the
+   * GRC and the yaml runtime evaluation, so we need to skip this setting
+   * if the mode is auto gain
+   */
   if (channel >= d_nchan || !manual_mode) {
     return;
   }
 
   if (!hasThisGain(channel, gainType)) {
+    GR_LOG_WARN(d_logger,
+                boost::format("[Soapy Source] WARN: Uknown %s gain setting "
+                              "for channel %zu") % gainType % channel);
     return;
   }
 
@@ -316,19 +324,9 @@ source_impl::set_gain(size_t channel, float gain)
 void
 source_impl::set_overall_gain(size_t channel, float gain, bool manual_mode)
 {
-  if (channel >= d_nchan || !manual_mode) {
+  if (channel >= d_nchan || manual_mode) {
     return;
   }
-
-  SoapySDR::Range rGain = d_device->getGainRange(SOAPY_SDR_RX, channel);
-
-  if (gain < rGain.minimum() || gain > rGain.maximum()) {
-    GR_LOG_WARN(d_logger,
-                boost::format("[Soapy Source] WARN: gain out of range: %d <= gain <= %d") %
-                rGain.minimum() % rGain.maximum());
-    return;
-  }
-
   set_gain(channel, gain);
 }
 
