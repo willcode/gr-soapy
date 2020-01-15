@@ -139,13 +139,34 @@ source_impl::source_impl(size_t nchan, const std::string device,
     set_sample_rate(i, d_sampling_rate);
   }
 
+  /* Apply to all streams the supported args */
+  SoapySDR::ArgInfoList supported_args = d_device->getStreamArgsInfo(SOAPY_SDR_RX,
+                                         0);
   SoapySDR::Kwargs dev_args = SoapySDR::KwargsFromString(args);
-  d_stream = d_device->setupStream(SOAPY_SDR_RX, d_type, channs, dev_args);
+  SoapySDR::Kwargs stream_args;
+  for (const SoapySDR::ArgInfo &i : supported_args) {
+    const SoapySDR::Kwargs::const_iterator iter = dev_args.find(i.key);
+    if (iter != dev_args.end()) {
+      stream_args[iter->first] = iter->second;
+      /*
+       * This was a stream argument. Erase it so it cannot be applied later
+       * as device argument
+       */
+      dev_args.erase(i.key);
+    }
+  }
+
+  d_stream = d_device->setupStream(SOAPY_SDR_RX, d_type, channs, stream_args);
   d_mtu = d_device->getStreamMTU(d_stream);
 
-  /* Apply device settings */
-  for (const std::pair<std::string, std::string> &iter : dev_args) {
-    d_device->writeSetting(iter.first, iter.second);
+  /*
+   * Apply device settings to all enabled channels.
+   * These should be any settings that were not a stream argument
+   */
+  for (size_t chan : channs) {
+    for (const std::pair<std::string, std::string> &iter : dev_args) {
+      d_device->writeSetting(SOAPY_SDR_RX, chan, iter.first, iter.second);
+    }
   }
 
   message_port_register_in(d_message_port);
