@@ -2,7 +2,7 @@
 /*
  * gr-soapy: Soapy SDR Radio Out-Of-Tree Module
  *
- *  Copyright (C) 2018, 2019
+ *  Copyright (C) 2018, 2019, 2020
  *  Libre Space Foundation <http://libre.space>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -50,18 +50,7 @@ private:
   SoapySDR::Stream *d_stream;
 
   bool d_stopped;
-  boost::recursive_mutex d_mutex;
-  int flags = 0;
-  long long timeNs = 0;
-
-
-  //! Timeout value for readStream call. Lower values mean lower latency.
-  double _recv_timeout;
-  // receive timeout converted to microsec for call
-  long timeoutUs;
-
   size_t d_mtu;
-  pmt::pmt_t d_message_port;
 
   double d_frequency;
   float d_gain;
@@ -76,13 +65,9 @@ private:
   gr_complexd d_iq_balance;
   double d_clock_rate;
   std::string d_clock_source;
-  std::string d_frontend_mapping;
-  std::string d_type;
-  uint8_t d_type_size;
 
-  virtual bool hasThisGain(size_t channel, std::string gainType);
-  virtual void setGain(size_t channel, float gain, bool manual_mode,
-                       std::string gainType);
+  bool
+  is_gain_valid(size_t channel, std::string gainType);
 
   void register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler);
   std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
@@ -94,8 +79,17 @@ private:
     if (type == "fc32") {
       size = 8;
     }
-    if (type == "s16") {
+    else if (type == "sc16") {
+      size = 4;
+    }
+    else if (type == "sc8") {
       size = 2;
+    }
+    else if (type == "s16") {
+      size = 2;
+    }
+    else if (type == "s8") {
+      size = 1;
     }
     return io_signature::make(nchan, nchan, size);
   }

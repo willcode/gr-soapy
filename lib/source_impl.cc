@@ -2,7 +2,7 @@
 /*
  * gr-soapy: Soapy SDR Radio Out-Of-Tree Module
  *
- *  Copyright (C) 2018, 2019
+ *  Copyright (C) 2018, 2019, 2020
  *  Libre Space Foundation <http://libre.space>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -60,10 +60,8 @@ source_impl::source_impl(size_t nchan, const std::string device,
    */
   d_stopped(true),
   d_mtu(0),
-  d_message_port(pmt::mp("command")),
   d_sampling_rate(sampling_rate),
-  d_nchan(nchan),
-  d_type(type)
+  d_nchan(nchan)
 {
   /*
    * Get the device in a key, value way. The device string should contain the
@@ -71,29 +69,18 @@ source_impl::source_impl(size_t nchan, const std::string device,
    */
   SoapySDR::Kwargs kwargs = SoapySDR::KwargsFromString(device);
 
-
-  _recv_timeout = 0.1;  // seconds
-  timeoutUs = (long)(_recv_timeout * 1.0e6);
-
+  std::string stype;
   if (type == "fc32") {
-    d_type_size = 8;
-    d_type = SOAPY_SDR_CF32;
+    stype = SOAPY_SDR_CF32;
   }
   else if (type == "sc16") {
-    d_type_size = 4;
-    d_type = SOAPY_SDR_CS16;
+    stype = SOAPY_SDR_CS16;
   }
   else if (type == "sc8") {
-    d_type_size = 2;
-    d_type = SOAPY_SDR_CS8;
-  }
-
-  // one-off setting for UHD
-  if (kwargs["driver"] == "uhd") {
-    flags = SOAPY_SDR_ONE_PACKET + SOAPY_SDR_END_BURST;
+    stype = SOAPY_SDR_CS8;
   }
   else {
-    flags = 0;
+    throw std::invalid_argument("[Soapy Source] ERROR: Invalid IO type");
   }
 
   makeDevice(device);
@@ -156,7 +143,7 @@ source_impl::source_impl(size_t nchan, const std::string device,
     }
   }
 
-  d_stream = d_device->setupStream(SOAPY_SDR_RX, d_type, channs, stream_args);
+  d_stream = d_device->setupStream(SOAPY_SDR_RX, stype, channs, stream_args);
   d_mtu = d_device->getStreamMTU(d_stream);
 
   /*
@@ -169,9 +156,9 @@ source_impl::source_impl(size_t nchan, const std::string device,
     }
   }
 
-  message_port_register_in(d_message_port);
+  message_port_register_in(pmt::mp("command"));
   set_msg_handler(
-    d_message_port,
+    pmt::mp("command"),
     boost::bind(&source_impl::msg_handler_command, this, _1));
 
   register_msg_cmd_handler(
@@ -189,6 +176,10 @@ source_impl::source_impl(size_t nchan, const std::string device,
     CMD_ANTENNA_KEY,
     boost::bind(&source_impl::cmd_handler_antenna, this, _1, _2));
 
+  /* GNU Radio stream engine is very efficient when the buffers are a power of 2*/
+  set_output_multiple(1024);
+
+  /* This limits each work invocation to MTU transfers */
   set_max_noutput_items(d_mtu);
 }
 
@@ -214,7 +205,7 @@ source_impl::~source_impl()
 {
   /*
    * Guarded with the d_stopped flag.
-   * if \ref stop() has not yet called for relasing hardware etc,
+   * if \ref stop() has not yet called for releasing hardware etc,
    * it will be called by this destructor.
    *
    * If the scheduler has already called \ref stop() calling it again should have
@@ -280,7 +271,7 @@ source_impl::set_frequency(size_t channel, const std::string &name,
   d_device->setFrequency(SOAPY_SDR_RX, channel, name, frequency);
 }
 
-bool source_impl::hasThisGain(size_t channel, std::string gainType)
+bool source_impl::is_gain_valid(size_t channel, std::string gainType)
 {
   std::vector<std::string> gainList = d_device->listGains(SOAPY_SDR_RX, channel);
 
@@ -290,36 +281,6 @@ bool source_impl::hasThisGain(size_t channel, std::string gainType)
   else {
     return false;
   }
-}
-
-void source_impl::setGain(size_t channel, float gain, bool manual_mode,
-                          std::string gainType)
-{
-  /*
-   * This setter is for manual mode gain. There is a known limitation of the
-   * GRC and the yaml runtime evaluation, so we need to skip this setting
-   * if the mode is auto gain
-   */
-  if (channel >= d_nchan || !manual_mode) {
-    return;
-  }
-
-  if (!hasThisGain(channel, gainType)) {
-    GR_LOG_WARN(d_logger,
-                boost::format("[Soapy Source] WARN: Uknown %s gain setting "
-                              "for channel %zu") % gainType % channel);
-    return;
-  }
-
-  SoapySDR::Range rGain = d_device->getGainRange(SOAPY_SDR_RX, channel, gainType);
-
-  if (gain < rGain.minimum() || gain > rGain.maximum()) {
-    GR_LOG_WARN(d_logger,
-                boost::format("[Soapy Source] WARN: %s gain out of range: %d <= gain <= %d") %
-                gainType % rGain.minimum() % rGain.maximum());
-  }
-
-  d_device->setGain(SOAPY_SDR_RX, channel, gainType, gain);
 }
 
 void
@@ -355,7 +316,31 @@ void
 source_impl::set_gain(size_t channel, const std::string name, float gain,
                       bool manual_mode)
 {
-  setGain(channel, gain, manual_mode, name);
+  /*
+   * This setter is for manual mode gain. There is a known limitation of the
+   * GRC and the yaml runtime evaluation, so we need to skip this setting
+   * if the mode is auto gain
+   */
+  if (channel >= d_nchan || !manual_mode) {
+    return;
+  }
+
+  if (!is_gain_valid(channel, name)) {
+    GR_LOG_WARN(d_logger,
+                boost::format("[Soapy Source] WARN: Uknown %s gain setting "
+                              "for channel %zu") % name % channel);
+    return;
+  }
+
+  SoapySDR::Range rGain = d_device->getGainRange(SOAPY_SDR_RX, channel, name);
+
+  if (gain < rGain.minimum() || gain > rGain.maximum()) {
+    GR_LOG_WARN(d_logger,
+                boost::format("[Soapy Source] WARN: %s gain out of range: %d <= gain <= %d") %
+                name % rGain.minimum() % rGain.maximum());
+  }
+
+  d_device->setGain(SOAPY_SDR_RX, channel, name, gain);
 }
 
 void
@@ -626,49 +611,42 @@ source_impl::work(int noutput_items,
                   gr_vector_const_void_star &input_items,
                   gr_vector_void_star &output_items)
 {
-  // Added mutex and interruption control similar to UHD source
-  boost::recursive_mutex::scoped_lock lock(d_mutex);
-  boost::this_thread::disable_interruption disable_interrupt;
-
-  // for now, timeoutUs matches call default (100000 = 0.1 sec).  This gives us control in the future if we need it
-  int read = d_device->readStream(d_stream, &output_items[0], noutput_items,
-                                  flags, timeNs, timeoutUs);
-
-  // Thread interruption control
-  boost::this_thread::restore_interruption restore_interrupt(disable_interrupt);
-
-  // Tell runtime system how many output items we produced.
-  if (read < 0) {
-    // Added some error handling
-    switch (read) {
-    case SOAPY_SDR_OVERFLOW:
-      // Behave like usrp_source_impl.cc
-
-      // ignore overflows and try work again
-      return work(noutput_items, input_items, output_items);
-      break;
-    case SOAPY_SDR_UNDERFLOW:
-      std::cout << "sU";
-      break;
-    case SOAPY_SDR_STREAM_ERROR:
-      GR_LOG_WARN(d_logger, boost::format("[Soapy Source] Block stream error."));
-      break;
-    case SOAPY_SDR_TIMEOUT:
-      GR_LOG_WARN(d_logger, boost::format("[Soapy Source] Read timeout."));
-      break;
-    case SOAPY_SDR_CORRUPTION:
-      GR_LOG_WARN(d_logger, boost::format("[Soapy Source] Block corruption."));
-      break;
-    default:
-      GR_LOG_WARN(d_logger,
-                  boost::format("[Soapy Source] Block caught rx error code: %d") % read);
-      break;
+  long long int time_ns = 0;
+  int flags = 0;
+  while (1) {
+    boost::this_thread::disable_interruption disable_interrupt;
+    int read = d_device->readStream(d_stream, output_items.data(), noutput_items,
+                                    flags, time_ns);
+    boost::this_thread::restore_interruption restore_interrupt(disable_interrupt);
+    if (read > 0) {
+      return read;
     }
 
-    return 0;
+    if (read < 0) {
+      // Added some error handling
+      switch (read) {
+      case SOAPY_SDR_OVERFLOW:
+        std::cout << "sO";
+        break;
+      case SOAPY_SDR_UNDERFLOW:
+        std::cout << "sU";
+        break;
+      case SOAPY_SDR_STREAM_ERROR:
+        GR_LOG_WARN(d_logger, boost::format("[Soapy Source] Block stream error."));
+        return 0;;
+      case SOAPY_SDR_TIMEOUT:
+        break;
+      case SOAPY_SDR_CORRUPTION:
+        GR_LOG_WARN(d_logger, boost::format("[Soapy Source] Block corruption."));
+        return 0;
+      default:
+        GR_LOG_WARN(d_logger,
+                    boost::format("[Soapy Source] Block caught rx error code: %d") % read);
+        return 0;
+      }
+    }
   }
-
-  return read;
+  return 0;
 }
 
 void
