@@ -77,6 +77,9 @@ openSUSE:
     - cd build
     - cmake -DCMAKE_INSTALL_PREFIX=/usr -DLIB_SUFFIX=64 -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
     - make
+    - make install
+    - ldconfig
+    - python3 -c "import soapy"
     - cd ..
 ubuntu:
   stage: build
@@ -115,8 +118,11 @@ ubuntu:
   script:
     - mkdir -p build
     - cd build
-    - cmake ..
+    - cmake -DCMAKE_INSTALL_PREFIX=/usr ..
     - make
+    - make install
+    - ldconfig
+    - python3 -c "import soapy"
 docs:
   stage: build
   image: ubuntu:18.04
@@ -156,7 +162,10 @@ docs:
   script:
     - mkdir -p build
     - cd build
-    - cmake ..
+    - cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+    - make install
+    - ldconfig
+    - python3 -c "import soapy"
     - make doxygen_target
   artifacts:
     expire_in: 1 week
