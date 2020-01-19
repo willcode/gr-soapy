@@ -36,7 +36,9 @@ endif(NOT soapy_sources)
 
 add_library(gnuradio-soapy SHARED ${soapy_sources})
 
-target_link_libraries(gnuradio-soapy gnuradio::gnuradio-runtime 
+target_link_libraries(gnuradio-soapy 
+    gnuradio::gnuradio-runtime 
+    gnuradio::gnuradio-blocks
     ${Boost_LIBRARIES} 
     ${SoapySDR_LIBRARIES}
 )
