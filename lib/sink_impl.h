@@ -47,8 +47,6 @@ private:
   SoapySDR::Stream *d_stream;
 
   bool d_stopped;
-
-  size_t d_mtu;
   pmt::pmt_t d_message_port;
 
   double d_frequency;

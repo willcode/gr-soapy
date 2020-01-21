@@ -57,7 +57,6 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
   gr::sync_block("sink", args_to_io_sig(type, nchan),
                  gr::io_signature::make(0, 0, 0)),
   d_stopped(true),
-  d_mtu(0),
   d_message_port(pmt::mp("command")),
   d_sampling_rate(sampling_rate),
   d_nchan(nchan),
@@ -129,7 +128,7 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
   }
 
   d_stream = d_device->setupStream(SOAPY_SDR_TX, d_type, channs, stream_args);
-  d_mtu = d_device->getStreamMTU(d_stream);
+  size_t mtu = d_device->getStreamMTU(d_stream);
 
   /*
    * Apply device settings to all enabled channels.
@@ -160,8 +159,14 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
     CMD_ANTENNA_KEY,
     boost::bind(&sink_impl::cmd_handler_antenna, this, _1, _2));
 
-  // limit max samples per call to MTU
-  set_max_noutput_items(d_mtu);
+  /*
+   * Limit max samples per call to MTU, however some devices like PlutoSDR
+   * does not support this. So we rely on these module to properly handle
+   * a larger data transfer
+   */
+  if (mtu > 0) {
+    set_max_noutput_items(mtu);
+  }
 }
 
 bool sink_impl::start()
