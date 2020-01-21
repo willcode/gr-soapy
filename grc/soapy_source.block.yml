@@ -419,22 +419,29 @@ templates:
                 # If we're here and we're custom, let's still call overall gain
                 self.${id}.set_overall_gain(0,${overall_gain0}, ${manual_gain0}  )
                 self.${id}.set_overall_gain(1,${overall_gain1}, ${manual_gain1}  )
-                
-            self.${id}.set_gain(0,"LNA", ${lna_gain0}, ${manual_gain0}  )
-            self.${id}.set_gain(1,"LNA", ${lna_gain1}, ${manual_gain1}  )
-            self.${id}.set_gain(0,"TIA", ${tia_gain0}, ${manual_gain0}  )
-            self.${id}.set_gain(1,"TIA", ${tia_gain1}, ${manual_gain1}  )
-            self.${id}.set_gain(0,"MIX", ${mix_gain0}, ${manual_gain0}  )
-            self.${id}.set_gain(1,"MIX", ${mix_gain1}, ${manual_gain1}  )
-            self.${id}.set_gain(0,"VGA", ${vga_gain0}, ${manual_gain0}  )
-            self.${id}.set_gain(1,"VGA", ${vga_gain1}, ${manual_gain1}  )
-            # Only rtl-sdr uses TUNER, so just ch0
-            self.${id}.set_gain(0,"TUNER", ${tuner_gain0}, ${manual_gain0}  )
-            # Only hackrf uses "AMP", so just ch0
-            self.${id}.set_gain(0,"AMP", ${amp_gain0}, ${manual_gain0}  )
-            # Only sdrplay uses IFGR so just ch0 for each
-            self.${id}.set_gain(0,"IFGR", ${ifgr_gain}, ${manual_gain0}  )
-            self.${id}.set_gain(0,"RFGR", ${rfgr_gain}, ${manual_gain0}  )
+            elif "${devname}" == 'hackrf':
+              self.${id}.set_gain(0,"LNA", ${lna_gain0}, ${manual_gain0}  )
+              self.${id}.set_gain(1,"LNA", ${lna_gain1}, ${manual_gain1}  )
+              self.${id}.set_gain(0,"VGA", ${vga_gain0}, ${manual_gain0}  )
+              self.${id}.set_gain(1,"VGA", ${vga_gain1}, ${manual_gain1}  )
+              # Only hackrf uses "AMP", so just ch0
+              self.${id}.set_gain(0,"AMP", ${amp_gain0}, ${manual_gain0}  )
+            else:
+              self.${id}.set_gain(0,"LNA", ${lna_gain0}, ${manual_gain0}  )
+              self.${id}.set_gain(1,"LNA", ${lna_gain1}, ${manual_gain1}  )
+              self.${id}.set_gain(0,"TIA", ${tia_gain0}, ${manual_gain0}  )
+              self.${id}.set_gain(1,"TIA", ${tia_gain1}, ${manual_gain1}  )
+              self.${id}.set_gain(0,"MIX", ${mix_gain0}, ${manual_gain0}  )
+              self.${id}.set_gain(1,"MIX", ${mix_gain1}, ${manual_gain1}  )
+              self.${id}.set_gain(0,"VGA", ${vga_gain0}, ${manual_gain0}  )
+              self.${id}.set_gain(1,"VGA", ${vga_gain1}, ${manual_gain1}  )
+              # Only rtl-sdr uses TUNER, so just ch0
+              self.${id}.set_gain(0,"TUNER", ${tuner_gain0}, ${manual_gain0}  )
+              # Only hackrf uses "AMP", so just ch0
+              self.${id}.set_gain(0,"AMP", ${amp_gain0}, ${manual_gain0}  )
+              # Only sdrplay uses IFGR so just ch0 for each
+              self.${id}.set_gain(0,"IFGR", ${ifgr_gain}, ${manual_gain0}  )
+              self.${id}.set_gain(0,"RFGR", ${rfgr_gain}, ${manual_gain0}  )
         
 
     callbacks:
