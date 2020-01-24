@@ -54,15 +54,16 @@ sink::make(size_t nchan, const std::string device,
 sink_impl::sink_impl(size_t nchan, const std::string device,
                      const std::string args, double sampling_rate,
                      const std::string type, const std::string length_tag_name) :
-  gr::sync_block("sink", args_to_io_sig(type, nchan),
+  gr::sync_block("soapy::sink",
+                 args_to_io_sig(type, nchan),
                  gr::io_signature::make(0, 0, 0)),
   d_stopped(true),
   d_message_port(pmt::mp("command")),
   d_sampling_rate(sampling_rate),
   d_nchan(nchan),
   d_type(type),
-  d_length_tag_key(length_tag_name.empty() ? pmt::PMT_NIL : pmt::string_to_symbol(
-                     length_tag_name)),
+  d_length_tag_key(length_tag_name.empty() ? pmt::PMT_NIL
+                   : pmt::string_to_symbol(length_tag_name)),
   d_burst_remaining(0)
 {
   if (type == "fc32") {
@@ -81,11 +82,10 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
   makeDevice(device);
   d_stopped = false;
   if (d_nchan > d_device->getNumChannels(SOAPY_SDR_TX)) {
-    std::string msgString =
-      "[Soapy Sink] ERROR: Unsupported number of channels. Only  "
-      + std::to_string(d_device->getNumChannels(SOAPY_SDR_TX))
-      + " channels available.";
-    throw std::invalid_argument(msgString);
+    std::string msg = name() +  ": Unsupported number of channels. Only  "
+                      + std::to_string(d_device->getNumChannels(SOAPY_SDR_TX))
+                      + " channels available.";
+    throw std::invalid_argument(msg);
   }
 
   std::vector<size_t> channs;
@@ -100,11 +100,10 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
 
     if ((d_sampling_rate < minRate)
         || (d_sampling_rate > maxRate)) {
-      std::string msgString =
-        "[Soapy Sink] ERROR: Unsupported sample rate.  Rate must be between " +
-        std::to_string(sampRange.front().minimum()) + " and "
-        + std::to_string(sampRange.back().maximum());
-      throw std::invalid_argument(msgString);
+      std::string msg = name() + ": Unsupported sample rate. Rate must be between "
+                        + std::to_string(sampRange.front().minimum()) + " and "
+                        + std::to_string(sampRange.back().maximum());
+      throw std::invalid_argument(msg);
     }
     set_sample_rate(i, d_sampling_rate);
   }
@@ -273,7 +272,7 @@ void sink_impl::setGain(size_t channel, float gain, bool manual_mode,
 
   if (gain < rGain.minimum() || gain > rGain.maximum()) {
     GR_LOG_WARN(d_logger,
-                boost::format("[Soapy Sink] WARN: %s gain out of range: %d <= gain <= %d") %
+                boost::format("Gain %s out of range: %d <= gain <= %d") %
                 gainType % rGain.minimum() % rGain.maximum());
   }
 
@@ -310,7 +309,7 @@ sink_impl::set_overall_gain(size_t channel, float gain, bool manual_mode)
 
   if (gain < rGain.minimum() || gain > rGain.maximum()) {
     GR_LOG_WARN(d_logger,
-                boost::format("[Soapy Sink] WARN: gain out of range: %d <= gain <= %d") %
+                boost::format("Gain out of range: %d <= gain <= %d") %
                 rGain.minimum() % rGain.maximum());
     return;
   }
@@ -371,7 +370,7 @@ sink_impl::set_antenna(const size_t channel, const std::string &name)
     if (std::find(antennaList.begin(), antennaList.end(),
                   name) == antennaList.end()) {
       GR_LOG_WARN(d_logger,
-                  boost::format("[Soapy Sink] WARN: Antenna name %s not supported.") % name);
+                  boost::format("Antenna name %s not supported.") % name);
       return;
     }
   }

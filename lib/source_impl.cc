@@ -51,7 +51,7 @@ source::make(size_t nchan, const std::string device,
 source_impl::source_impl(size_t nchan, const std::string device,
                          const std::string args, double sampling_rate,
                          const std::string type) :
-  gr::sync_block("source", gr::io_signature::make(0, 0, 0),
+  gr::sync_block("soapy::source", gr::io_signature::make(0, 0, 0),
                  args_to_io_sig(type, nchan)),
   d_dev_str(device),
   /*
@@ -80,16 +80,17 @@ source_impl::source_impl(size_t nchan, const std::string device,
     stype = SOAPY_SDR_CS8;
   }
   else {
-    throw std::invalid_argument("[Soapy Source] ERROR: Invalid IO type");
+    std::string msg = name() + ": Invalid IO type";
+    throw std::invalid_argument(msg);
   }
 
   makeDevice(device);
 
   if (d_nchan > d_device->getNumChannels(SOAPY_SDR_RX)) {
-    std::string msgString =
-      "[Soapy Source] ERROR: Unsupported number of channels. Only  " + std::to_string(
-        d_device->getNumChannels(SOAPY_SDR_RX)) + " channels available.";
-    throw std::invalid_argument(msgString);
+    std::string msg = name() +  ": Unsupported number of channels. Only  "
+                      + std::to_string(d_device->getNumChannels(SOAPY_SDR_RX))
+                      + " channels available.";
+    throw std::invalid_argument(msg);
   }
 
   std::vector<size_t> channs;
@@ -109,15 +110,15 @@ source_impl::source_impl(size_t nchan, const std::string device,
 
     if (kwargs["driver"] != "airspy") {
       if ((d_sampling_rate < minRate) || (d_sampling_rate > maxRate)) {
-        std::string msgString =
-          "[Soapy Source] ERROR: Unsupported sample rate.  Rate must be between " +
-          std::to_string(minRate) + " and " + std::to_string(maxRate);
-        throw std::invalid_argument(msgString);
+        std::string msg = name() + ": Unsupported sample rate.  Rate must be between "
+                          + std::to_string(minRate)
+                          + " and " + std::to_string(maxRate);
+        throw std::invalid_argument(msg);
       }
     }
     else {
       if (((long)d_sampling_rate != 2500000) && ((long)d_sampling_rate != 10000000)) {
-        throw std::invalid_argument("[Soapy Source] Airspy only supports 2.5 MSPS "
+        throw std::invalid_argument(name() + ": Airspy only supports 2.5 MSPS "
                                     "and 10 MSPS rates.  Requested "
                                     + std::to_string((long)d_sampling_rate));
 
@@ -271,16 +272,15 @@ source_impl::set_frequency(size_t channel, const std::string &name,
   d_device->setFrequency(SOAPY_SDR_RX, channel, name, frequency);
 }
 
-bool source_impl::is_gain_valid(size_t channel, std::string gainType)
+bool
+source_impl::gain_available(size_t channel, const std::string &name)
 {
-  std::vector<std::string> gainList = d_device->listGains(SOAPY_SDR_RX, channel);
+  std::vector<std::string> gains = d_device->listGains(SOAPY_SDR_RX, channel);
 
-  if (std::find(gainList.begin(), gainList.end(), gainType) != gainList.end()) {
+  if (std::find(gains.begin(), gains.end(), name) != gains.end()) {
     return true;
   }
-  else {
-    return false;
-  }
+  return false;
 }
 
 void
@@ -289,12 +289,11 @@ source_impl::set_gain(size_t channel, float gain)
   if (channel >= d_nchan) {
     return;
   }
-
   SoapySDR::Range rGain = d_device->getGainRange(SOAPY_SDR_RX, channel);
 
   if (gain < rGain.minimum() || gain > rGain.maximum()) {
     GR_LOG_WARN(d_logger,
-                boost::format("[Soapy Source] WARN: gain out of range: %d <= gain <= %d") %
+                boost::format("Gain out of range: %d <= gain <= %d") %
                 rGain.minimum() % rGain.maximum());
     return;
   }
@@ -325,9 +324,9 @@ source_impl::set_gain(size_t channel, const std::string name, float gain,
     return;
   }
 
-  if (!is_gain_valid(channel, name)) {
+  if (!gain_available(channel, name)) {
     GR_LOG_WARN(d_logger,
-                boost::format("[Soapy Source] WARN: Uknown %s gain setting "
+                boost::format("Unknown %s gain setting "
                               "for channel %zu") % name % channel);
     return;
   }
@@ -336,8 +335,8 @@ source_impl::set_gain(size_t channel, const std::string name, float gain,
 
   if (gain < rGain.minimum() || gain > rGain.maximum()) {
     GR_LOG_WARN(d_logger,
-                boost::format("[Soapy Source] WARN: %s gain out of range: %d <= gain <= %d") %
-                name % rGain.minimum() % rGain.maximum());
+                boost::format("Gain %s out of range: %d <= gain <= %d")
+                % name % rGain.minimum() % rGain.maximum());
   }
 
   d_device->setGain(SOAPY_SDR_RX, channel, name, gain);
@@ -398,7 +397,7 @@ source_impl::set_antenna(const size_t channel, const std::string &name)
     if (std::find(antennaList.begin(), antennaList.end(),
                   name) == antennaList.end()) {
       GR_LOG_WARN(d_logger,
-                  boost::format("[Soapy Source] WARN: Antenna name %s not supported.") % name);
+                  boost::format("Antenna name %s not supported.") % name);
       return;
     }
   }
@@ -632,16 +631,16 @@ source_impl::work(int noutput_items,
         std::cout << "sU";
         break;
       case SOAPY_SDR_STREAM_ERROR:
-        GR_LOG_WARN(d_logger, boost::format("[Soapy Source] Block stream error."));
+        GR_LOG_WARN(d_logger, boost::format("Block stream error."));
         return 0;;
       case SOAPY_SDR_TIMEOUT:
         break;
       case SOAPY_SDR_CORRUPTION:
-        GR_LOG_WARN(d_logger, boost::format("[Soapy Source] Block corruption."));
+        GR_LOG_WARN(d_logger, boost::format("Block corruption."));
         return 0;
       default:
         GR_LOG_WARN(d_logger,
-                    boost::format("[Soapy Source] Block caught rx error code: %d") % read);
+                    boost::format("Block caught RX error code: %d") % read);
         return 0;
       }
     }

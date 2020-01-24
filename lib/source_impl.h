@@ -66,9 +66,6 @@ private:
   double d_clock_rate;
   std::string d_clock_source;
 
-  bool
-  is_gain_valid(size_t channel, std::string gainType);
-
   void register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler);
   std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
 
@@ -172,6 +169,16 @@ public:
    */
   void set_gain(size_t channel, const std::string name, float gain,
                 bool manual_mode);
+
+
+  /**
+   * Checks if the specified gain type for the given channel is
+   * available
+   * @param channel an available channel on the device
+   * @param nane an available gain on the device
+   * @return true if the gain setting exists, false otherwise
+   */
+  bool gain_available(size_t channel, const std::string &name);
 
   /*!
    * Set the automatic gain mode for the specified chain if supported.
