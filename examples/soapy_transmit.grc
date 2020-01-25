@@ -89,26 +89,47 @@ blocks:
     coordinate: [280, 12.0]
     rotation: 0
     state: enabled
-- name: blocks_file_source_0
-  id: blocks_file_source
+- name: analog_sig_source_x_0
+  id: analog_sig_source_x
   parameters:
     affinity: ''
     alias: ''
-    begin_tag: pmt.PMT_NIL
+    amp: '1'
     comment: ''
-    file: /opt/sdr/gnuradio/gnuradio_recordings/NOAA_weather_radio_162.425MHz_NBFM_600KSPS_48KFilter.iq
-    length: '0'
+    freq: '1000'
     maxoutbuf: '0'
     minoutbuf: '0'
     offset: '0'
-    repeat: 'True'
+    phase: '0'
+    samp_rate: samp_rate
     type: complex
-    vlen: '1'
+    waveform: analog.GR_COS_WAVE
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [160, 240.0]
+    coordinate: [240, 164.0]
+    rotation: 0
+    state: true
+- name: pfb_arb_resampler_xxx_0
+  id: pfb_arb_resampler_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    atten: '100'
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nfilts: '32'
+    rrate: xmit_rate / samp_rate
+    samp_delay: '0'
+    taps: ''
+    type: ccf
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [464, 180.0]
     rotation: 0
     state: true
 - name: qtgui_freq_sink_x_0
@@ -188,7 +209,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [864, 408.0]
+    coordinate: [784, 336.0]
     rotation: 0
     state: true
 - name: qtgui_waterfall_sink_x_0
@@ -249,27 +270,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [880, 552.0]
-    rotation: 0
-    state: true
-- name: rational_resampler_xxx_0
-  id: rational_resampler_xxx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    decim: '1'
-    fbw: '0'
-    interp: int(xmit_rate/samp_rate)
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    taps: ''
-    type: ccc
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [560, 252.0]
+    coordinate: [784, 456.0]
     rotation: 0
     state: true
 - name: soapy_sink_0
@@ -297,12 +298,14 @@ blocks:
     dc_offset_auto_mode0: 'False'
     dc_offset_auto_mode1: 'False'
     dev: driver=uhd
-    fine_tune0: 'True'
-    fine_tune1: 'True'
+    devname: uhd
+    gain_auto_mode0: 'False'
     gain_auto_mode1: 'False'
     iamp_gain0: '0'
     iamp_gain1: '0'
     length_tag_name: ''
+    manual_gain0: 'True'
+    manual_gain1: 'True'
     nchan: '1'
     nco_freq0: '0'
     nco_freq1: '0'
@@ -319,15 +322,15 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [864, 252.0]
+    coordinate: [784, 180.0]
     rotation: 0
     state: true
 
 connections:
-- [blocks_file_source_0, '0', rational_resampler_xxx_0, '0']
-- [rational_resampler_xxx_0, '0', qtgui_freq_sink_x_0, '0']
-- [rational_resampler_xxx_0, '0', qtgui_waterfall_sink_x_0, '0']
-- [rational_resampler_xxx_0, '0', soapy_sink_0, '0']
+- [analog_sig_source_x_0, '0', pfb_arb_resampler_xxx_0, '0']
+- [pfb_arb_resampler_xxx_0, '0', qtgui_freq_sink_x_0, '0']
+- [pfb_arb_resampler_xxx_0, '0', qtgui_waterfall_sink_x_0, '0']
+- [pfb_arb_resampler_xxx_0, '0', soapy_sink_0, '0']
 
 metadata:
   file_format: 1

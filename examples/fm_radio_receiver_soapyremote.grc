@@ -10,7 +10,7 @@ options:
     gen_linking: dynamic
     generate_options: qt_gui
     hier_block_src_path: '.:'
-    id: fm_radio_receiver_soapyremote
+    id: fm_radio_receiver_soapy
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -32,11 +32,23 @@ options:
     state: enabled
 
 blocks:
+- name: antenna
+  id: variable
+  parameters:
+    comment: ''
+    value: '"RX"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [864, 12.0]
+    rotation: 0
+    state: enabled
 - name: audio_rate
   id: variable
   parameters:
     comment: ''
-    value: '44100'
+    value: '48000'
   states:
     bus_sink: false
     bus_source: false
@@ -55,26 +67,14 @@ blocks:
     rangeType: float
     start: '0'
     step: '2'
-    stop: '40'
+    stop: '60'
     value: '6'
     widget: counter_slider
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [920, 8]
-    rotation: 0
-    state: enabled
-- name: quad_rate
-  id: variable
-  parameters:
-    comment: ''
-    value: audio_rate*8
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [488, 12]
+    coordinate: [752, 4.0]
     rotation: 0
     state: enabled
 - name: radio_freq
@@ -89,7 +89,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [616, 12]
+    coordinate: [456, 12.0]
     rotation: 0
     state: enabled
 - name: samp_rate
@@ -122,7 +122,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [768, 8]
+    coordinate: [624, 4.0]
     rotation: 0
     state: enabled
 - name: analog_wfm_rcv_0
@@ -130,16 +130,16 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    audio_decimation: int(quad_rate/audio_rate)
+    audio_decimation: '2'
     comment: Quadrature rate is the input rate
     maxoutbuf: '0'
     minoutbuf: '0'
-    quad_rate: quad_rate
+    quad_rate: audio_rate
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [560, 420]
+    coordinate: [656, 428.0]
     rotation: 0
     state: enabled
 - name: audio_sink_0
@@ -151,7 +151,7 @@ blocks:
     device_name: ''
     num_inputs: '1'
     ok_to_block: 'True'
-    samp_rate: '44100'
+    samp_rate: audio_rate
   states:
     bus_sink: false
     bus_source: false
@@ -185,7 +185,7 @@ blocks:
     beta: '6.76'
     comment: ''
     cutoff_freq: 60e3
-    decim: int(samp_rate/quad_rate)
+    decim: '1'
     gain: '1'
     interp: '1'
     maxoutbuf: '0'
@@ -198,9 +198,30 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [312, 384]
+    coordinate: [264, 388.0]
     rotation: 0
     state: enabled
+- name: pfb_arb_resampler_xxx_0
+  id: pfb_arb_resampler_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    atten: '100'
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nfilts: '32'
+    rrate: (audio_rate * 2) / samp_rate
+    samp_delay: '0'
+    taps: ''
+    type: ccf
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [424, 412.0]
+    rotation: 0
+    state: true
 - name: qtgui_freq_sink_x_0
   id: qtgui_freq_sink_x
   parameters:
@@ -278,7 +299,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [440, 144]
+    coordinate: [280, 144.0]
     rotation: 0
     state: enabled
 - name: qtgui_freq_sink_x_1
@@ -358,7 +379,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1064, 448]
+    coordinate: [1080, 448.0]
     rotation: 0
     state: enabled
 - name: qtgui_waterfall_sink_x_0
@@ -419,7 +440,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [440, 252]
+    coordinate: [280, 248.0]
     rotation: 0
     state: enabled
 - name: soapy_source_0
@@ -428,9 +449,9 @@ blocks:
     affinity: ''
     alias: ''
     amp_gain0: '0'
-    ant0: ''
-    ant1: ''
-    args: ''
+    ant0: antenna
+    ant1: RX2
+    args: '"remote=127.0.0.1:1234, remote:driver=airspy"'
     balance0: '0'
     balance1: '0'
     bw0: '0'
@@ -439,19 +460,23 @@ blocks:
     center_freq1: '0'
     clock_rate: '0'
     clock_source: ''
-    comment: ''
+    comment: 'Use SoapySDRServer --bind="0.0.0.0:1234"
+
+      or similar to the remote server'
     correction0: '0'
     correction1: '0'
     dc_offset0: '0'
     dc_offset1: '0'
     dc_offset_auto_mode0: 'False'
     dc_offset_auto_mode1: 'False'
-    dev: driver=remote,remote=127.0.0.1:1234,remote:type=rtlsdr
-    devname: rtlsdr
+    dev: driver=remote
+    devname: custom
+    gain_auto_mode0: 'False'
+    gain_auto_mode1: 'False'
     ifgr_gain: '59'
     lna_gain0: '10'
     lna_gain1: '10'
-    manual_gain0: 'True'
+    manual_gain0: 'False'
     manual_gain1: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -460,7 +485,7 @@ blocks:
     nchan: '1'
     nco_freq0: '0'
     nco_freq1: '0'
-    overall_gain0: '10'
+    overall_gain0: gain
     overall_gain1: '10'
     pga_gain0: '24'
     pga_gain1: '24'
@@ -473,7 +498,7 @@ blocks:
     sdrplay_rfnotch: 'False'
     tia_gain0: '0'
     tia_gain1: '0'
-    tuner_gain0: gain
+    tuner_gain0: '10'
     tuner_gain1: '10'
     type: fc32
     vga_gain0: '10'
@@ -482,7 +507,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [48, 396.0]
+    coordinate: [24, 396.0]
     rotation: 0
     state: true
 
@@ -490,7 +515,8 @@ connections:
 - [analog_wfm_rcv_0, '0', blocks_multiply_const_vxx_0, '0']
 - [blocks_multiply_const_vxx_0, '0', audio_sink_0, '0']
 - [blocks_multiply_const_vxx_0, '0', qtgui_freq_sink_x_1, '0']
-- [low_pass_filter_0, '0', analog_wfm_rcv_0, '0']
+- [low_pass_filter_0, '0', pfb_arb_resampler_xxx_0, '0']
+- [pfb_arb_resampler_xxx_0, '0', analog_wfm_rcv_0, '0']
 - [soapy_source_0, '0', low_pass_filter_0, '0']
 - [soapy_source_0, '0', qtgui_freq_sink_x_0, '0']
 - [soapy_source_0, '0', qtgui_waterfall_sink_x_0, '0']

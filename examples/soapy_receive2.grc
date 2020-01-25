@@ -32,6 +32,18 @@ options:
     state: enabled
 
 blocks:
+- name: antenna
+  id: variable
+  parameters:
+    comment: ''
+    value: '"RX"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [712, 20.0]
+    rotation: 0
+    state: enabled
 - name: freq
   id: variable
   parameters:
@@ -41,49 +53,49 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [328, 12.0]
+    coordinate: [280, 12.0]
     rotation: 0
     state: true
-- name: gain1
+- name: lna
   id: variable_qtgui_range
   parameters:
     comment: ''
-    gui_hint: 0,0,1,1
-    label: Gain1
+    gui_hint: ''
+    label: VGA Gain
     min_len: '200'
     orient: Qt.Horizontal
-    rangeType: int
+    rangeType: float
     start: '0'
-    step: '1'
-    stop: '15'
+    step: '0.5'
+    stop: '50'
     value: '0'
     widget: counter_slider
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [584, 20.0]
+    coordinate: [368, 12.0]
     rotation: 0
     state: true
-- name: gain2
+- name: mix
   id: variable_qtgui_range
   parameters:
     comment: ''
-    gui_hint: 0,1,1,1
-    label: Gain2
+    gui_hint: ''
+    label: MIX Gain
     min_len: '200'
     orient: Qt.Horizontal
-    rangeType: int
+    rangeType: float
     start: '0'
-    step: '1'
-    stop: '15'
+    step: '0.5'
+    stop: '50'
     value: '0'
     widget: counter_slider
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [720, 20.0]
+    coordinate: [480, 12.0]
     rotation: 0
     state: true
 - name: samp_rate
@@ -98,6 +110,27 @@ blocks:
     coordinate: [184, 12]
     rotation: 0
     state: enabled
+- name: vga
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: VGA Gain
+    min_len: '200'
+    orient: Qt.Horizontal
+    rangeType: float
+    start: '0'
+    step: '0.5'
+    stop: '50'
+    value: '0'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [584, 12.0]
+    rotation: 0
+    state: true
 - name: qtgui_freq_sink_x_0
   id: qtgui_freq_sink_x
   parameters:
@@ -175,7 +208,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [616, 240.0]
+    coordinate: [544, 200.0]
     rotation: 0
     state: true
 - name: qtgui_waterfall_sink_x_0
@@ -236,7 +269,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [624, 376.0]
+    coordinate: [544, 304.0]
     rotation: 0
     state: true
 - name: soapy_source_0
@@ -245,8 +278,8 @@ blocks:
     affinity: ''
     alias: ''
     amp_gain0: '0'
-    ant0: ''
-    ant1: ''
+    ant0: antenna
+    ant1: RX2
     args: ''
     balance0: '0'
     balance1: '0'
@@ -263,43 +296,45 @@ blocks:
     dc_offset1: '0'
     dc_offset_auto_mode0: 'False'
     dc_offset_auto_mode1: 'False'
-    dev: driver=airspy
+    dev: driver=rtlsdr
     devname: airspy
-    fine_tune0: 'True'
-    fine_tune1: 'True'
+    gain_auto_mode0: 'False'
+    gain_auto_mode1: 'False'
     ifgr_gain: '59'
-    lna_gain0: '10'
+    lna_gain0: lna
     lna_gain1: '10'
+    manual_gain0: 'True'
+    manual_gain1: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
-    mix_gain0: gain2
+    mix_gain0: mix
     mix_gain1: '10'
     nchan: '1'
     nco_freq0: '0'
     nco_freq1: '0'
-    overall_gain0: '10'
+    overall_gain0: '0'
     overall_gain1: '10'
     pga_gain0: '24'
     pga_gain1: '24'
     rfgr_gain: '9'
     samp_rate: samp_rate
     sdrplay_agc_setpoint: '-30'
-    sdrplay_biastee: 'true'
-    sdrplay_dabnotch: 'false'
+    sdrplay_biastee: 'True'
+    sdrplay_dabnotch: 'False'
     sdrplay_if_mode: Zero-IF
-    sdrplay_rfnotch: 'false'
+    sdrplay_rfnotch: 'False'
     tia_gain0: '0'
     tia_gain1: '0'
     tuner_gain0: '10'
     tuner_gain1: '10'
     type: fc32
-    vga_gain0: gain1
+    vga_gain0: vga
     vga_gain1: '10'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [184, 304.0]
+    coordinate: [152, 228.0]
     rotation: 0
     state: true
 
