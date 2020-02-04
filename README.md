@@ -27,9 +27,9 @@ corresponding to your SDR hardware (e.g.
 6. `sudo make install`
 
 If this is the first time you are building the gr-soapy module run
-```bash
-sudo ldconfig
-```
+
+7. `sudo ldconfig`
+
 
 #### Advanced
 By default, the **gr-soapy** module will use the default installation prefix.
