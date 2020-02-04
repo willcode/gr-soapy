@@ -11,9 +11,11 @@ gr-soapy is a GNURadio wrapper for the SoapySDR library.
 * git
 * SoapySDR
 
-Additionally the user must install the corresponding plugin from
-the Pothosware repository (https://github.com/pothosware) depending
-on the device they want to use.
+**Note**: Additionally you must install at least one Soapy SDR module
+corresponding to your SDR hardware (e.g.
+[soapyrtlsdr](https://github.com/pothosware/SoapyRTLSDR)). See also the
+[Pothosware repository](https://github.com/pothosware) for other SDR modules.
+
 
 ### Installation
 
