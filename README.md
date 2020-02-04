@@ -77,6 +77,14 @@ will result to failure of the automated tests running on our CI services.
 So make sure that you either import on your editor the coding style rules 
 or use the `pre-commit` Git hook.
 
+## Problems & Support
+
+If you have problems with the installation or usage of gr-soapy feel free to ask
+in the [Libre Space Community](https://community.libre.space/). If you think you
+found a bug, please open an issue in the
+[issue tracker](https://gitlab.com/librespacefoundation/gr-soapy/issues).
+
+
 ## License
 
 &copy; 2018,2019 [Libre Space Foundation](http://librespacefoundation.org).
