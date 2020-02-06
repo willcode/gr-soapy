@@ -303,24 +303,14 @@ source_impl::set_gain(size_t channel, float gain)
 }
 
 void
-source_impl::set_overall_gain(size_t channel, float gain, bool manual_mode)
-{
-  if (channel >= d_nchan || manual_mode) {
-    return;
-  }
-  set_gain(channel, gain);
-}
-
-void
-source_impl::set_gain(size_t channel, const std::string name, float gain,
-                      bool manual_mode)
+source_impl::set_gain(size_t channel, const std::string name, float gain)
 {
   /*
    * This setter is for manual mode gain. There is a known limitation of the
    * GRC and the yaml runtime evaluation, so we need to skip this setting
    * if the mode is auto gain
    */
-  if (channel >= d_nchan || !manual_mode) {
+  if (channel >= d_nchan) {
     return;
   }
 

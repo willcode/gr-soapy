@@ -70,9 +70,6 @@ private:
   long d_burst_remaining;
 
   virtual bool hasThisGain(size_t channel, std::string gainType);
-  virtual void setGain(size_t channel, float gain, bool manual_mode,
-                       std::string gainType);
-
 
   void register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler);
   std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
@@ -147,8 +144,6 @@ public:
    */
   void set_frequency(size_t channel, const std::string &name, double frequency);
 
-  virtual void set_overall_gain(size_t channel, float gain, bool manual_mode);
-
   virtual bool hasDCOffset(int channel);
   virtual bool hasIQBalance(int channel);
   virtual bool hasFrequencyCorrection(int channel);
@@ -168,8 +163,7 @@ public:
    * \param name an available gain on the device
    * \param gain gain the new amplification value in dB
    */
-  void set_gain(size_t channel, const std::string name, float gain,
-                bool manual_mode);
+  void set_gain(size_t channel, const std::string name, float gain);
 
   /*!
    * Set the automatic gain mode for the TX chain if supported.

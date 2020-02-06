@@ -146,8 +146,6 @@ public:
    */
   void set_frequency(size_t channel, const std::string &name, double frequency);
 
-  virtual void set_overall_gain(size_t channel, float gain, bool manual_mode);
-
   virtual bool hasDCOffset(int channel);
   virtual bool hasIQBalance(int channel);
   virtual bool hasFrequencyCorrection(int channel);
@@ -167,8 +165,7 @@ public:
    * \param name an available gain on the device
    * \param gain gain the new amplification value in dB
    */
-  void set_gain(size_t channel, const std::string name, float gain,
-                bool manual_mode);
+  void set_gain(size_t channel, const std::string name, float gain);
 
 
   /**

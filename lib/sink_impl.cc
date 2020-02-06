@@ -257,26 +257,26 @@ bool sink_impl::hasThisGain(size_t channel, std::string gainType)
   }
 }
 
-void sink_impl::setGain(size_t channel, float gain, bool manual_mode,
-                        std::string gainType)
+void
+sink_impl::set_gain(size_t channel, const std::string name, float gain)
 {
-  if (channel >= d_nchan || !manual_mode) {
+  if (channel >= d_nchan) {
     return;
   }
 
-  if (!hasThisGain(channel, gainType)) {
+  if (!hasThisGain(channel, name)) {
     return;
   }
 
-  SoapySDR::Range rGain = d_device->getGainRange(SOAPY_SDR_TX, channel, gainType);
+  SoapySDR::Range rGain = d_device->getGainRange(SOAPY_SDR_TX, channel, name);
 
   if (gain < rGain.minimum() || gain > rGain.maximum()) {
     GR_LOG_WARN(d_logger,
                 boost::format("Gain %s out of range: %d <= gain <= %d") %
-                gainType % rGain.minimum() % rGain.maximum());
+                name % rGain.minimum() % rGain.maximum());
   }
 
-  d_device->setGain(SOAPY_SDR_TX, channel, gainType, gain);
+  d_device->setGain(SOAPY_SDR_TX, channel, name, gain);
   d_gain = d_device->getGain(SOAPY_SDR_TX, channel);
 }
 
@@ -284,24 +284,6 @@ void
 sink_impl::set_gain(size_t channel, float gain)
 {
   if (channel >= d_nchan) {
-    return;
-  }
-
-  d_device->setGain(SOAPY_SDR_TX, channel, gain);
-  d_gain = d_device->getGain(SOAPY_SDR_TX, channel);
-}
-
-void
-sink_impl::set_gain(size_t channel, const std::string name, float gain,
-                    bool manual_mode)
-{
-  setGain(channel, gain, manual_mode, name);
-}
-
-void
-sink_impl::set_overall_gain(size_t channel, float gain, bool manual_mode)
-{
-  if (channel >= d_nchan || !manual_mode) {
     return;
   }
 
@@ -314,7 +296,8 @@ sink_impl::set_overall_gain(size_t channel, float gain, bool manual_mode)
     return;
   }
 
-  set_gain(channel, gain);
+  d_device->setGain(SOAPY_SDR_TX, channel, gain);
+  d_gain = d_device->getGain(SOAPY_SDR_TX, channel);
 }
 
 void

@@ -75,8 +75,6 @@ public:
                    const std::string args,
                    double sampling_rate, const std::string type);
 
-  virtual void set_overall_gain(size_t channel, float gain, bool manual_mode) = 0;
-
   virtual bool hasDCOffset(int channel) = 0;
   virtual bool hasIQBalance(int channel) = 0;
   virtual bool hasFrequencyCorrection(int channel) = 0;
@@ -96,8 +94,7 @@ public:
    * \param name the gain name to set value
    * \param gain the gain value
    */
-  virtual void set_gain(size_t channel, const std::string name, float gain,
-                        bool manual_mode) = 0;
+  virtual void set_gain(size_t channel, const std::string name, float gain) = 0;
 
   /*!
    * Callback to change the RF frequency of the device
