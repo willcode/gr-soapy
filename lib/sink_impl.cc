@@ -352,8 +352,7 @@ std::vector<std::string> sink_impl::listAntennas(int channel)
   if ((size_t)channel >= d_nchan) {
     return std::vector<std::string>();
   }
-
-  return d_device->listAntennas(SOAPY_SDR_RX, channel);
+  return d_device->listAntennas(SOAPY_SDR_TX, channel);
 }
 
 void
