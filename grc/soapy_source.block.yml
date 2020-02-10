@@ -151,8 +151,8 @@ parameters:
     dtype: bool
     default: 'False'
     options: ['False', 'True']
-    hide: ${ 'none' if (devname == 'airspy' or devname=='plutosdr' or devname == 'sdrplay') and gain_auto_mode0   else ('all' if devname
-         == 'uhd' or devname == 'lime' or devname == 'rtlsdr' else 'part')}
+    hide: ${ 'none' if (devname == 'airspy' or devname=='plutosdr' or devname == 'sdrplay' or devname == 'uhd') else ('all' if
+         devname == 'lime' or devname == 'rtlsdr' else 'part')}
 -   id: dc_offset0
     label: 'Ch0: DC Offset'
     category: RF Options
