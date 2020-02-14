@@ -71,7 +71,7 @@ parameters:
     category: RF Options
     dtype: real
     default: '10'
-    hide: ${ 'none' if ( (devname == 'uhd' or devname == 'bladerf' or devname == 'sidekiq' or devname == 'custom') or not manual_gain0) else 'all' }
+    hide: ${ 'none' if (not manual_gain0) else 'all' }
 -   id: pga_gain0
     label: 'Ch0: PGA Gain Value'
     category: RF Options
@@ -83,7 +83,7 @@ parameters:
     category: RF Options
     dtype: float
     default: '10'
-    hide: ${ 'none' if ( (devname == 'airspy' or devname == 'lime' or devname == 'hackrf' or devname == 'xtrxsoapy' or devname == 'custom') and manual_gain0  ) else 'all' }
+    hide: ${ 'none' if ( (devname == 'airspy' or devname == 'bladerf' or devname == 'lime' or devname == 'hackrf' or devname == 'xtrxsoapy' or devname == 'custom') and manual_gain0  ) else 'all' }
 -   id: tia_gain0
     label: 'Ch0: TIA Gain Value'
     category: RF Options
@@ -126,6 +126,18 @@ parameters:
     dtype: float
     default: '9'
     hide: ${ 'none' if ( (devname == 'sdrplay'  or devname == 'custom') and manual_gain0  ) else 'all' }
+-   id: rxvga1_gain
+    label: 'Ch0: RXVGA1 Gain Value'
+    category: RF Options
+    dtype: float
+    default: '5'
+    hide: ${ 'none' if ( (devname == 'bladerf'  or devname == 'custom') and manual_gain0  ) else 'all' }    
+-   id: rxvga2_gain
+    label: 'Ch0: RXVGA2 Gain Value'
+    category: RF Options
+    dtype: float
+    default: '0'
+    hide: ${ 'none' if ( (devname == 'bladerf'  or devname == 'custom') and manual_gain0  ) else 'all' }      
 -   id: ant0
     label: 'Ch0: Antenna'
     category: RF Options
@@ -406,37 +418,38 @@ templates:
 
                 self.${id}.set_antenna(1,${ant1})
                 
-        if "${manual_gain0}" == 'True':
+        if "${manual_gain0}" == 'False':
             self.${id}.set_gain(0,${overall_gain0})
             self.${id}.set_gain(1,${overall_gain1})
         else:
-            if "${devname}" == 'uhd' or "${devname}" == 'sidekiq' or "${devname}" == 'bladerf' or "${devname}" == 'lime':
+            if "${devname}" == 'uhd' or "${devname}" == 'sidekiq' or "${devname}" == 'lime':
                 self.${id}.set_gain(0,"PGA", ${pga_gain0})
                 self.${id}.set_gain(1,"PGA", ${pga_gain1})
+            elif "${devname}" == 'hackrf':
+                self.${id}.set_gain(0,"LNA", ${lna_gain0})
+                self.${id}.set_gain(0,"VGA", ${vga_gain0})
+                # Only hackrf uses "AMP", so just ch0
+                self.${id}.set_gain(0,"AMP", ${amp_gain0})
+            elif "${devname}" == 'bladerf':
+                self.${id}.set_gain(0,"lna", ${lna_gain0})
+                self.${id}.set_gain(0,"rxvga1", ${rxvga1_gain})
+                self.${id}.set_gain(0,"rxvga2", ${rxvga2_gain})
             else:
-                if "${devname}" == 'custom':
-                    # If we're here and we're custom, let's still call overall gain
-                    self.${id}.set_gain(0,${overall_gain0})
-                    self.${id}.set_gain(1,${overall_gain1})
-                elif "${devname}" == 'hackrf':
-                    self.${id}.set_gain(0,"LNA", ${lna_gain0})
-                    self.${id}.set_gain(0,"VGA", ${vga_gain0})
-                    # Only hackrf uses "AMP", so just ch0
-                    self.${id}.set_gain(0,"AMP", ${amp_gain0})
-                else:
-                    self.${id}.set_gain(0,"LNA", ${lna_gain0})
-                    self.${id}.set_gain(1,"LNA", ${lna_gain1})
-                    self.${id}.set_gain(0,"TIA", ${tia_gain0})
-                    self.${id}.set_gain(1,"TIA", ${tia_gain1})
-                    self.${id}.set_gain(0,"MIX", ${mix_gain0})
-                    self.${id}.set_gain(1,"MIX", ${mix_gain1})
-                    self.${id}.set_gain(0,"VGA", ${vga_gain0})
-                    self.${id}.set_gain(1,"VGA", ${vga_gain1})
-                    # Only rtl-sdr uses TUNER, so just ch0
-                    self.${id}.set_gain(0,"TUNER", ${tuner_gain0})
-                    # Only sdrplay uses IFGR so just ch0 for each
-                    self.${id}.set_gain(0,"IFGR", ${ifgr_gain})
-                    self.${id}.set_gain(0,"RFGR", ${rfgr_gain})
+                self.${id}.set_gain(0,"LNA", ${lna_gain0})
+                self.${id}.set_gain(1,"LNA", ${lna_gain1})
+                self.${id}.set_gain(0,"TIA", ${tia_gain0})
+                self.${id}.set_gain(1,"TIA", ${tia_gain1})
+                self.${id}.set_gain(0,"MIX", ${mix_gain0})
+                self.${id}.set_gain(1,"MIX", ${mix_gain1})
+                self.${id}.set_gain(0,"VGA", ${vga_gain0})
+                self.${id}.set_gain(1,"VGA", ${vga_gain1})
+                self.${id}.set_gain(0,"rxvga1", ${rxvga1_gain})
+                self.${id}.set_gain(0,"rxvga2", ${rxvga2_gain})
+                # Only rtl-sdr uses TUNER, so just ch0
+                self.${id}.set_gain(0,"TUNER", ${tuner_gain0})
+                # Only sdrplay uses IFGR so just ch0 for each
+                self.${id}.set_gain(0,"IFGR", ${ifgr_gain})
+                self.${id}.set_gain(0,"RFGR", ${rfgr_gain})
         
 
     callbacks:
@@ -459,6 +472,8 @@ templates:
     - set_gain(1,"MIX", ${mix_gain1})
     - set_gain(0,"VGA", ${vga_gain0})
     - set_gain(1,"VGA", ${vga_gain1})
+    - set_gain(0,"rxvga1", ${rxvga1_gain})
+    - set_gain(0,"rxvga2", ${rxvga2_gain})
     - set_gain(0,"TUNER", ${tuner_gain0})
     - set_gain(0,"AMP", ${amp_gain0})
     - set_gain(0,"IFGR", ${ifgr_gain})

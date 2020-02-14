@@ -76,7 +76,7 @@ parameters:
     category: RF Options
     dtype: real
     default: '10'
-    hide: ${ 'none' if ( (devname == 'bladerf' or devname == 'uhd' or devname == 'sidekiq' or devname == 'custom') or not manual_gain0) else 'all' }
+    hide: ${ 'none' if (not manual_gain0) else 'all' }
 -   id: pga_gain0
     label: 'Ch0: PGA Gain Value'
     category: RF Options
@@ -107,6 +107,18 @@ parameters:
     dtype: float
     default: '0'
     hide: ${ 'none' if ( (devname == 'hackrf'  or devname == 'custom') and manual_gain0 ) else 'all' }
+-   id: txvga1_gain
+    label: 'Ch0: TXVGA1 Gain Value'
+    category: RF Options
+    dtype: float
+    default: '-35'
+    hide: ${ 'none' if ( (devname == 'bladerf'  or devname == 'custom') and manual_gain0 ) else 'all' }
+-   id: txvga2_gain
+    label: 'Ch0: TXVGA2 Gain Value'
+    category: RF Options
+    dtype: float
+    default: '0'
+    hide: ${ 'none' if ( (devname == 'bladerf'  or devname == 'custom') and manual_gain0 ) else 'all' }
 -   id: ant0
     label: 'Ch0: Antenna'
     category: RF Options
@@ -307,17 +319,16 @@ templates:
         if (self.${id}.hasFrequencyCorrection(1)):     
             self.${id}.set_frequency_correction(1,${correction1})
             
-        if "${devname}" == 'uhd' or "${devname}" == 'sidekiq' or "${devname}" == 'bladerf' or "${manual_gain0}" == 'False':
+        if "${devname}" == 'sidekiq' or "${manual_gain0}" == 'False':
             self.${id}.set_gain(0,${overall_gain0})
             self.${id}.set_gain(1,${overall_gain1})
         else:
-            if "${devname}" == 'custom':
-                # If we're here and we're custom, let's still call overall gain
-                self.${id}.set_gain(0,${overall_gain0})
-                self.${id}.set_gain(1,${overall_gain1})
-            if ${manual_gain0} == 'False':
-                 self.${id}.set_gain(0,${overall_gain0})
-                 self.${id}.set_gain(1,${overall_gain1})
+            if "${devname}" == 'bladerf':
+                 self.${id}.set_gain(0,"txvga1", ${txvga1_gain})
+                 self.${id}.set_gain(0,"txvga2", ${txvga2_gain})
+            elif "${devname}" == 'uhd':
+                self.${id}.set_gain(0,"PGA", ${pga_gain0})
+                self.${id}.set_gain(1,"PGA", ${pga_gain1})
             else:           
                  self.${id}.set_gain(0,"PGA", ${pga_gain0})
                  self.${id}.set_gain(1,"PGA", ${pga_gain1})
@@ -325,7 +336,8 @@ templates:
                  self.${id}.set_gain(1,"PAD", ${pad_gain1})
                  self.${id}.set_gain(0,"IAMP", ${iamp_gain0})
                  self.${id}.set_gain(1,"IAMP", ${iamp_gain1})
-
+                 self.${id}.set_gain(0,"txvga1", ${txvga1_gain})
+                 self.${id}.set_gain(0,"txvga2", ${txvga2_gain})
                  # Only hackrf uses VGA name, so just ch0
                  self.${id}.set_gain(0,"VGA", ${vga_gain0})
         
@@ -347,6 +359,8 @@ templates:
     - set_gain(1,"IAMP", ${iamp_gain1})
     - set_gain(0,"VGA", ${vga_gain0})
     - set_gain(0,"AMP", ${amp_gain0})
+    - set_gain(0,"txvga1", ${txvga1_gain})
+    - set_gain(0,"txvga2", ${txvga2_gain})
     - set_frequency_correction(0,${correction0})
     - set_frequency_correction(1,${correction1})
     - set_iq_balance(0,${balance0})
