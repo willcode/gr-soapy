@@ -15,162 +15,186 @@ parameters:
     option_attributes:
         type: [fc32, sc16, sc8]
     hide: part
+    
 -   id: devname
     label: Device Type
     dtype: enum
     default: 'rtlsdr'
     options: ['airspy', 'bladerf', 'hackrf', 'lime', 'plutosdr', 'rtlsdr', 'sidekiq', 'sdrplay', 'uhd', 'xtrxsoapy', 'custom']
     option_labels: ['airspy', 'bladerf', 'hackrf', 'lime', 'plutosdr', 'rtlsdr', 'sidekiq', 'sdrplay', 'uhd', 'xtrxsoapy', 'custom']
+
 -   id: dev
     label: Device String
     dtype: string
     default: 'driver=rtlsdr'
     hide: ${ 'none' if (devname == 'custom') else 'all' }
+
 -   id: args
     label: Args
     dtype: string
+
 -   id: samp_rate
     label: Sampling Rate
     dtype: float
     default: 'samp_rate'
+
 -   id: nchan
     label: Num Channels
     dtype: int
     default: '1'
     hide: part
+
 -   id: clock_rate
     label: Master Clock Rate
     dtype: real
     default: '0'
     hide: part
+
 -   id: clock_source
     label: Clock Source
     dtype: string
     hide: part
+
 -   id: center_freq0
     label: 'Ch0: Center Freq (Hz)'
     category: RF Options
     dtype: real
     default: '100.0e6'
+
 -   id: nco_freq0
     label: 'Ch0: NCO Freq (Hz)'
     category: RF Options
     dtype: real
     default: '0'
     hide: ${ 'all' if (devname == 'uhd' or devname == 'plutosdr' or devname == 'airspy' or devname == 'rtlsdr') else 'part' }
+
 -   id: manual_gain0
     label: 'Ch0: Enable Manual Gain'
     category: RF Options
     dtype: bool
     default: 'True'
-    options: ['True', 'False']
-    option_labels: [Manual, Auto]
     hide: part
+
 -   id: overall_gain0
     label: 'Ch0: Overall Gain Value'
     category: RF Options
     dtype: real
     default: '10'
     hide: ${ 'none' if (not manual_gain0) else 'all' }
+
 -   id: pga_gain0
     label: 'Ch0: PGA Gain Value'
     category: RF Options
     dtype: float
     default: '24'
     hide: ${ 'none' if ( (devname == 'plutosdr' or devname == 'xtrxsoapy' or devname == 'lime' or devname == 'custom') and manual_gain0 ) else 'all' }
+
 -   id: lna_gain0
     label: 'Ch0: LNA Gain Value'
     category: RF Options
     dtype: float
     default: '10'
     hide: ${ 'none' if ( (devname == 'airspy' or devname == 'bladerf' or devname == 'lime' or devname == 'hackrf' or devname == 'xtrxsoapy' or devname == 'custom') and manual_gain0  ) else 'all' }
+
 -   id: tia_gain0
     label: 'Ch0: TIA Gain Value'
     category: RF Options
     dtype: float
     default: '0'
     hide: ${ 'none' if ( (devname == 'xtrxsoapy' or devname == 'lime' or devname == 'custom') and manual_gain0  ) else 'all' }
+
 -   id: mix_gain0
     label: 'Ch0: MIX Gain Value'
     category: RF Options
     dtype: float
     default: '10'
     hide: ${ 'none' if ( (devname == 'airspy'  or devname == 'custom') and manual_gain0  ) else 'all' }
+
 -   id: vga_gain0
     label: 'Ch0: VGA Gain Value'
     category: RF Options
     dtype: float
     default: '10'
     hide: ${ 'none' if ( (devname == 'airspy'  or devname == 'hackrf' or devname == 'custom') and manual_gain0  ) else 'all' }
+
 -   id: tuner_gain0
     label: 'Ch0: TUNER Gain Value'
     category: RF Options
     dtype: float
     default: '10'
     hide: ${ 'none' if ( (devname == 'rtlsdr' or devname == 'custom') and manual_gain0  ) else 'all' }
+
 -   id: amp_gain0
     label: 'Ch0: AMP Gain Value'
     category: RF Options
     dtype: float
     default: '0'
     hide: ${ 'none' if ( (devname == 'hackrf' or devname == 'custom') and manual_gain0  ) else 'all' }
+
 -   id: ifgr_gain
     label: 'Ch0: IFGR Gain Value'
     category: RF Options
     dtype: float
     default: '59'
     hide: ${ 'none' if ( (devname == 'sdrplay'  or devname == 'custom') and manual_gain0  ) else 'all' }
+
 -   id: rfgr_gain
     label: 'Ch0: RFGR Gain Value'
     category: RF Options
     dtype: float
     default: '9'
     hide: ${ 'none' if ( (devname == 'sdrplay'  or devname == 'custom') and manual_gain0  ) else 'all' }
+    
 -   id: rxvga1_gain
     label: 'Ch0: RXVGA1 Gain Value'
     category: RF Options
     dtype: float
     default: '5'
-    hide: ${ 'none' if ( (devname == 'bladerf'  or devname == 'custom') and manual_gain0  ) else 'all' }    
+    hide: ${ 'none' if ( (devname == 'bladerf'  or devname == 'custom') and manual_gain0  ) else 'all' }
+    
 -   id: rxvga2_gain
     label: 'Ch0: RXVGA2 Gain Value'
     category: RF Options
     dtype: float
     default: '0'
-    hide: ${ 'none' if ( (devname == 'bladerf'  or devname == 'custom') and manual_gain0  ) else 'all' }      
+    hide: ${ 'none' if ( (devname == 'bladerf'  or devname == 'custom') and manual_gain0  ) else 'all' }
+    
 -   id: ant0
     label: 'Ch0: Antenna'
     category: RF Options
     dtype: string
     default: 'RX'
     hide: ${ 'part' if nchan > 0 else 'all' }
+
 -   id: bw0
     label: 'Ch0: Bandwidth (Hz)'
     category: RF Options
     dtype: real
     default: '0'
     hide: ${ 'part' if nchan > 0 else 'all' }
+
 -   id: dc_offset_auto_mode0
     label: 'Ch0: Automatic DC Offset Mode'
     category: RF Options
-    dtype: enum
+    dtype: bool
     default: 'False'
-    options: ['False', 'True']
     hide: ${ 'all' if ( devname == 'plutosdr' or devname == 'airspy' or devname == 'rtlsdr' ) else 'part' }
+
 -   id: gain_auto_mode0
     label: 'Ch0: Automatic Gain Control'
     category: RF Options
     dtype: bool
     default: 'False'
-    options: ['False', 'True']
     hide: ${ 'none' if (devname == 'airspy' or devname=='plutosdr' or devname == 'sdrplay' or devname == 'uhd') else ('all' if
          devname == 'lime' or devname == 'rtlsdr' else 'part')}
+
 -   id: dc_offset0
     label: 'Ch0: DC Offset'
     category: RF Options
     dtype: complex
     default: '0'
     hide: ${ 'all' if ( (devname == 'uhd' or devname == 'lime' or devname == 'plutosdr' or devname == 'airspy' or devname == 'rtlsdr') or dc_offset_auto_mode0 == 'True' ) else 'part' }
+
 -   id: sdrplay_if_mode
     label: IF Mode
     category: RF Options
@@ -179,149 +203,162 @@ parameters:
     options: ['Zero-IF', '450kHz', '1620kHz', '2048kHz']
     option_labels: [Zero-IF, 450kHz, 1620kHz, 2048kHz]
     hide: ${ 'none' if ( devname == 'sdrplay' ) else 'all' }
+
 -   id: sdrplay_biastee
     label: Bias Tee
     category: RF Options
-    dtype: enum
-    default: 'True'
-    options: ['True', 'False']
-    option_labels: [Enable, Disable]
+    dtype: bool
+    default: 'False'
     hide: ${ 'none' if ( devname == 'sdrplay') else 'all' }
+
 -   id: sdrplay_agc_setpoint
     label: AGC Setpoint (dBfs)
     category: RF Options
     dtype: int
     default: '-30'
     hide: ${ 'none' if ( devname == 'sdrplay' ) else 'all' }
+
 -   id: sdrplay_rfnotch
     label: RF Notch Filter
     category: RF Options
-    dtype: enum
+    dtype: bool
     default: 'False'
-    options: ['True', 'False']
-    option_labels: [Enable, Disable]
     hide: ${ 'none' if ( devname == 'sdrplay' ) else 'all' }
+
 -   id: sdrplay_dabnotch
     label: DAB Notch Filter
     category: RF Options
-    dtype: enum
+    dtype: bool
     default: 'False'
-    options: ['True', 'False']
-    option_labels: [Enable, Disable]
     hide: ${ 'none' if ( devname == 'sdrplay' ) else 'all' }
+
 -   id: correction0
     label: 'Ch0: Frequency Correction'
     category: RF Options
     dtype: real
     default: '0'
     hide: ${ 'all' if ( devname == 'uhd' or devname == 'lime' or devname == 'plutosdr' or devname == 'airspy' or devname == 'sdrplay' ) else 'part' }
+
 -   id: balance0
     label: 'Ch0: IQ Balance Correction'
     category: RF Options
     dtype: complex
     default: '0'
     hide: ${ 'all' if ( devname == 'uhd' or devname == 'lime' or devname == 'plutosdr' or devname == 'airspy' or devname == 'rtlsdr' or devname == 'sdrplay' ) else 'part' }
+
 -   id: center_freq1
     label: 'Ch1: Center Freq (Hz)'
     category: RF Options
     dtype: real
     default: '0'
     hide: ${ 'none' if nchan > 1 else 'all' }
+
 -   id: nco_freq1
     label: 'Ch1: NCO Freq (Hz)'
     category: RF Options
     dtype: real
     default: '0'
     hide: 'all'
+
 -   id: manual_gain1
     label: 'Ch1: Gain Mode'
     category: RF Options
-    dtype: enum
+    dtype: bool
     default: 'True'
-    options: ['True', 'False']
-    option_labels: [Manual, Auto]
     hide: ${ 'all' if nchan < 2 else 'part' }
+
 -   id: overall_gain1
     label: 'Ch1: Gain Value'
     category: RF Options
     dtype: real
     default: '10'
     hide: ${ 'none' if ( (devname == 'uhd' or devname == 'sidekiq' or devname == 'custom') and manual_gain0   and nchan > 1) else 'all' }
+
 -   id: pga_gain1
     label: 'Ch1: PGA Gain Value'
     category: RF Options
     dtype: float
     default: '24'
     hide: ${ 'none' if ( (devname == 'plutosdr' or devname == 'xtrxsoapy' or devname == 'lime' or devname == 'custom') and manual_gain0   and nchan > 1) else 'all' }
+
 -   id: lna_gain1
     label: 'Ch1: LNA Gain Value'
     category: RF Options
     dtype: float
     default: '10'
     hide: ${ 'none' if ( (devname == 'airspy' or devname == 'hackrf' or devname == 'xtrxsoapy' or devname == 'custom') and manual_gain0   and nchan > 1) else 'all' }
+
 -   id: tia_gain1
     label: 'Ch1: IAMP Gain Value'
     category: RF Options
     dtype: float
     default: '0'
     hide: ${ 'none' if ( ('xtrxsoapy' or devname == 'custom') and manual_gain0   and nchan > 1) else 'all' }
+
 -   id: mix_gain1
     label: 'Ch1: MIX Gain Value'
     category: RF Options
     dtype: float
     default: '10'
     hide: ${ 'none' if ( (devname == 'airspy'  or devname == 'custom') and manual_gain0   and nchan > 1) else 'all' }
+
 -   id: vga_gain1
     label: 'Ch1: VGA Gain Value'
     category: RF Options
     dtype: float
     default: '10'
     hide: ${ 'none' if ( (devname == 'airspy'  or devname == 'hackrf' or devname == 'custom') and manual_gain0   and nchan > 1) else 'all' }
+
 -   id: tuner_gain1
     label: 'Ch1: TUNER Gain Value'
     category: RF Options
     dtype: float
     default: '10'
     hide: 'all'
+
 -   id: ant1
     label: 'Ch1: Antenna'
     category: RF Options
     dtype: string
     default: 'RX2'
     hide: ${ 'part' if nchan > 1 else 'all' }
+
 -   id: bw1
     label: 'Ch1: Bandwidth (Hz)'
     category: RF Options
     dtype: real
     default: '0'
     hide: ${ 'part' if nchan > 1 else 'all' }
+
 -   id: dc_offset_auto_mode1
     label: 'Ch1: Automatic DC Offset Mode'
     category: RF Options
-    dtype: enum
+    dtype: bool
     default: 'False'
-    options: ['False', 'True']
     hide: ${ 'all' if ( nchan <= 1 or ( devname == 'lime' or devname == 'plutosdr' or devname == 'airspy' or devname == 'rtlsdr') ) else 'part' }
+
 -   id: gain_auto_mode1
     label: 'Ch1: Automatic Gain Control'
     category: RF Options
     dtype: bool
     default: 'False'
-    options: ['False', 'True']
     hide: ${ 'none' if (devname == 'airspy' or devname=='plutosdr' or devname == 'sdrplay') and gain_auto_mode1 else ('all' if devname
          == 'uhd' or devname == 'lime' or devname == 'rtlsdr' or nchan <= 1 else 'part')}
+
 -   id: dc_offset1
     label: 'Ch1: DC Offset'
     category: RF Options
     dtype: complex
     default: '0'
     hide: ${ 'all' if (nchan <= 1 or (devname == 'uhd' or devname == 'lime' or devname == 'plutosdr' or devname == 'airspy' or devname == 'rtlsdr') or (dc_offset_auto_mode0 == True) ) else 'part' }
+
 -   id: correction1
     label: 'Ch1: Frequency Correction'
     category: RF Options
     dtype: real
     default: '0'
     hide: ${ 'all' if (nchan <= 1 or (devname == 'uhd' or devname == 'lime' or devname == 'plutosdr' or devname == 'airspy' or devname == 'rtlsdr') ) else 'part' }
+
 -   id: balance1
     label: 'Ch1: IQ Balance Correction'
     category: RF Options
