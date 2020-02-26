@@ -7,7 +7,7 @@ Build-Depends: cmake,
                dh-python,
                doxygen,
                git,
-               gnuradio-dev (>=3.8),
+               gnuradio-dev (>= 3.8), gnuradio-dev (<< 3.9),
                libboost-date-time-dev,
                libboost-dev,
                libboost-filesystem-dev,
@@ -35,7 +35,7 @@ Depends: libgnuradio-soapy (= ${binary:Version}),
          ${python3:Depends},
          ${shlibs:Depends},
          ${misc:Depends}
-Recommends: gnuradio
+Recommends: gnuradio (>= 3.8), gnuradio (<< 3.9)
 Description: SoapySDR GNU Radio Out-Of-Tree Module
  gr-soapy is a GNURadio wrapper for the SoapySDR library.
 
