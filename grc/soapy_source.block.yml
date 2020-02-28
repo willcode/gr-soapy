@@ -514,12 +514,27 @@ templates:
         - set_gain(0,"AMP", ${amp_gain0})
         - set_gain(0,"IFGR", ${ifgr_gain})
         - set_gain(0,"RFGR", ${rfgr_gain})
+        
+        # Frequency correction
         - set_frequency_correction(0,${correction0})
-        - set_frequency_correction(1,${correction1})
+        - |
+          % if context.get('nchan')() > 1:
+          set_frequency_correction(1,${correction1})
+          %endif
+        
+        # IQ Imbalance (complex)
         - set_iq_balance(0,${balance0})
-        - set_iq_balance(1,${balance1})
+        - |
+          % if context.get('nchan')() > 1:
+          set_iq_balance(1,${balance1})
+          % endif
+          
+          # DC offset
         - set_dc_offset(0,${dc_offset0},${dc_offset_auto_mode0} == 'True')
-        - set_dc_offset(1,${dc_offset1},${dc_offset_auto_mode1} == 'True')
+        - |
+          % if context.get('nchan')() > 1:
+          set_dc_offset(1,${dc_offset1},${dc_offset_auto_mode1} == 'True')
+          % endif
 
 documentation: |-
     Soapy Source Block:
