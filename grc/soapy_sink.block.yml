@@ -368,28 +368,63 @@ templates:
     - set_dc_offset(0,${dc_offset0},${dc_offset_auto_mode0} == 'True')
     - set_dc_offset(1,${dc_offset1},${dc_offset_auto_mode1} == 'True')
 
-documentation: "Soapy Sink Block:\n\nDevice:\nThe device argument is a comma delimited\
-    \ string used to create a device\ninstance that uses the specified driver. Device\
-    \ driver should always be\nspecified. \nUsage examples:\nDevice: driver=limesdr\n\
-    Device: driver=uhd,type=b200\nDevice: driver=uhd,serial=12345678\n\nArgs:\nComma\
-    \ delimited list of key-word dictionary arguments specific for each \ndevice.\
-    \ Device driver handles internally invalid arguments.\nUsage examples:\nDevice:\
-    \ driver=lime\nArgs: skipCal=True\n----------------------\nDevice: driver=airspy\n\
-    Args: biastee=true\n\nSample Rate:\nThe sample rate is the number of samples per\
-    \ second input by this block.\nIf the requested rate is not possible the driver\
-    \ decides internally how\nto handle it.\n\nCenter frequency:\nThe center frequency\
-    \ of the RF chain. \nIf the device cannot tune to the specified frequency the\
-    \ driver decides\ninternally how to handle it.\n\nMaster Clock Rate:\nThe rate\
-    \ of the master clock. \nCan be assigned zero for automatic tuning.\n\nClock Source:\n\
-    Specifies a valid external clock source. \nCan be left empty.\n\nInput Type:\n\
-    This parameter controls the data type of the stream in gnuradio.\n\nGain:\nDepending\
-    \ the device driver specified in the Device field various\ngains parameters can\
-    \ be configured. If a driver is not explicitly\nsupported from the block an Overal\
-    \ Gain parameter can be configured.\nE.g 1:\nGain Value: 10\nE.g 2:\nDevice: driver=uhd\n\
-    PGA Gain: 10\n\nAntenna:\nSpecified antenna used in RF chain.\nCan be left empty\
-    \ for auto assignment, else it must correspond to an\nantenna name of the device\
-    \ used.\n\nBandwidth:\nThe digital filter bandwidth of the RF chain.\nCan be left\
-    \ empty for auto assignment, else it must be a correct filter\nbandwidth of the\
-    \ device."
+documentation: |-
+    Soapy Sink Block:
+    Device:
+    The device argument is a comma delimited string used to create a device
+    instance that uses the specified driver.  Device driver should always be specified. 
+      
+      Usage examples:
+        Device: driver=limesdr
+        Device: driver=uhd,type=b200
+        Device: driver=uhd,serial=12345678
+      
+    Args:
+    Comma delimited list of key-word dictionary arguments specific for each device.
+    Device driver handles internally invalid arguments.
+    
+      Usage examples:
+        Device: driver=lime
+        Args: skipCal=True
+        Device: driver=airspy
+        Args: biastee=true
+    
+    Sample Rate:
+    The sample rate is the number of samples per second input by this block.
+    If the requested rate is not possible the driver
+    decides internally how to handle it
+    
+    Center frequency:
+    The center frequency of the RF chain. If the device cannot tune to the 
+    specified frequency the driver decides ninternally how to handle it.
+    
+    Master Clock Rate:
+    The rate of the master clock. Can be assigned zero for automatic tuning.
+    
+    Clock Source:
+    Specifies a valid external clock source. Can be left empty.
+    
+    Input Type:
+    This parameter controls the data type of the stream in GNU-Radio.
+    
+    Gain:
+    Depending the device driver specified in the Device field various
+    gains parameters can be configured. If a driver is not explicitly
+    supported from the block an Overal Gain parameter can be configured.
+    
+      E.g 1:
+        Gain Value: 10
+      E.g 2:
+        Device: driver=uhd
+        PGA Gain: 10
+    Antenna:
+    Specified antenna used in RF chain.
+    Can be left empty for auto assignment, else it must correspond to an
+    antenna name of the device used.
+    
+    Bandwidth:
+    The digital filter bandwidth of the RF chain.
+    Can be left empty for auto assignment, else it must be a correct filter
+    bandwidth of the device.
 
 file_format: 1
