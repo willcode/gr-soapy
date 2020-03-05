@@ -65,9 +65,9 @@ private:
   gr_complexd d_iq_balance;
   double d_clock_rate;
   std::string d_clock_source;
+  std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
 
   void register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler);
-  std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
 
   inline io_signature::sptr
   args_to_io_sig(const std::string type, size_t nchan)
@@ -91,28 +91,10 @@ private:
     return io_signature::make(nchan, nchan, size);
   }
 
-  /*!
-   * Create and store a new Device object using the make function of SoapySDR
-   * API.
-   * For every makeDevice call an unmakeDevice call is also made.
-   *
-   * \param argStr device construction key/value argument string
-   */
-  void
-  makeDevice(const std::string &argStr);
-
-  /*!
-   * Destroy a Device object created by makeDevice call.
-   * Called for every makeDevice call.
-   * \param dev a pointer to a Device object
-   */
-  void
-  unmakeDevice(SoapySDR::Device *dev);
-
 public:
-  source_impl(size_t nchan, const std::string device,
-              const std::string args, double sampling_rate,
-              const std::string type);
+  source_impl(size_t nchan, const std::string &device,
+              const std::string &args, double sampling_rate,
+              const std::string &type);
   ~source_impl();
 
   virtual bool start();

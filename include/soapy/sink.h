@@ -69,9 +69,9 @@ public:
    * Driver name can be any of "uhd", "lime", "airspy",
    * "rtlsdr" or others
    */
-  static sptr make(size_t nchan, const std::string device,
-                   const std::string args, double sampling_rate,
-                   const std::string type, const std::string length_tag_name = "");
+  static sptr make(size_t nchan, const std::string &device,
+                   const std::string &args, double sampling_rate,
+                   const std::string &type, const std::string &length_tag_name = "");
 
   /*!
    * Callback to set overall gain

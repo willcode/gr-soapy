@@ -71,9 +71,9 @@ public:
    * Driver name can be any of "uhd", "lime", "airspy",
    * "rtlsdr" or others
    */
-  static sptr make(size_t nchan, const std::string device,
-                   const std::string args,
-                   double sampling_rate, const std::string type);
+  static sptr make(size_t nchan, const std::string &device,
+                   const std::string &args,
+                   double sampling_rate, const std::string &type);
 
   virtual bool hasDCOffset(int channel) = 0;
   virtual bool hasIQBalance(int channel) = 0;

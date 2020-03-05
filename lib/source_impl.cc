@@ -37,9 +37,9 @@ const pmt::pmt_t CMD_BW_KEY = pmt::mp("bw");
 namespace gr {
 namespace soapy {
 source::sptr
-source::make(size_t nchan, const std::string device,
-             const std::string args, double sampling_rate,
-             const std::string type)
+source::make(size_t nchan, const std::string &device,
+             const std::string &args, double sampling_rate,
+             const std::string &type)
 {
   return gnuradio::get_initial_sptr(
            new source_impl(nchan, device, args, sampling_rate, type));
@@ -48,12 +48,11 @@ source::make(size_t nchan, const std::string device,
 /*
  * The private constructor
  */
-source_impl::source_impl(size_t nchan, const std::string device,
-                         const std::string args, double sampling_rate,
-                         const std::string type) :
+source_impl::source_impl(size_t nchan, const std::string &device,
+                         const std::string &args, double sampling_rate,
+                         const std::string &type) :
   gr::sync_block("soapy::source", gr::io_signature::make(0, 0, 0),
                  args_to_io_sig(type, nchan)),
-  d_dev_str(device),
   /*
    * Swig does not guarantee C++ destructors are called from python,
    *  so recommends against relying on them for cleanup.
@@ -63,11 +62,15 @@ source_impl::source_impl(size_t nchan, const std::string device,
   d_sampling_rate(sampling_rate),
   d_nchan(nchan)
 {
-  /*
-   * Get the device in a key, value way. The device string should contain the
-   * driver=xxxx and therefore we can identify the device type
-   */
-  SoapySDR::Kwargs kwargs = SoapySDR::KwargsFromString(device);
+
+  /* "serial" device argument needs special handling. */
+  std::string dev_str = device;
+  SoapySDR::Kwargs dev_args = SoapySDR::KwargsFromString(args);
+  const SoapySDR::Kwargs::const_iterator iter = dev_args.find("serial");
+  if (iter != dev_args.end()) {
+    dev_str += ",serial=" + iter->second;
+    dev_args.erase(iter->first);
+  }
 
   std::string stype;
   if (type == "fc32") {
@@ -84,7 +87,8 @@ source_impl::source_impl(size_t nchan, const std::string device,
     throw std::invalid_argument(msg);
   }
 
-  makeDevice(device);
+  d_device = SoapySDR::Device::make(dev_str);
+  d_stopped = false;
 
   if (d_nchan > d_device->getNumChannels(SOAPY_SDR_RX)) {
     std::string msg = name() +  ": Unsupported number of channels. Only  "
@@ -108,29 +112,18 @@ source_impl::source_impl(size_t nchan, const std::string device,
       std::swap(minRate, maxRate);
     }
 
-    if (kwargs["driver"] != "airspy") {
-      if ((d_sampling_rate < minRate) || (d_sampling_rate > maxRate)) {
-        std::string msg = name() + ": Unsupported sample rate.  Rate must be between "
-                          + std::to_string(minRate)
-                          + " and " + std::to_string(maxRate);
-        throw std::invalid_argument(msg);
-      }
-    }
-    else {
-      if (((long)d_sampling_rate != 2500000) && ((long)d_sampling_rate != 10000000)) {
-        throw std::invalid_argument(name() + ": Airspy only supports 2.5 MSPS "
-                                    "and 10 MSPS rates.  Requested "
-                                    + std::to_string((long)d_sampling_rate));
-
-      }
+    if ((d_sampling_rate < minRate) || (d_sampling_rate > maxRate)) {
+      std::string msg = name() + ": Unsupported sample rate.  Rate must be between "
+                        + std::to_string(minRate)
+                        + " and " + std::to_string(maxRate);
+      throw std::invalid_argument(msg);
     }
     set_sample_rate(i, d_sampling_rate);
   }
 
   /* Apply to all streams the supported args */
-  SoapySDR::ArgInfoList supported_args = d_device->getStreamArgsInfo(SOAPY_SDR_RX,
-                                         0);
-  SoapySDR::Kwargs dev_args = SoapySDR::KwargsFromString(args);
+  SoapySDR::ArgInfoList supported_args =
+    d_device->getStreamArgsInfo(SOAPY_SDR_RX, 0);
   SoapySDR::Kwargs stream_args;
   for (const SoapySDR::ArgInfo &i : supported_args) {
     const SoapySDR::Kwargs::const_iterator iter = dev_args.find(i.key);
@@ -196,7 +189,7 @@ source_impl::stop()
 {
   if (!d_stopped) {
     d_device->closeStream(d_stream);
-    unmakeDevice(d_device);
+    SoapySDR::Device::unmake(d_device);
     d_stopped = true;
   }
   return true;
@@ -222,30 +215,20 @@ source_impl::register_msg_cmd_handler(const pmt::pmt_t &cmd,
   d_cmd_handlers[cmd] = handler;
 }
 
-void
-source_impl::makeDevice(const std::string &argStr)
-{
-  d_device = SoapySDR::Device::make(argStr);
-  d_stopped = false;
-}
-
-void
-source_impl::unmakeDevice(SoapySDR::Device *dev)
-{
-  SoapySDR::Device::unmake(dev);
-}
-
-bool source_impl::hasDCOffset(int channel)
+bool
+source_impl::hasDCOffset(int channel)
 {
   return d_device->hasDCOffset(SOAPY_SDR_RX, channel);
 }
 
-bool source_impl::hasIQBalance(int channel)
+bool
+source_impl::hasIQBalance(int channel)
 {
   return d_device->hasIQBalance(SOAPY_SDR_RX, channel);
 }
 
-bool source_impl::hasFrequencyCorrection(int channel)
+bool
+source_impl::hasFrequencyCorrection(int channel)
 {
   return d_device->hasFrequencyCorrection(SOAPY_SDR_RX, channel);
 }
@@ -353,7 +336,8 @@ source_impl::set_sample_rate(size_t channel, double sample_rate)
   d_sampling_rate = sample_rate;
 }
 
-std::vector<std::string> source_impl::listAntennas(int channel)
+std::vector<std::string>
+source_impl::listAntennas(int channel)
 {
   if ((size_t)channel >= d_nchan) {
     return std::vector<std::string>();

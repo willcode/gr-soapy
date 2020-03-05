@@ -38,10 +38,10 @@ namespace gr {
 namespace soapy {
 
 sink::sptr
-sink::make(size_t nchan, const std::string device,
-           const std::string args,
-           double sampling_rate, std::string type,
-           const std::string length_tag_name)
+sink::make(size_t nchan, const std::string &device,
+           const std::string &args,
+           double sampling_rate, const std::string &type,
+           const std::string &length_tag_name)
 {
   return gnuradio::get_initial_sptr(
            new sink_impl(nchan, device, args, sampling_rate, type,
@@ -51,9 +51,9 @@ sink::make(size_t nchan, const std::string device,
 /*
  * The private constructor
  */
-sink_impl::sink_impl(size_t nchan, const std::string device,
-                     const std::string args, double sampling_rate,
-                     const std::string type, const std::string length_tag_name) :
+sink_impl::sink_impl(size_t nchan, const std::string &device,
+                     const std::string &args, double sampling_rate,
+                     const std::string &type, const std::string &length_tag_name) :
   gr::sync_block("soapy::sink",
                  args_to_io_sig(type, nchan),
                  gr::io_signature::make(0, 0, 0)),
@@ -79,7 +79,16 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
     d_type = SOAPY_SDR_CS8;
   }
 
-  makeDevice(device);
+  /* "serial" device arguement needs special handling. */
+  std::string dev_str = device;
+  SoapySDR::Kwargs dev_args = SoapySDR::KwargsFromString(args);
+  const SoapySDR::Kwargs::const_iterator iter = dev_args.find("serial");
+  if (iter != dev_args.end()) {
+    dev_str += ",serial=" + iter->second;
+    dev_args.erase(iter->first);
+  }
+
+  d_device = SoapySDR::Device::make(dev_str);
   d_stopped = false;
   if (d_nchan > d_device->getNumChannels(SOAPY_SDR_TX)) {
     std::string msg = name() +  ": Unsupported number of channels. Only  "
@@ -110,9 +119,8 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
 
 
   /* Apply to all streams the supported args */
-  SoapySDR::ArgInfoList supported_args = d_device->getStreamArgsInfo(SOAPY_SDR_TX,
-                                         0);
-  SoapySDR::Kwargs dev_args = SoapySDR::KwargsFromString(args);
+  SoapySDR::ArgInfoList supported_args =
+    d_device->getStreamArgsInfo(SOAPY_SDR_TX, 0);
   SoapySDR::Kwargs stream_args;
   for (const SoapySDR::ArgInfo &i : supported_args) {
     const SoapySDR::Kwargs::const_iterator iter = dev_args.find(i.key);
@@ -133,6 +141,11 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
    * Apply device settings to all enabled channels.
    * These should be any settings that were not a stream argument
    */
+  SoapySDR::ArgInfoList supported_dev_args = d_device->getSettingInfo();
+  for (const SoapySDR::ArgInfo &i : supported_args) {
+    std::cout << i.description << std::endl;
+  }
+
   for (size_t chan : channs) {
     for (const std::pair<std::string, std::string> &iter : dev_args) {
       d_device->writeSetting(SOAPY_SDR_TX, chan, iter.first, iter.second);
@@ -168,16 +181,18 @@ sink_impl::sink_impl(size_t nchan, const std::string device,
   }
 }
 
-bool sink_impl::start()
+bool
+sink_impl::start()
 {
   d_device->activateStream(d_stream);
   return true;
 }
 
-bool sink_impl::stop()
+bool
+sink_impl::stop()
 {
   if (!d_stopped) {
-    unmakeDevice(d_device);
+    SoapySDR::Device::unmake(d_device);
     d_stopped = true;
   }
   return true;
@@ -198,27 +213,20 @@ sink_impl::register_msg_cmd_handler(const pmt::pmt_t &cmd,
   d_cmd_handlers[cmd] = handler;
 }
 
-void
-sink_impl::makeDevice(const std::string &argStr)
-{
-  d_device = SoapySDR::Device::make(argStr);
-}
-
-void
-sink_impl::unmakeDevice(SoapySDR::Device *dev)
-{
-  SoapySDR::Device::unmake(dev);
-}
-
-bool sink_impl::hasDCOffset(int channel)
+bool
+sink_impl::hasDCOffset(int channel)
 {
   return d_device->hasDCOffset(SOAPY_SDR_TX, channel);
 }
-bool sink_impl::hasIQBalance(int channel)
+
+bool
+sink_impl::hasIQBalance(int channel)
 {
   return d_device->hasIQBalance(SOAPY_SDR_TX, channel);
 }
-bool sink_impl::hasFrequencyCorrection(int channel)
+
+bool
+sink_impl::hasFrequencyCorrection(int channel)
 {
   return d_device->hasFrequencyCorrection(SOAPY_SDR_TX, channel);
 }
@@ -245,7 +253,8 @@ sink_impl::set_frequency(size_t channel, const std::string &name,
   d_device->setFrequency(SOAPY_SDR_TX, channel, name, frequency);
 }
 
-bool sink_impl::hasThisGain(size_t channel, std::string gainType)
+bool
+sink_impl::hasThisGain(size_t channel, std::string gainType)
 {
   std::vector<std::string> gainList = d_device->listGains(SOAPY_SDR_TX, channel);
 

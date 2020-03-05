@@ -42,7 +42,6 @@ namespace soapy {
 
 class sink_impl : public sink {
 private:
-  const std::string d_devname;
   SoapySDR::Device *d_device;
   SoapySDR::Stream *d_stream;
 
@@ -89,28 +88,11 @@ private:
 
   void tag_work(int noutput_items);
 
-  /*!
-  * Create and store a new Device object using the make function of SoapySDR
-  * API.
-  * For every makeDevice call an unmakeDevice call is also made.
-  *
-  * \param argStr device construction key/value argument string
-  * \return integer indicating success or failure
-  */
-  void makeDevice(const std::string &argStr);
-
-  /*!
-   * Destroy a Device object created by makeDevice call.
-   * Called for every makeDevice call.
-   * \param dev a pointer to a Device object
-   * \return integer indicating success or failure
-   */
-  void unmakeDevice(SoapySDR::Device *dev);
-
 public:
-  sink_impl(size_t nchan, const std::string device,
-            const std::string args, double sampling_rate, const std::string type,
-            const std::string length_tag_name);
+  sink_impl(size_t nchan, const std::string &device,
+            const std::string &args, double sampling_rate,
+            const std::string &type,
+            const std::string &length_tag_name);
   ~sink_impl();
 
   virtual bool start();
