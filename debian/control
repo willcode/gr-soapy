@@ -35,7 +35,7 @@ Depends: libgnuradio-soapy (= ${binary:Version}),
          ${python3:Depends},
          ${shlibs:Depends},
          ${misc:Depends}
-Recommends: gnuradio (>= 3.8), gnuradio (<< 3.9)
+Recommends: gnuradio (>= 3.8), gnuradio (<< 3.9), soapysdr-tools
 Description: SoapySDR GNU Radio Out-Of-Tree Module
  gr-soapy is a GNURadio wrapper for the SoapySDR library.
 
