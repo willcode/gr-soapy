@@ -31,6 +31,7 @@ Package: gr-soapy
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
 Depends: libgnuradio-soapy (= ${binary:Version}),
+         python3-soapysdr,
          python3,
          ${python3:Depends},
          ${shlibs:Depends},

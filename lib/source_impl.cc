@@ -38,18 +38,27 @@ namespace gr {
 namespace soapy {
 source::sptr
 source::make(size_t nchan, const std::string &device,
-             const std::string &args, double sampling_rate,
+             const std::string &dev_args,
+             const std::string &stream_args,
+             const std::vector<std::string> &tune_args,
+             const std::vector<std::string> &other_settings,
+             double sampling_rate,
              const std::string &type)
 {
   return gnuradio::get_initial_sptr(
-           new source_impl(nchan, device, args, sampling_rate, type));
+           new source_impl(nchan, device, dev_args, stream_args,
+                           tune_args, other_settings, sampling_rate, type));
 }
 
 /*
  * The private constructor
  */
 source_impl::source_impl(size_t nchan, const std::string &device,
-                         const std::string &args, double sampling_rate,
+                         const std::string &dev_args,
+                         const std::string &stream_args,
+                         const std::vector<std::string> &tune_args,
+                         const std::vector<std::string> &other_settings,
+                         double sampling_rate,
                          const std::string &type) :
   gr::sync_block("soapy::source", gr::io_signature::make(0, 0, 0),
                  args_to_io_sig(type, nchan)),
@@ -62,14 +71,14 @@ source_impl::source_impl(size_t nchan, const std::string &device,
   d_sampling_rate(sampling_rate),
   d_nchan(nchan)
 {
+  if (nchan != tune_args.size()) {
+    std::string msg = name() +  ": Wrong number of channels and tune arguments";
+    throw std::invalid_argument(msg);
+  }
 
-  /* "serial" device argument needs special handling. */
-  std::string dev_str = device;
-  SoapySDR::Kwargs dev_args = SoapySDR::KwargsFromString(args);
-  const SoapySDR::Kwargs::const_iterator iter = dev_args.find("serial");
-  if (iter != dev_args.end()) {
-    dev_str += ",serial=" + iter->second;
-    dev_args.erase(iter->first);
+  if (nchan != tune_args.size()) {
+    std::string msg = name() +  ": Wrong number of channels and settings";
+    throw std::invalid_argument(msg);
   }
 
   std::string stype;
@@ -87,8 +96,20 @@ source_impl::source_impl(size_t nchan, const std::string &device,
     throw std::invalid_argument(msg);
   }
 
-  d_device = SoapySDR::Device::make(dev_str);
+  SoapySDR::Kwargs dev_kwargs =
+    SoapySDR::KwargsFromString(device +  ", " + dev_args);
+  d_device = SoapySDR::Device::make(dev_kwargs);
   d_stopped = false;
+
+  /* Some of the arguments maybe device settings, so we need to re-apply them*/
+  SoapySDR::ArgInfoList supported_settings = d_device->getSettingInfo();
+  for (const std::pair<std::string, std::string> &i : dev_kwargs) {
+    for (SoapySDR::ArgInfo &arg : supported_settings) {
+      if (arg.key == i.first) {
+        d_device->writeSetting(i.first, i.second);
+      }
+    }
+  }
 
   if (d_nchan > d_device->getNumChannels(SOAPY_SDR_RX)) {
     std::string msg = name() +  ": Unsupported number of channels. Only  "
@@ -102,51 +123,99 @@ source_impl::source_impl(size_t nchan, const std::string &device,
   for (size_t i = 0; i < d_nchan; i++) {
     channs[i] = i;
 
-    SoapySDR::RangeList sampRange = d_device->getSampleRateRange(SOAPY_SDR_RX, i);
+    SoapySDR::RangeList sps_range = d_device->getSampleRateRange(SOAPY_SDR_RX, i);
 
-    double minRate = sampRange.front().minimum();
-    double maxRate = sampRange.back().maximum();
+    double min_sps = sps_range.front().minimum();
+    double max_sps = sps_range.back().maximum();
 
-    // for some reason the airspy provides them backwards
-    if (minRate > maxRate) {
-      std::swap(minRate, maxRate);
+    /* for some reason the airspy provides them backwards */
+    if (min_sps > max_sps) {
+      std::swap(min_sps, max_sps);
     }
 
-    if ((d_sampling_rate < minRate) || (d_sampling_rate > maxRate)) {
+    if ((d_sampling_rate < min_sps) || (d_sampling_rate > max_sps)) {
       std::string msg = name() + ": Unsupported sample rate.  Rate must be between "
-                        + std::to_string(minRate)
-                        + " and " + std::to_string(maxRate);
+                        + std::to_string(min_sps)
+                        + " and " + std::to_string(max_sps);
       throw std::invalid_argument(msg);
     }
     set_sample_rate(i, d_sampling_rate);
   }
 
-  /* Apply to all streams the supported args */
-  SoapySDR::ArgInfoList supported_args =
-    d_device->getStreamArgsInfo(SOAPY_SDR_RX, 0);
-  SoapySDR::Kwargs stream_args;
-  for (const SoapySDR::ArgInfo &i : supported_args) {
-    const SoapySDR::Kwargs::const_iterator iter = dev_args.find(i.key);
-    if (iter != dev_args.end()) {
-      stream_args[iter->first] = iter->second;
-      /*
-       * This was a stream argument. Erase it so it cannot be applied later
-       * as device argument
-       */
-      dev_args.erase(i.key);
-    }
-  }
-
-  d_stream = d_device->setupStream(SOAPY_SDR_RX, stype, channs, stream_args);
-  d_mtu = d_device->getStreamMTU(d_stream);
-
   /*
-   * Apply device settings to all enabled channels.
-   * These should be any settings that were not a stream argument
+   * Check for the validity of the specified stream arguments on all enabled
+   * channels
    */
   for (size_t chan : channs) {
-    for (const std::pair<std::string, std::string> &iter : dev_args) {
-      d_device->writeSetting(SOAPY_SDR_RX, chan, iter.first, iter.second);
+    SoapySDR::ArgInfoList supported_args =
+      d_device->getStreamArgsInfo(SOAPY_SDR_RX, chan);
+    SoapySDR::Kwargs stream_kwargs = SoapySDR::KwargsFromString(stream_args);
+
+    for (const std::pair<std::string, std::string> &i : stream_kwargs) {
+      bool found = false;
+      for (SoapySDR::ArgInfo &arg : supported_args) {
+        if (arg.key == i.first) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        std::string msg = name() + ": Unsupported stream argument " + i.first
+                          + " for channel " + std::to_string(chan);
+        throw std::invalid_argument(msg);
+      }
+    }
+  }
+  d_stream = d_device->setupStream(SOAPY_SDR_RX, stype, channs,
+                                   SoapySDR::KwargsFromString(stream_args));
+  d_mtu = d_device->getStreamMTU(d_stream);
+
+  /* Apply tuning arguments on the enabled channels */
+  for (size_t chan : channs) {
+    SoapySDR::ArgInfoList supported_args =
+      d_device->getFrequencyArgsInfo(SOAPY_SDR_RX, chan);
+    SoapySDR::Kwargs tune_kwargs = SoapySDR::KwargsFromString(tune_args[chan]);
+
+    for (const std::pair<std::string, std::string> &i : tune_kwargs) {
+      bool found = false;
+      for (SoapySDR::ArgInfo &arg : supported_args) {
+        if (arg.key == i.first) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        std::string msg = name() + ": Unsupported tune argument " + i.first
+                          + " for channel " + std::to_string(chan);
+        throw std::invalid_argument(msg);
+      }
+    }
+    d_tune_args.push_back(tune_kwargs);
+  }
+
+  /* Apply any other channel specific setting */
+  for (size_t chan : channs) {
+    SoapySDR::ArgInfoList supported_settings =
+      d_device->getSettingInfo(SOAPY_SDR_RX, chan);
+    SoapySDR::Kwargs settings_kwargs =
+      SoapySDR::KwargsFromString(other_settings[chan]);
+
+    for (const std::pair<std::string, std::string> &i : settings_kwargs) {
+      bool found = false;
+      for (SoapySDR::ArgInfo &arg : supported_settings) {
+        if (arg.key == i.first) {
+          found = true;
+          break;
+        }
+      }
+      if (found) {
+        d_device->writeSetting(SOAPY_SDR_RX, chan, i.first, i.second);
+      }
+      else {
+        std::string msg = name() + ": Unsupported setting " + i.first
+                          + " for channel " + std::to_string(chan);
+        throw std::invalid_argument(msg);
+      }
     }
   }
 
@@ -216,19 +285,19 @@ source_impl::register_msg_cmd_handler(const pmt::pmt_t &cmd,
 }
 
 bool
-source_impl::hasDCOffset(int channel)
+source_impl::DC_offset_support(int channel)
 {
   return d_device->hasDCOffset(SOAPY_SDR_RX, channel);
 }
 
 bool
-source_impl::hasIQBalance(int channel)
+source_impl::IQ_balance_support(int channel)
 {
   return d_device->hasIQBalance(SOAPY_SDR_RX, channel);
 }
 
 bool
-source_impl::hasFrequencyCorrection(int channel)
+source_impl::freq_correction_support(int channel)
 {
   return d_device->hasFrequencyCorrection(SOAPY_SDR_RX, channel);
 }
@@ -240,7 +309,7 @@ source_impl::set_frequency(size_t channel, double frequency)
     return;
   }
 
-  d_device->setFrequency(SOAPY_SDR_RX, channel, frequency);
+  d_device->setFrequency(SOAPY_SDR_RX, channel, frequency, d_tune_args[channel]);
   d_frequency = d_device->getFrequency(SOAPY_SDR_RX, channel);
 }
 
@@ -288,11 +357,6 @@ source_impl::set_gain(size_t channel, float gain)
 void
 source_impl::set_gain(size_t channel, const std::string name, float gain)
 {
-  /*
-   * This setter is for manual mode gain. There is a known limitation of the
-   * GRC and the yaml runtime evaluation, so we need to skip this setting
-   * if the mode is auto gain
-   */
   if (channel >= d_nchan) {
     return;
   }
@@ -316,13 +380,13 @@ source_impl::set_gain(size_t channel, const std::string name, float gain)
 }
 
 void
-source_impl::set_gain_mode(size_t channel, bool gain_auto_mode)
+source_impl::set_agc(size_t channel, bool enable)
 {
   if (channel >= d_nchan) {
     return;
   }
 
-  d_device->setGainMode(SOAPY_SDR_RX, channel, gain_auto_mode);
+  d_device->setGainMode(SOAPY_SDR_RX, channel, enable);
 }
 
 void
@@ -337,7 +401,7 @@ source_impl::set_sample_rate(size_t channel, double sample_rate)
 }
 
 std::vector<std::string>
-source_impl::listAntennas(int channel)
+source_impl::get_antennas(int channel)
 {
   if ((size_t)channel >= d_nchan) {
     return std::vector<std::string>();
@@ -364,12 +428,12 @@ source_impl::set_antenna(const size_t channel, const std::string &name)
     return;
   }
 
-  std::vector<std::string> antennaList = d_device->listAntennas(SOAPY_SDR_RX,
-                                         channel);
+  std::vector<std::string> antennas = d_device->listAntennas(SOAPY_SDR_RX,
+                                      channel);
 
-  if (antennaList.size() > 0) {
-    if (std::find(antennaList.begin(), antennaList.end(),
-                  name) == antennaList.end()) {
+  if (antennas.size() > 0) {
+    if (std::find(antennas.begin(), antennas.end(),
+                  name) == antennas.end()) {
       GR_LOG_WARN(d_logger,
                   boost::format("Antenna name %s not supported.") % name);
       return;
@@ -388,7 +452,7 @@ source_impl::set_dc_offset(size_t channel, gr_complexd dc_offset,
     return;
   }
 
-  if (!hasDCOffset(channel)) {
+  if (!DC_offset_support(channel)) {
     return;
   }
 
@@ -407,7 +471,7 @@ source_impl::set_dc_offset_mode(size_t channel, bool dc_offset_auto_mode)
     return;
   }
 
-  if (!hasDCOffset(channel)) {
+  if (!DC_offset_support(channel)) {
     return;
   }
 
@@ -427,7 +491,7 @@ source_impl::set_frequency_correction(size_t channel,
     return;
   }
 
-  if (!hasFrequencyCorrection(channel)) {
+  if (!freq_correction_support(channel)) {
     return;
   }
 
@@ -446,7 +510,7 @@ source_impl::set_iq_balance(size_t channel, gr_complexd iq_balance)
     return;
   }
 
-  if (!hasIQBalance(channel)) {
+  if (!IQ_balance_support(channel)) {
     return;
   }
 
@@ -591,7 +655,7 @@ source_impl::work(int noutput_items,
     int read = d_device->readStream(d_stream, output_items.data(), noutput_items,
                                     flags, time_ns);
     boost::this_thread::restore_interruption restore_interrupt(disable_interrupt);
-    if (read > 0) {
+    if (read >= 0) {
       return read;
     }
 

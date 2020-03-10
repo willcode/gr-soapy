@@ -19,8 +19,10 @@ parameters:
     label: Device Type
     dtype: enum
     default: 'rtlsdr'
-    options: ['airspy', 'bladerf', 'hackrf', 'lime', 'plutosdr', 'rtlsdr', 'sidekiq', 'sdrplay', 'uhd', 'xtrxsoapy', 'custom']
-    option_labels: ['airspy', 'bladerf', 'hackrf', 'lime', 'plutosdr', 'rtlsdr', 'sidekiq', 'sdrplay', 'uhd', 'xtrxsoapy', 'custom']
+    options: ['airspy', 'bladerf', 'hackrf', 'lime', 'plutosdr', 'rtlsdr',
+              'sidekiq', 'sdrplay', 'uhd', 'xtrxsoapy', 'custom']
+    option_labels: ['airspy', 'bladerf', 'hackrf', 'lime', 'plutosdr',
+                    'rtlsdr', 'sidekiq', 'sdrplay', 'uhd', 'xtrxsoapy', 'custom']
 
   - id: dev
     label: Device String
@@ -29,7 +31,11 @@ parameters:
     hide: ${ 'none' if (devname == 'custom') else 'all' }
 
   - id: args
-    label: Arguements
+    label: Arguments
+    dtype: string
+
+  - id: stream_args
+    label: Stream arguments
     dtype: string
 
   - id: samp_rate
@@ -54,6 +60,16 @@ parameters:
     dtype: string
     hide: part
 
+  - id: tune_args0
+    label: 'Ch0: Tune arguments'
+    category: RF Options
+    dtype: string
+
+  - id: settings0
+    label: 'Ch0: Other settings'
+    category: RF Options
+    dtype: string
+
   - id: center_freq0
     label: 'Ch0: Center Freq (Hz)'
     category: RF Options
@@ -65,13 +81,16 @@ parameters:
     category: RF Options
     dtype: real
     default: '0'
-    hide: ${ 'all' if (devname in ['uhd', 'plutosdr', 'airspy','rtlsdr']) else 'part' }
+    hide: ${ 'all' if (devname in ['uhd', 'plutosdr', 'airspy','rtlsdr'])
+             else 'part' }
 
-  - id: manual_gain0
-    label: 'Ch0: Enable Manual Gain'
+  - id: gain_mode0
+    label: 'Ch0: Gain Mode'
     category: RF Options
-    dtype: bool
-    default: 'True'
+    dtype: string
+    options: ['Overall', 'Specific', 'Stream argument']
+    option_labels:  [Overall, Specific, Stream argument]
+    default: 'Overall'
     hide: part
 
   - id: overall_gain0
@@ -79,84 +98,96 @@ parameters:
     category: RF Options
     dtype: real
     default: '10'
-    hide: ${ 'none' if (not manual_gain0) else 'all' }
+    hide: ${ 'none' if ( gain_mode0 == 'Overall') else 'all' }
 
   - id: pga_gain0
     label: 'Ch0: PGA Gain Value'
     category: RF Options
     dtype: float
     default: '24'
-    hide: ${ 'none' if ( (devname in ['uhd', 'plutosdr', 'xtrxsoapy', 'lime', 'custom']) and manual_gain0 ) else 'all' }
+    hide: ${ 'none' if ( (devname in ['uhd', 'plutosdr', 'xtrxsoapy', 'lime'])
+             and gain_mode0 == 'Specific' ) else 'all' }
 
   - id: lna_gain0
     label: 'Ch0: LNA Gain Value'
     category: RF Options
     dtype: float
     default: '10'
-    hide: ${ 'none' if ( (devname in ['airspy', 'bladerf', 'lime', 'hackrf', 'xtrxsoapy', 'custom']) and manual_gain0  ) else 'all' }
+    hide: ${ 'none' if ( (devname in ['airspy', 'bladerf', 'lime', 'hackrf',
+             'xtrxsoapy'])
+             and gain_mode0 == 'Specific'  ) else 'all' }
 
   - id: tia_gain0
     label: 'Ch0: TIA Gain Value'
     category: RF Options
     dtype: float
     default: '0'
-    hide: ${ 'none' if ( (devname in ['xtrxsoapy', 'lime','custom']) and manual_gain0  ) else 'all' }
+    hide: ${ 'none' if ( (devname in ['xtrxsoapy', 'lime'])
+             and gain_mode0 == 'Specific'  ) else 'all' }
 
   - id: mix_gain0
     label: 'Ch0: MIX Gain Value'
     category: RF Options
     dtype: float
     default: '10'
-    hide: ${ 'none' if ( (devname in ['airspy', 'custom']) and manual_gain0  ) else 'all' }
+    hide: ${ 'none' if ( (devname in ['airspy'])
+             and gain_mode0 == 'Specific'  ) else 'all' }
 
   - id: vga_gain0
     label: 'Ch0: VGA Gain Value'
     category: RF Options
     dtype: float
     default: '10'
-    hide: ${ 'none' if ( (devname in ['airspy', 'hackrf', 'custom']) and manual_gain0  ) else 'all' }
+    hide: ${ 'none' if ( (devname in ['airspy', 'hackrf'])
+             and gain_mode0 == 'Specific'  ) else 'all' }
 
   - id: tuner_gain0
     label: 'Ch0: TUNER Gain Value'
     category: RF Options
     dtype: float
     default: '10'
-    hide: ${ 'none' if ( (devname in ['rtlsdr', 'custom']) and manual_gain0  ) else 'all' }
+    hide: ${ 'none' if ( (devname in ['rtlsdr'])
+             and gain_mode0 == 'Specific'  ) else 'all' }
 
   - id: amp_gain0
     label: 'Ch0: AMP Gain Value'
     category: RF Options
     dtype: float
     default: '0'
-    hide: ${ 'none' if ( (devname in ['hackrf', 'custom']) and manual_gain0  ) else 'all' }
+    hide: ${ 'none' if ( (devname in ['hackrf'])
+             and gain_mode0 == 'Specific'  ) else 'all' }
 
   - id: ifgr_gain
     label: 'Ch0: IFGR Gain Value'
     category: RF Options
     dtype: float
     default: '59'
-    hide: ${ 'none' if ( (devname in ['sdrplay', 'custom']) and manual_gain0  ) else 'all' }
+    hide: ${ 'none' if ( (devname in ['sdrplay'])
+             and gain_mode0 == 'Specific'  ) else 'all' }
 
   - id: rfgr_gain
     label: 'Ch0: RFGR Gain Value'
     category: RF Options
     dtype: float
     default: '9'
-    hide: ${ 'none' if ( (devname in ['sdrplay', 'custom']) and manual_gain0  ) else 'all' }
+    hide: ${ 'none' if ( (devname in ['sdrplay'])
+             and gain_mode0 == 'Specific'  ) else 'all' }
 
   - id: rxvga1_gain
     label: 'Ch0: RXVGA1 Gain Value'
     category: RF Options
     dtype: float
     default: '5'
-    hide: ${ 'none' if ( (devname in ['bladerf', 'custom']) and manual_gain0  ) else 'all' }
+    hide: ${ 'none' if ( (devname in ['bladerf'])
+             and gain_mode0 == 'Specific'  ) else 'all' }
 
   - id: rxvga2_gain
     label: 'Ch0: RXVGA2 Gain Value'
     category: RF Options
     dtype: float
     default: '0'
-    hide: ${ 'none' if ( (devname in ['bladerf', 'custom']) and manual_gain0  ) else 'all' }
+    hide: ${ 'none' if ( (devname in ['bladerf'])
+             and gain_mode0 == 'Specific'  ) else 'all' }
 
   - id: ant0
     label: 'Ch0: Antenna'
@@ -179,19 +210,21 @@ parameters:
     default: 'False'
     hide: ${ 'all' if ( devname in ['plutosdr', 'airspy', 'rtlsdr'] ) else 'part' }
 
-  - id: gain_auto_mode0
+  - id: agc0
     label: 'Ch0: Automatic Gain Control'
     category: RF Options
     dtype: bool
     default: 'False'
-    hide: ${ 'none' if (devname in ['airspy', 'plutosdr', 'sdrplay', 'uhd']) else ('all' if devname in ['lime', 'rtlsdr'] else 'part')}
+    hide: ${ 'none' if (devname in ['airspy', 'plutosdr', 'sdrplay', 'uhd'])
+             else ('all' if devname in ['lime', 'rtlsdr'] else 'part')}
 
   - id: dc_offset0
     label: 'Ch0: DC Offset'
     category: RF Options
     dtype: complex
     default: '0'
-    hide: ${ 'all' if ( (devname in ['uhd', 'lime', 'plutosdr', 'airspy', 'rtlsdr']) or dc_offset_auto_mode0 == 'True' ) else 'part' }
+    hide: ${ 'all' if ( (devname in ['uhd', 'lime', 'plutosdr', 'airspy',
+             'rtlsdr']) or dc_offset_auto_mode0 == 'True' ) else 'part' }
 
   - id: sdrplay_if_mode
     label: IF Mode
@@ -235,14 +268,28 @@ parameters:
     category: RF Options
     dtype: real
     default: '0'
-    hide: ${ 'all' if ( devname in ['uhd', 'lime', 'plutosdr', 'airspy', 'sdrplay'] ) else 'part' }
+    hide: ${ 'all' if ( devname in ['uhd', 'lime', 'plutosdr', 'airspy',
+             'sdrplay'] ) else 'part' }
 
   - id: balance0
     label: 'Ch0: IQ Balance Correction'
     category: RF Options
     dtype: complex
     default: '0'
-    hide: ${ 'all' if ( devname in ['uhd', 'lime', 'plutosdr', 'airspy', 'rtlsdr', 'sdrplay'] ) else 'part' }
+    hide: ${ 'all' if ( devname in ['uhd', 'lime', 'plutosdr', 'airspy',
+             'rtlsdr', 'sdrplay'] ) else 'part' }
+
+  - id: tune_args1
+    label: 'Ch1: Tune arguments'
+    category: RF Options
+    dtype: string
+    hide: ${ 'none' if nchan > 1 else 'all' }
+
+  - id: settings1
+    label: 'Ch1: Other settings'
+    category: RF Options
+    dtype: string
+    hide: ${ 'none' if nchan > 1 else 'all' }
 
   - id: center_freq1
     label: 'Ch1: Center Freq (Hz)'
@@ -258,7 +305,7 @@ parameters:
     default: '0'
     hide: 'all'
 
-  - id: manual_gain1
+  - id: gain_mode1
     label: 'Ch1: Gain Mode'
     category: RF Options
     dtype: bool
@@ -270,28 +317,31 @@ parameters:
     category: RF Options
     dtype: real
     default: '10'
-    hide: ${ 'none' if (not manual_gain1) else 'all' }
+    hide: ${ 'none' if (gain_mode1 == 'Overall' and nchan > 1) else 'all' }
 
   - id: pga_gain1
     label: 'Ch1: PGA Gain Value'
     category: RF Options
     dtype: float
     default: '24'
-    hide: ${ 'none' if ( (devname in ['uhd', 'plutosdr', 'xtrxsoapy', 'lime', 'custom']) and manual_gain1   and nchan > 1) else 'all' }
+    hide: ${ 'none' if ( (devname in ['uhd', 'xtrxsoapy', 'lime'])
+             and gain_mode1 == 'Specific' and nchan > 1) else 'all' }
 
   - id: lna_gain1
     label: 'Ch1: LNA Gain Value'
     category: RF Options
     dtype: float
     default: '10'
-    hide: ${ 'none' if ( (devname in ['bladerf', 'lime', 'hackrf', 'xtrxsoapy', 'custom']) and manual_gain1   and nchan > 1) else 'all' }
+    hide: ${ 'none' if ( (devname in ['lime', 'xtrxsoapy'])
+             and gain_mode1 == 'Specific' and nchan > 1) else 'all' }
 
   - id: tia_gain1
     label: 'Ch1: TIA Gain Value'
     category: RF Options
     dtype: float
     default: '0'
-    hide: ${ 'none' if ( (devname in ['xtrxsoapy', 'lime','custom']) and manual_gain1 and nchan > 1) else 'all' }
+    hide: ${ 'none' if ( (devname in ['xtrxsoapy', 'lime'])
+          and gain_mode1 == 'Specific' and nchan > 1) else 'all' }
 
   - id: ant1
     label: 'Ch1: Antenna'
@@ -312,35 +362,43 @@ parameters:
     category: RF Options
     dtype: bool
     default: 'False'
-    hide: ${ 'all' if ( nchan < 2 or ( devname in ['plutosdr', 'airspy', 'rtlsdr', 'hackrf']) ) else 'part' }
+    hide: ${ 'all' if ( nchan < 2 or ( devname in ['plutosdr', 'airspy',
+             'rtlsdr', 'hackrf']) ) else 'part' }
 
-  - id: gain_auto_mode1
+  - id: agc1
     label: 'Ch1: Automatic Gain Control'
     category: RF Options
     dtype: bool
     default: 'False'
-    hide: ${ 'none' if (devname == 'airspy' or devname=='plutosdr' or devname == 'sdrplay') and gain_auto_mode1 else ('all' if (devname == 'uhd' or devname == 'lime' or devname == 'rtlsdr' or nchan <= 1) else 'part')}
+    hide: ${ 'all' if ( nchan < 2 or (devname in ['airspy', 'rtlsdr', 'plutosdr', 'sdrplay']))
+             else 'part'}
 
   - id: dc_offset1
     label: 'Ch1: DC Offset'
     category: RF Options
     dtype: complex
     default: '0'
-    hide: ${ 'all' if (nchan <= 1 or (devname == 'uhd' or devname == 'lime' or devname == 'plutosdr' or devname == 'airspy' or devname == 'rtlsdr') or (dc_offset_auto_mode0 == True) ) else 'part' }
+    hide: ${ 'all' if (nchan <= 1 or (devname in ['uhd', 'lime', 'plutosdr',
+             'airspy', 'rtlsdr'])
+             or dc_offset_auto_mode0 ) else 'part' }
 
   - id: correction1
     label: 'Ch1: Frequency Correction'
     category: RF Options
     dtype: real
     default: '0'
-    hide: ${ 'all' if (nchan <= 1 or (devname == 'uhd' or devname == 'lime' or devname == 'plutosdr' or devname == 'airspy' or devname == 'rtlsdr') ) else 'part' }
+    hide: ${ 'all' if (nchan <= 1 or (devname in ['uhd', 'lime', 'plutosdr',
+             'airspy', 'rtlsdr']) )
+             else 'part' }
 
   - id: balance1
     label: 'Ch1: IQ Balance Correction'
     category: RF Options
     dtype: complex
     default: '0'
-    hide: ${ 'all' if (nchan <= 1 or (devname == 'uhd' or devname == 'lime' or devname == 'plutosdr' or devname == 'airspy' or devname == 'rtlsdr') ) else 'part' }
+    hide: ${ 'all' if (nchan <= 1 or (devname in ['uhd', 'lime', 'plutosdr',
+             'airspy', 'rtlsdr']) )
+             else 'part' }
 
 inputs:
   - domain: message
@@ -355,110 +413,163 @@ asserts:
   - ${ nchan > 0 }
 
 templates:
-    imports: import soapy
+    imports: |-
+      import soapy
     make: |
         None
-        if "${devname}" == 'custom':
-            dev = ${dev}
-        else:
-            dev = 'driver=' + "${devname}"
-        if "${devname}" == 'sdrplay':
-            f = 'if_mode=' + "${sdrplay_if_mode}" + ',' + 'agc_setpoint=' + str("${sdrplay_agc_setpoint}") + ',' + 'biasT_ctrl=' + "${sdrplay_biastee}".lower() + ',' + 'rfnotch_ctrl=' + "${sdrplay_rfnotch}".lower() + ',' + 'dabnotch_ctrl=' + "${sdrplay_dabnotch}".lower() + ',' + str(${args})
-            f = f.replace('\"', '')
-            f = f.replace("\\'", '')
-            f = f.strip(',')
-            self.${id} = soapy.source(${nchan}, dev, f, ${samp_rate}, "${type}")
-        else:
-            self.${id} = soapy.source(${nchan}, dev, ${args}, ${samp_rate}, "${type}")
-            
-            if ${clock_rate} != 0:
-                self.${id}.set_master_clock_rate(${clock_rate})
-                
-            if len(${clock_source}) > 0:
-                self.${id}.set_clock_source(${clock_source})
-            
-        # Set up dc offsets
-        if "${devname}" != 'uhd':
-            if (self.${id}.hasDCOffset(0)):     
-                self.${id}.set_dc_offset(0,${dc_offset0},${dc_offset_auto_mode0} == 'True')
-            
-            if (self.${id}.hasDCOffset(1)):     
-                self.${id}.set_dc_offset(1,${dc_offset1},${dc_offset_auto_mode1} == 'True')
-            
+        <%! import SoapySDR %>
+        % if context.get('devname')() == 'custom':
+        dev = ${dev}
+        % else:
+        dev = 'driver=${devname}'
+        % endif
+
+        # Stream arguments for every activated stream
+        % if context.get('nchan')() == 1:
+        tune_args = [${tune_args0}]
+        settings = [${settings0}]
+        % else:
+        tune_args = [${tune_args0}, ${tune_args1}]
+        settings = [${settings0}, ${settings1}]
+        % endif
+
+        # Setup the device arguments
+        % if context.get('devname')() == 'sdrplay':
+        <%
+          sdrplay_kwargs = {}
+          sdrplay_kwargs['if_mode'] = context.get('sdrplay_if_mode')()
+          sdrplay_kwargs['agc_setpoint'] = str(context.get('sdrplay_agc_setpoint')())
+          sdrplay_kwargs['biasT_ctrl'] = str( context.get('sdrplay_biastee')()).lower()
+          sdrplay_kwargs['rfnotch_ctrl'] = str(context.get('sdrplay_rfnotch')()).lower()
+          sdrplay_kwargs['dabnotch_ctrl'] = str(context.get('sdrplay_dabnotch')()).lower()
+          ## The user defined parameters will always have priority,
+          ## thus they overwrite the graphically set device arguments
+          ## like filters, biasT etc
+          tmp = SoapySDR.KwargsFromString(context.get('args')())
+          for key in tmp.keys():
+             sdrplay_kwargs[key] = tmp[key]
+
+          sdrplay_kwargs_str = ', '.join('%s=%s' % x for x in sdrplay_kwargs.items())
+        %>
+        dev_args = "${sdrplay_kwargs_str}"
+        % else:
+        dev_args = ${args}
+        % endif
+
+        self.${id} = soapy.source(${nchan}, dev, dev_args, ${stream_args},
+                                  tune_args, settings, ${samp_rate}, "${type}")
+
+        % if context.get('clock_rate')() != 0:
+        self.${id}.set_master_clock_rate(${clock_rate})
+        % endif
+
+        % if len(context.get('clock_source')()) > 0:
+        self.${id}.set_clock_source(${clock_source})
+        % endif
+
+        # Set up DC offset
+        if (self.${id}.DC_offset_support(0)):
+           self.${id}.set_dc_offset(0,${dc_offset0},${dc_offset_auto_mode0})
+
+        % if context.get('nchan')() > 1:
+        if (self.${id}.DC_offset_support(1)):
+            self.${id}.set_dc_offset(1,${dc_offset1},${dc_offset_auto_mode1})
+        % endif
+
         # Setup IQ Balance
-        if "${devname}" != 'uhd':
-            if (self.${id}.hasIQBalance(0)):
-                self.${id}.set_iq_balance(0,${balance0})
-            
-            if (self.${id}.hasIQBalance(1)):
-                self.${id}.set_iq_balance(1,${balance1})
-            
+        if (self.${id}.IQ_balance_support(0)):
+           self.${id}.set_iq_balance(0,${balance0})
+
+        % if context.get('nchan')() > 1:
+        if (self.${id}.IQ_balance_support(1)):
+           self.${id}.set_iq_balance(1,${balance1})
+        % endif
+
         # Setup Frequency correction
-        if (self.${id}.hasFrequencyCorrection(0)):
+        if (self.${id}.freq_correction_support(0)):
             self.${id}.set_frequency_correction(0,${correction0})
-             
-        if (self.${id}.hasFrequencyCorrection(1)):
+
+        % if context.get('nchan')() > 1:
+        if (self.${id}.freq_correction_support(1)):
             self.${id}.set_frequency_correction(1,${correction1})
-            
-        self.${id}.set_gain_mode(0,${gain_auto_mode0})
-        self.${id}.set_gain_mode(1,${gain_auto_mode1})
-         
+        % endif
+
+        self.${id}.set_agc(0,${agc0})
+        % if context.get('nchan')() > 1:
+        self.${id}.set_agc(1,${agc1})
+        % endif
+
         self.${id}.set_frequency(0, ${center_freq0})
+        % if context.get('nchan')() > 1:
         self.${id}.set_frequency(1, ${center_freq1})
-         
-        # Made antenna sanity check more generic
-        antList = self.${id}.listAntennas(0)
-        if len(antList) > 1:
-            # If we have more than 1 possible antenna
-            if len(${ant0}) == 0 or ${ant0} not in antList:
-                print("ERROR: Please define ant0 to an allowed antenna name.")
-                strAntList = str(antList).lstrip('(').rstrip(')').rstrip(',')
-                print("Allowed antennas: " + strAntList)
-                exit(0)
-            self.${id}.set_antenna(0,${ant0})
-         
-        if ${nchan} > 1:
-            antList = self.${id}.listAntennas(1)
-            # If we have more than 1 possible antenna
-            if len(antList) > 1:
-                if len(${ant1}) == 0 or ${ant1} not in antList:
-                    print("ERROR: Please define ant1 to an allowed antenna name.")
-                    strAntList = str(antList).lstrip('(').rstrip(')').rstrip(',')
-                    print("Allowed antennas: " + strAntList)
-                    exit(0)
-                self.${id}.set_antenna(1,${ant1})
-            
-        if "${manual_gain0}" == 'False':
-            self.${id}.set_gain(0,${overall_gain0})
-            self.${id}.set_gain(1,${overall_gain1})
-        else:
-            if "${devname}" == 'uhd' or "${devname}" == 'sidekiq' or "${devname}" == 'lime':
-                self.${id}.set_gain(0,"PGA", ${pga_gain0})
-                self.${id}.set_gain(1,"PGA", ${pga_gain1})
-            elif "${devname}" == 'hackrf':
-                self.${id}.set_gain(0,"LNA", ${lna_gain0})
-                self.${id}.set_gain(0,"VGA", ${vga_gain0})
-                # Only hackrf uses "AMP", so just ch0
-                self.${id}.set_gain(0,"AMP", ${amp_gain0})
-            elif "${devname}" == 'bladerf':
-                self.${id}.set_gain(0,"lna", ${lna_gain0})
-                self.${id}.set_gain(0,"rxvga1", ${rxvga1_gain})
-                self.${id}.set_gain(0,"rxvga2", ${rxvga2_gain})
-            else:
-                self.${id}.set_gain(0,"LNA", ${lna_gain0})
-                self.${id}.set_gain(1,"LNA", ${lna_gain1})
-                self.${id}.set_gain(0,"TIA", ${tia_gain0})
-                self.${id}.set_gain(1,"TIA", ${tia_gain1})
-                self.${id}.set_gain(0,"MIX", ${mix_gain0})
-                self.${id}.set_gain(0,"VGA", ${vga_gain0})
-                self.${id}.set_gain(0,"rxvga1", ${rxvga1_gain})
-                self.${id}.set_gain(0,"rxvga2", ${rxvga2_gain})
-                # Only rtl-sdr uses TUNER, so just ch0
-                self.${id}.set_gain(0,"TUNER", ${tuner_gain0})
-                # Only sdrplay uses IFGR so just ch0 for each
-                self.${id}.set_gain(0,"IFGR", ${ifgr_gain})
-                self.${id}.set_gain(0,"RFGR", ${rfgr_gain})
-    
+        % endif
+
+        # Antenna sanity checks
+        antennas0 = self.${id}.get_antennas(0)
+        if ${ant0} not in antennas0:
+            print("ERROR: Please define a valid antenna name for stream 0.")
+            antennas_str = str(antennas0).lstrip('(').rstrip(')').rstrip(',')
+            print("Allowed antennas: " + antennas_str)
+            exit(0)
+        self.${id}.set_antenna(0,${ant0})
+
+        % if context.get('nchan')() > 1:
+        antennas1 = self.${id}.get_antennas(1)
+        if ${ant1} not in antennas1:
+            print("ERROR: Please define a valid antenna name for stream 1.")
+            antennas_str = str(antennas1).lstrip('(').rstrip(')').rstrip(',')
+            print("Allowed antennas: " + antennas_str)
+            exit(0)
+        self.${id}.set_antenna(1,${ant1})
+        % endif
+
+        % if context.get('gain_mode0')() == 'Overall':
+        self.${id}.set_gain(0,${overall_gain0})
+        % elif context.get('gain_mode0')() == 'Specific':
+            % if context.get('devname')() in  ['uhd', 'plutosdr', 'xtrxsoapy', 'lime']:
+        self.${id}.set_gain(0,"PGA", ${pga_gain0})
+            % endif
+            % if context.get('devname')() in ['airspy', 'bladerf', 'lime', 'hackrf', 'xtrxsoapy']:
+        self.${id}.set_gain(0,"LNA", ${lna_gain0})
+            % endif
+            % if context.get('devname')() in ['xtrxsoapy', 'lime']:
+        self.${id}.set_gain(0,"TIA", ${tia_gain0})
+            % endif
+            % if context.get('devname')() in ['airspy']:
+        self.${id}.set_gain(0,"MIX", ${mix_gain0})
+            % endif
+            % if context.get('devname')() in ['airspy', 'hackrf']:
+        self.${id}.set_gain(0,"VGA", ${vga_gain0})
+            % endif
+            % if context.get('devname')() in ['rtlsdr']:
+        self.${id}.set_gain(0,"TUNER", ${tuner_gain0})
+            % endif
+            % if context.get('devname')() in ['hackrf']:
+        self.${id}.set_gain(0,"AMP", ${amp_gain0})
+            % endif
+            % if context.get('devname')() in ['sdrplay']:
+        self.${id}.set_gain(0,"IFGR", ${ifgr_gain})
+        self.${id}.set_gain(0,"RFGR", ${rfgr_gain})
+            % endif
+            % if context.get('devname')() in ['bladerf']:
+        self.${id}.set_gain(0,"rxvga1", ${rxvga1_gain})
+        self.${id}.set_gain(0,"rxvga2", ${rxvga2_gain})
+            % endif
+        % endif
+
+        % if context.get('gain_mode1')() == 'Overall' and context.get('nchan')() > 1:
+        self.${id}.set_gain(1,${overall_gain1})
+        % elif context.get('gain_mode1')() == 'Specific' and context.get('nchan')() > 1:
+            % if context.get('devname')() in  ['uhd', 'xtrxsoapy', 'lime']:
+        self.${id}.set_gain(1,"PGA", ${pga_gain1})
+            % endif
+            % if context.get('devname')() in ['lime', 'xtrxsoapy']:
+        self.${id}.set_gain(1,"LNA", ${lna_gain1})
+            % endif
+            % if context.get('devname')() in ['xtrxsoapy', 'lime']:
+        self.${id}.set_gain(1,"TIA", ${tia_gain1})
+            % endif
+        % endif
 
     callbacks:
         # RF Frequency
@@ -467,73 +578,145 @@ templates:
           % if context.get('nchan')() > 1:
           set_frequency(1, ${center_freq1})
           % endif
-        
+
         # Baseband Frequency
         - set_frequency(0,"BB",${nco_freq0})
         - |
           % if context.get('nchan')() > 1:
           set_frequency(1,"BB",${nco_freq0})
           % endif
-        
+
         # Antenna
         - set_antenna(0,${ant0})
         - |
           % if context.get('nchan')() > 1:
           set_antenna(1,${ant1})
           % endif
-        
+
         # Bandwith filter
         - set_bandwidth(0,${bw0})
         - |
           % if context.get('nchan')() > 1:
           set_bandwidth(1,${bw1})
           % endif
-        
+
         # Gain settings
         - |
-          % if not context.get('manual_gain0')():
-          self.${id}.set_gain(0, ${overall_gain0})
+          % if context.get('gain_mode0')() == 'Overall':
+          set_gain(0, ${overall_gain0})
           % endif
-        
+
         - |
-          % if not context.get('manual_gain1')():
-          self.${id}.set_gain(1, ${overall_gain1})
+          % if context.get('gain_mode1')() == 'Overall' and \
+               context.get('nchan')() > 1:
+          set_gain(1, ${overall_gain1})
           % endif
-        
-        - set_gain(0,"PGA", ${pga_gain0})
-        - set_gain(1,"PGA", ${pga_gain1})
-        - set_gain(0,"LNA", ${lna_gain0})
-        - set_gain(1,"LNA", ${lna_gain1})
-        - set_gain(0,"TIA", ${tia_gain0})
-        - set_gain(1,"TIA", ${tia_gain1})
-        - set_gain(0,"MIX", ${mix_gain0})
-        - set_gain(0,"VGA", ${vga_gain0})
-        - set_gain(0,"rxvga1", ${rxvga1_gain})
-        - set_gain(0,"rxvga2", ${rxvga2_gain})
-        - set_gain(0,"TUNER", ${tuner_gain0})
-        - set_gain(0,"AMP", ${amp_gain0})
-        - set_gain(0,"IFGR", ${ifgr_gain})
-        - set_gain(0,"RFGR", ${rfgr_gain})
-        
+
+        - |
+          % if context.get('gain_mode0')() == 'Specific' and \
+               context.get('devname')() in ['uhd', 'plutosdr', 'xtrxsoapy', 'lime']:
+          set_gain(0,"PGA", ${pga_gain0})
+          % endif
+
+        - |
+          % if context.get('gain_mode0')() == 'Specific' and \
+               context.get('devname')() in ['airspy', 'bladerf', 'lime', 'hackrf', 'xtrxsoapy']:
+          set_gain(0,"LNA", ${lna_gain0})
+          % endif
+
+        - |
+          % if context.get('gain_mode0')() == 'Specific' and \
+               context.get('devname')() in ['xtrxsoapy', 'lime']:
+          set_gain(0,"TIA", ${tia_gain0})
+          % endif
+
+        - |
+          % if context.get('gain_mode0')() == 'Specific' and \
+               context.get('devname')() in ['airspy']:
+          set_gain(0,"MIX", ${mix_gain0})
+          % endif
+
+        - |
+          % if context.get('gain_mode0')() == 'Specific' and \
+               context.get('devname')() in ['airspy', 'hackrf']:
+          set_gain(0,"VGA", ${vga_gain0})
+          % endif
+
+        - |
+          % if context.get('gain_mode0')() == 'Specific' and \
+               context.get('devname')() in ['rtlsdr']:
+          set_gain(0,"TUNER", ${tuner_gain0})
+          % endif
+
+        - |
+          % if context.get('gain_mode0')() == 'Specific' and \
+               context.get('devname')() in ['hackrf']:
+          set_gain(0,"AMP", ${amp_gain0})
+          % endif
+
+        - |
+          % if context.get('gain_mode0')() == 'Specific' and \
+               context.get('devname')() in ['sdrplay']:
+          set_gain(0,"IFGR", ${ifgr_gain})
+          % endif
+
+        - |
+          % if context.get('gain_mode0')() == 'Specific' and \
+               context.get('devname')() in ['sdrplay']:
+          set_gain(0,"RFGR", ${rfgr_gain})
+          % endif
+
+        - |
+          % if context.get('gain_mode0')() == 'Specific' and \
+               context.get('devname')() in ['bladerf']:
+          set_gain(0,"rxvga1", ${rxvga1_gain})
+          % endif
+
+        - |
+          % if context.get('gain_mode0')() == 'Specific' and \
+               context.get('devname')() in ['bladerf']:
+          set_gain(0,"rxvga2", ${rxvga2_gain})
+          % endif
+
+        - |
+          % if context.get('nchan')() > 1 and \
+               context.get('gain_mode1')() == 'Specific' and \
+               context.get('devname')() in  ['uhd', 'xtrxsoapy', 'lime']:
+          set_gain(1,"PGA", ${pga_gain1})
+          % endif
+
+        - |
+          % if context.get('nchan')() > 1 and \
+               context.get('gain_mode1')() == 'Specific' and \
+               context.get('devname')() in ['lime', 'xtrxsoapy']:
+          set_gain(1,"LNA", ${lna_gain1})
+          % endif
+        - |
+          % if context.get('nchan')() > 1 and \
+               context.get('gain_mode1')() == 'Specific' and \
+               context.get('devname')() in ['xtrxsoapy', 'lime']:
+          self.${id}.set_gain(1,"TIA", ${tia_gain1})
+          % endif
+
         # Frequency correction
         - set_frequency_correction(0,${correction0})
         - |
           % if context.get('nchan')() > 1:
           set_frequency_correction(1,${correction1})
-          %endif
-        
+          % endif
+
         # IQ Imbalance (complex)
         - set_iq_balance(0,${balance0})
         - |
           % if context.get('nchan')() > 1:
           set_iq_balance(1,${balance1})
           % endif
-          
+
           # DC offset
-        - set_dc_offset(0,${dc_offset0},${dc_offset_auto_mode0} == 'True')
+        - set_dc_offset(0,${dc_offset0}, ${dc_offset_auto_mode0})
         - |
           % if context.get('nchan')() > 1:
-          set_dc_offset(1,${dc_offset1},${dc_offset_auto_mode1} == 'True')
+          set_dc_offset(1,${dc_offset1},${dc_offset_auto_mode1})
           % endif
 
 documentation: |-
@@ -541,41 +724,41 @@ documentation: |-
     Device:
     The device argument is a comma delimited string used to create a device
     instance that uses the specified driver. Device driver should always be
-    specified. 
-    
+    specified.
+
     Usage examples:
       Device: driver=lime
       Device: driver=uhd,type=b200
       Device: driver=uhd,serial=12345678
-      
-    Args: 
+
+    Args:
     Comma delimited list of key-word dictionary arguments specific for each
     ndevice. Device driver handles internally invalid arguments.
-    
+
     Usage examples:
       Device: driver=lime
       Args: skipCal=True
-    
+
       Device: driver=airspy
       Args: biastee=True
-    
+
     Sample Rate:
     The sample rate is the number of samples per second input by this block.
     If the requested rate is not possible the driver handles it internally
-    
+
     Center frequency:
     The center frequency of the RF chain. If the device cannot tune to the
     specified frequency the driver decides internally how to handle it.
-    
+
     Master Clock Rate:
     The rate of the master clock. Can be assigned zero for automatic tuning.
-    
+
     Clock Source:
     Specifies a valid external clock source. Can be left empty.
-    
+
     Input Type:
     This parameter controls the data type of the stream in GNU-Radio.
-    
+
     Gain:
     Depending the device driver specified in the Device field various gain
     parameters can be configured. If a driver is not explicitly supported from
@@ -585,13 +768,13 @@ documentation: |-
       E.g 2:
         Device: driver=uhd
         PGA Gain: 10
-    
-    Antenna: 
+
+    Antenna:
     Specified antenna used in RF chain. Can be left empty for auto assignment,
     else it must correspond to an antenna name of the device used.
-    
+
     Bandwidth:
-    The digital filter bandwidth of the RF chain. 
+    The digital filter bandwidth of the RF chain.
     Can be left empty for auto assignment, else it must be a correct filter
     bandwidth of the device.
 

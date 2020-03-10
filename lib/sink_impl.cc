@@ -214,19 +214,19 @@ sink_impl::register_msg_cmd_handler(const pmt::pmt_t &cmd,
 }
 
 bool
-sink_impl::hasDCOffset(int channel)
+sink_impl::DC_offset_support(int channel)
 {
   return d_device->hasDCOffset(SOAPY_SDR_TX, channel);
 }
 
 bool
-sink_impl::hasIQBalance(int channel)
+sink_impl::IQ_balance_support(int channel)
 {
   return d_device->hasIQBalance(SOAPY_SDR_TX, channel);
 }
 
 bool
-sink_impl::hasFrequencyCorrection(int channel)
+sink_impl::freq_correction_support(int channel)
 {
   return d_device->hasFrequencyCorrection(SOAPY_SDR_TX, channel);
 }
@@ -254,7 +254,7 @@ sink_impl::set_frequency(size_t channel, const std::string &name,
 }
 
 bool
-sink_impl::hasThisGain(size_t channel, std::string gainType)
+sink_impl::is_gain_valid(size_t channel, std::string gainType)
 {
   std::vector<std::string> gainList = d_device->listGains(SOAPY_SDR_TX, channel);
 
@@ -273,7 +273,7 @@ sink_impl::set_gain(size_t channel, const std::string name, float gain)
     return;
   }
 
-  if (!hasThisGain(channel, name)) {
+  if (!is_gain_valid(channel, name)) {
     return;
   }
 
@@ -378,7 +378,7 @@ sink_impl::set_dc_offset(size_t channel, gr_complexd dc_offset,
     return;
   }
 
-  if (!hasDCOffset(channel)) {
+  if (!DC_offset_support(channel)) {
     return;
   }
 
@@ -397,7 +397,7 @@ sink_impl::set_dc_offset_mode(size_t channel, bool dc_offset_auto_mode)
     return;
   }
 
-  if (!hasDCOffset(channel)) {
+  if (!DC_offset_support(channel)) {
     return;
   }
 
@@ -416,7 +416,7 @@ sink_impl::set_frequency_correction(size_t channel, double freq_correction)
     return;
   }
 
-  if (!hasFrequencyCorrection(channel)) {
+  if (!freq_correction_support(channel)) {
     return;
   }
 
@@ -435,7 +435,7 @@ sink_impl::set_iq_balance(size_t channel, gr_complexd iq_balance)
     return;
   }
 
-  if (!hasIQBalance(channel)) {
+  if (!IQ_balance_support(channel)) {
     return;
   }
 

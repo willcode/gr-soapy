@@ -66,6 +66,7 @@ private:
   double d_clock_rate;
   std::string d_clock_source;
   std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
+  std::vector<SoapySDR::Kwargs> d_tune_args;
 
   void register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler);
 
@@ -93,7 +94,11 @@ private:
 
 public:
   source_impl(size_t nchan, const std::string &device,
-              const std::string &args, double sampling_rate,
+              const std::string &dev_args,
+              const std::string &stream_args,
+              const std::vector<std::string> &tune_args,
+              const std::vector<std::string> &other_settings,
+              double sampling_rate,
               const std::string &type);
   ~source_impl();
 
@@ -105,7 +110,7 @@ public:
            gr_vector_const_void_star &input_items,
            gr_vector_void_star &output_items);
 
-  virtual std::vector<std::string> listAntennas(int channel);
+  virtual std::vector<std::string> get_antennas(int channel);
 
   /*!
    * Set the center frequency for the specified RX chain.
@@ -128,9 +133,9 @@ public:
    */
   void set_frequency(size_t channel, const std::string &name, double frequency);
 
-  virtual bool hasDCOffset(int channel);
-  virtual bool hasIQBalance(int channel);
-  virtual bool hasFrequencyCorrection(int channel);
+  virtual bool DC_offset_support(int channel);
+  virtual bool IQ_balance_support(int channel);
+  virtual bool freq_correction_support(int channel);
 
   /*!
     * Set the overall gain for the specified RX chain.
@@ -163,9 +168,9 @@ public:
    * Set the automatic gain mode for the specified chain if supported.
    * If not supported set gain value manually.
    * \param channel an available channel on the device
-   * \param gain_auto_mode true for automatic gain mode
+   * \param enable true for automatic gain mode
    */
-  void set_gain_mode(size_t channel, bool gain_auto_mode);
+  void set_agc(size_t channel, bool enable);
 
   /*!
    * Set the baseband sample rate for the RX chain.

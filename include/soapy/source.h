@@ -26,6 +26,8 @@
 #include <soapy/api.h>
 #include <gnuradio/sync_block.h>
 #include <cstdint>
+#include <vector>
+#include <string>
 
 namespace gr {
 
@@ -64,22 +66,57 @@ public:
    * creating new instances.
    * \param nchan number of channels
    * \param device the device driver and type
-   * \param args the arguments passed to the device
+   * \param dev_args device specific arguments
+   * \param stream_args stream arguments. Same for all enabled channels
+   * \param tune_args list with tuning specific arguments, one entry for every
+   * enabled channel
+   * \param other_settings list with general settings, one entry for every
+   * enabled channel. Supports also specific gain settings.
    * \param sampling_rate the sampling rate of the device
    * \param type output stream format
    *
    * Driver name can be any of "uhd", "lime", "airspy",
    * "rtlsdr" or others
    */
-  static sptr make(size_t nchan, const std::string &device,
-                   const std::string &args,
-                   double sampling_rate, const std::string &type);
+  static sptr make(size_t nchan,
+                   const std::string &device,
+                   const std::string &dev_args,
+                   const std::string &stream_args,
+                   const std::vector<std::string> &tune_args,
+                   const std::vector<std::string> &other_settings,
+                   double sampling_rate,
+                   const std::string &type);
 
-  virtual bool hasDCOffset(int channel) = 0;
-  virtual bool hasIQBalance(int channel) = 0;
-  virtual bool hasFrequencyCorrection(int channel) = 0;
+  /*!
+   *
+   * @param channel the channel index
+   * @return true if DC offset is supported at the specified channel,
+   * false otherwise
+   */
+  virtual bool DC_offset_support(int channel) = 0;
 
-  virtual std::vector<std::string> listAntennas(int channel) = 0;
+  /*!
+   *
+   * @param channel the channel index
+   * @return true if IQ imbalance correction is supported at the specified channel,
+   * false otherwise
+   */
+  virtual bool IQ_balance_support(int channel) = 0;
+
+  /*!
+   *
+   * @param channel the channel index
+   * @return true if frequency correction is supported at the specified channel,
+   * false otherwise
+   */
+  virtual bool freq_correction_support(int channel) = 0;
+
+  /*!
+   * Returns a list with the available antennas for a specific channel
+   * @param channel the channel index
+   * @return the available antenna names
+   */
+  virtual std::vector<std::string> get_antennas(int channel) = 0;
 
   /*!
    * Callback to set overall gain
@@ -113,11 +150,11 @@ public:
                              double frequency) = 0;
 
   /*!
-   * Callback to set automatic gain mode
+   * Callback to set automatic gain control (AGC)
    * \param channel an available channel on the device
-   * \param gain_auto_mode true if automatic gain mode
+   * \param enable true to enable AGC
    */
-  virtual void set_gain_mode(size_t channel, bool gain_auto_mode) = 0;
+  virtual void set_agc(size_t channel, bool enable) = 0;
 
   /*!
    * Callback to set sample rate

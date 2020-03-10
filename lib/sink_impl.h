@@ -68,7 +68,7 @@ private:
   const pmt::pmt_t d_length_tag_key;
   long d_burst_remaining;
 
-  virtual bool hasThisGain(size_t channel, std::string gainType);
+  virtual bool is_gain_valid(size_t channel, std::string gainType);
 
   void register_msg_cmd_handler(const pmt::pmt_t &cmd, cmd_handler_t handler);
   std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
@@ -126,9 +126,9 @@ public:
    */
   void set_frequency(size_t channel, const std::string &name, double frequency);
 
-  virtual bool hasDCOffset(int channel);
-  virtual bool hasIQBalance(int channel);
-  virtual bool hasFrequencyCorrection(int channel);
+  virtual bool DC_offset_support(int channel);
+  virtual bool IQ_balance_support(int channel);
+  virtual bool freq_correction_support(int channel);
 
   /*!
    * Set the overall gain for the specified TX chain.

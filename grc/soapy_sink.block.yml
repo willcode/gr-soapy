@@ -270,18 +270,18 @@ templates:
             dev = ${dev}
         else:
             dev = 'driver=' + "${devname}"
-                    
+
         self.${id} = soapy.sink(${nchan}, dev, ${args}, ${samp_rate}, "${type}", ${length_tag_name})
 
         self.${id}.set_gain_mode(0,${gain_auto_mode0})
         self.${id}.set_gain_mode(1,${gain_auto_mode1})
-        
+
         self.${id}.set_frequency(0, ${center_freq0})
         self.${id}.set_frequency(1, ${center_freq1})
 
         # Made antenna sanity check more generic
         antList = self.${id}.listAntennas(0)
-        
+
         if len(antList) > 1:
             # If we have more than 1 possible antenna
             if len(${ant0}) == 0 or ${ant0} not in antList:
@@ -291,7 +291,7 @@ templates:
                 exit(0)
 
             self.${id}.set_antenna(0,${ant0})
-            
+
         if ${nchan} > 1:
             antList = self.${id}.listAntennas(1)
             # If we have more than 1 possible antenna
@@ -303,22 +303,22 @@ templates:
                     exit(0)
 
                 self.${id}.set_antenna(1,${ant1})
-                
+
         # Setup IQ Balance
         if "${devname}" != 'uhd':
-            if (self.${id}.hasIQBalance(0)):     
+            if (self.${id}.hasIQBalance(0)):
                 self.${id}.set_iq_balance(0,${balance0})
-            
-            if (self.${id}.hasIQBalance(1)):     
+
+            if (self.${id}.hasIQBalance(1)):
                 self.${id}.set_iq_balance(1,${balance1})
 
         # Setup Frequency correction
-        if (self.${id}.hasFrequencyCorrection(0)):     
+        if (self.${id}.hasFrequencyCorrection(0)):
             self.${id}.set_frequency_correction(0,${correction0})
-            
-        if (self.${id}.hasFrequencyCorrection(1)):     
+
+        if (self.${id}.hasFrequencyCorrection(1)):
             self.${id}.set_frequency_correction(1,${correction1})
-            
+
         if "${devname}" == 'sidekiq' or "${manual_gain0}" == 'False':
             self.${id}.set_gain(0,${overall_gain0})
             self.${id}.set_gain(1,${overall_gain1})
@@ -329,7 +329,7 @@ templates:
             elif "${devname}" == 'uhd':
                 self.${id}.set_gain(0,"PGA", ${pga_gain0})
                 self.${id}.set_gain(1,"PGA", ${pga_gain1})
-            else:           
+            else:
                  self.${id}.set_gain(0,"PGA", ${pga_gain0})
                  self.${id}.set_gain(1,"PGA", ${pga_gain1})
                  self.${id}.set_gain(0,"PAD", ${pad_gain0})
@@ -340,7 +340,7 @@ templates:
                  self.${id}.set_gain(0,"txvga2", ${txvga2_gain})
                  # Only hackrf uses VGA name, so just ch0
                  self.${id}.set_gain(0,"VGA", ${vga_gain0})
-        
+
     callbacks:
     - set_frequency(0, ${center_freq0})
     - set_frequency(0,"BB",${nco_freq0})
@@ -372,46 +372,46 @@ documentation: |-
     Soapy Sink Block:
     Device:
     The device argument is a comma delimited string used to create a device
-    instance that uses the specified driver.  Device driver should always be specified. 
-      
+    instance that uses the specified driver.  Device driver should always be specified.
+
       Usage examples:
         Device: driver=limesdr
         Device: driver=uhd,type=b200
         Device: driver=uhd,serial=12345678
-      
+
     Args:
     Comma delimited list of key-word dictionary arguments specific for each device.
     Device driver handles internally invalid arguments.
-    
+
       Usage examples:
         Device: driver=lime
         Args: skipCal=True
         Device: driver=airspy
         Args: biastee=true
-    
+
     Sample Rate:
     The sample rate is the number of samples per second input by this block.
     If the requested rate is not possible the driver
     decides internally how to handle it
-    
+
     Center frequency:
-    The center frequency of the RF chain. If the device cannot tune to the 
+    The center frequency of the RF chain. If the device cannot tune to the
     specified frequency the driver decides ninternally how to handle it.
-    
+
     Master Clock Rate:
     The rate of the master clock. Can be assigned zero for automatic tuning.
-    
+
     Clock Source:
     Specifies a valid external clock source. Can be left empty.
-    
+
     Input Type:
     This parameter controls the data type of the stream in GNU-Radio.
-    
+
     Gain:
     Depending the device driver specified in the Device field various
     gains parameters can be configured. If a driver is not explicitly
     supported from the block an Overal Gain parameter can be configured.
-    
+
       E.g 1:
         Gain Value: 10
       E.g 2:
@@ -421,7 +421,7 @@ documentation: |-
     Specified antenna used in RF chain.
     Can be left empty for auto assignment, else it must correspond to an
     antenna name of the device used.
-    
+
     Bandwidth:
     The digital filter bandwidth of the RF chain.
     Can be left empty for auto assignment, else it must be a correct filter

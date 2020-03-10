@@ -80,9 +80,9 @@ public:
    */
   virtual void set_gain(size_t channel, float gain) = 0;
 
-  virtual bool hasDCOffset(int channel) = 0;
-  virtual bool hasIQBalance(int channel) = 0;
-  virtual bool hasFrequencyCorrection(int channel) = 0;
+  virtual bool DC_offset_support(int channel) = 0;
+  virtual bool IQ_balance_support(int channel) = 0;
+  virtual bool freq_correction_support(int channel) = 0;
 
   virtual std::vector<std::string> listAntennas(int channel) = 0;
 
