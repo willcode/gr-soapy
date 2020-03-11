@@ -88,8 +88,8 @@ parameters:
     label: 'Ch0: Gain Mode'
     category: RF Options
     dtype: string
-    options: ['Overall', 'Specific', 'Stream argument']
-    option_labels:  [Overall, Specific, Stream argument]
+    options: ['Overall', 'Specific', 'Settings Field']
+    option_labels:  [Overall, Specific, Settings Field]
     default: 'Overall'
     hide: part
 
@@ -308,8 +308,10 @@ parameters:
   - id: gain_mode1
     label: 'Ch1: Gain Mode'
     category: RF Options
-    dtype: bool
-    default: 'True'
+    dtype: string
+    options: ['Overall', 'Specific', 'Settings Field']
+    option_labels:  [Overall, Specific, Settings Field]
+    default: 'Overall'
     hide: ${ 'all' if nchan < 2 else 'part' }
 
   - id: overall_gain1

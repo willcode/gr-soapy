@@ -200,6 +200,23 @@ source_impl::source_impl(size_t nchan, const std::string &device,
     SoapySDR::Kwargs settings_kwargs =
       SoapySDR::KwargsFromString(other_settings[chan]);
 
+    /*
+     * Before applying the setting, make a last check if the setting
+     * is a valid gain
+     */
+    std::vector<std::string> gains = d_device->listGains(SOAPY_SDR_RX, chan);
+    for (const std::string &i : gains) {
+      SoapySDR::Kwargs::iterator iter = settings_kwargs.find(i);
+      if (iter != settings_kwargs.end()) {
+        d_device->setGain(SOAPY_SDR_RX, chan, i, std::stod(iter->second));
+        /*
+         * As only valid settings are applied, we remove it so it does not
+         * recognized as an invalid setting
+         */
+        settings_kwargs.erase(iter);
+      }
+    }
+
     for (const std::pair<std::string, std::string> &i : settings_kwargs) {
       bool found = false;
       for (SoapySDR::ArgInfo &arg : supported_settings) {
