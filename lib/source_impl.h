@@ -51,20 +51,7 @@ private:
 
   bool d_stopped;
   size_t d_mtu;
-
-  double d_frequency;
-  float d_gain;
-  double d_sampling_rate;
-  double d_bandwidth;
-  std::string d_antenna;
   size_t d_nchan;
-  gr_complexd d_dc_offset;
-  bool d_dc_offset_auto_mode;
-  bool d_gain_auto_mode;
-  double d_frequency_correction;
-  gr_complexd d_iq_balance;
-  double d_clock_rate;
-  std::string d_clock_source;
   std::map<pmt::pmt_t, cmd_handler_t> d_cmd_handlers;
   std::vector<SoapySDR::Kwargs> d_tune_args;
 
@@ -110,7 +97,7 @@ public:
            gr_vector_const_void_star &input_items,
            gr_vector_void_star &output_items);
 
-  virtual std::vector<std::string> get_antennas(int channel);
+  std::vector<std::string> get_antennas(int channel);
 
   /*!
    * Set the center frequency for the specified RX chain.
@@ -132,10 +119,6 @@ public:
    * \param frequency center frequency in Hz
    */
   void set_frequency(size_t channel, const std::string &name, double frequency);
-
-  virtual bool DC_offset_support(int channel);
-  virtual bool IQ_balance_support(int channel);
-  virtual bool freq_correction_support(int channel);
 
   /*!
     * Set the overall gain for the specified RX chain.
@@ -200,18 +183,16 @@ public:
    * correction automatically.
    * \param channel an available channel on the device
    * \param dc_offset the relative correction (1.0 max)
-   * \param dc_offset_auto_mode true for automatic dc offset correction
    */
-  void set_dc_offset(size_t channel, gr_complexd dc_offset,
-                     bool dc_offset_auto_mode);
+  void set_dc_offset(size_t channel, gr_complexd dc_offset);
 
   /*!
-   * Set automatic dc offset correction to the RX chain
+   * Set automatic DC removal to the RX chain
    * if supported by the device.
    * \param channel an available channel on the device
-   * \param dc_offset_auto_mode true for automatic dc offset correction
+   * \param automatic true for automatic DC offset correction
    */
-  void set_dc_offset_mode(size_t channel, bool dc_offset_auto_mode);
+  void set_dc_removal(size_t channel, bool automatic);
 
   /*!
    * Set the frequency correction to the RX chain.

@@ -26,6 +26,7 @@
 #include <gnuradio/io_signature.h>
 #include "source_impl.h"
 #include <SoapySDR/Formats.h>
+#include <cmath>
 
 const pmt::pmt_t CMD_CHAN_KEY = pmt::mp("chan");
 const pmt::pmt_t CMD_FREQ_KEY = pmt::mp("freq");
@@ -68,7 +69,6 @@ source_impl::source_impl(size_t nchan, const std::string &device,
    */
   d_stopped(true),
   d_mtu(0),
-  d_sampling_rate(sampling_rate),
   d_nchan(nchan)
 {
   if (nchan != tune_args.size()) {
@@ -133,13 +133,13 @@ source_impl::source_impl(size_t nchan, const std::string &device,
       std::swap(min_sps, max_sps);
     }
 
-    if ((d_sampling_rate < min_sps) || (d_sampling_rate > max_sps)) {
+    if ((sampling_rate < min_sps) || (sampling_rate > max_sps)) {
       std::string msg = name() + ": Unsupported sample rate.  Rate must be between "
                         + std::to_string(min_sps)
                         + " and " + std::to_string(max_sps);
       throw std::invalid_argument(msg);
     }
-    set_sample_rate(i, d_sampling_rate);
+    set_sample_rate(i, sampling_rate);
   }
 
   /*
@@ -301,33 +301,16 @@ source_impl::register_msg_cmd_handler(const pmt::pmt_t &cmd,
   d_cmd_handlers[cmd] = handler;
 }
 
-bool
-source_impl::DC_offset_support(int channel)
-{
-  return d_device->hasDCOffset(SOAPY_SDR_RX, channel);
-}
-
-bool
-source_impl::IQ_balance_support(int channel)
-{
-  return d_device->hasIQBalance(SOAPY_SDR_RX, channel);
-}
-
-bool
-source_impl::freq_correction_support(int channel)
-{
-  return d_device->hasFrequencyCorrection(SOAPY_SDR_RX, channel);
-}
-
 void
 source_impl::set_frequency(size_t channel, double frequency)
 {
   if (channel >= d_nchan) {
-    return;
+    std::string msg = name() + ": Channel " + std::to_string(channel)
+                      + " is not activated.";
+    throw std::invalid_argument(msg);
   }
 
   d_device->setFrequency(SOAPY_SDR_RX, channel, frequency, d_tune_args[channel]);
-  d_frequency = d_device->getFrequency(SOAPY_SDR_RX, channel);
 }
 
 void
@@ -335,7 +318,22 @@ source_impl::set_frequency(size_t channel, const std::string &name,
                            double frequency)
 {
   if (channel >= d_nchan) {
-    return;
+    std::string msg = this->name() + ": Channel " + std::to_string(channel)
+                      + " is not activated.";
+    throw std::invalid_argument(msg);
+  }
+
+  std::vector<std::string> freqs = d_device->listFrequencies(SOAPY_SDR_RX,
+                                   channel);
+
+  if (std::find(freqs.begin(), freqs.end(), name) == freqs.end()) {
+    if (std::fpclassify(std::abs(frequency)) == FP_ZERO) {
+      return;
+    }
+    std::string msg = this->name() + ": Channel " + std::to_string(channel)
+                      + " does not support frequency " + name
+                      + ". Consider setting this frequency to 0 to bypass this error";
+    throw std::invalid_argument(msg);
   }
 
   d_device->setFrequency(SOAPY_SDR_RX, channel, name, frequency);
@@ -356,8 +354,11 @@ void
 source_impl::set_gain(size_t channel, float gain)
 {
   if (channel >= d_nchan) {
-    return;
+    std::string msg = name() + ": Channel " + std::to_string(channel)
+                      + " is not activated.";
+    throw std::invalid_argument(msg);
   }
+
   SoapySDR::Range rGain = d_device->getGainRange(SOAPY_SDR_RX, channel);
 
   if (gain < rGain.minimum() || gain > rGain.maximum()) {
@@ -368,7 +369,6 @@ source_impl::set_gain(size_t channel, float gain)
   }
 
   d_device->setGain(SOAPY_SDR_RX, channel, gain);
-  d_gain = d_device->getGain(SOAPY_SDR_RX, channel);
 }
 
 void
@@ -379,10 +379,9 @@ source_impl::set_gain(size_t channel, const std::string name, float gain)
   }
 
   if (!gain_available(channel, name)) {
-    GR_LOG_WARN(d_logger,
-                boost::format("Unknown %s gain setting "
-                              "for channel %zu") % name % channel);
-    return;
+    std::string msg = this->name() + ": Unknown gain " + name + " for channel "
+                      + std::to_string(channel);
+    throw std::invalid_argument(msg);
   }
 
   SoapySDR::Range rGain = d_device->getGainRange(SOAPY_SDR_RX, channel, name);
@@ -400,9 +399,16 @@ void
 source_impl::set_agc(size_t channel, bool enable)
 {
   if (channel >= d_nchan) {
-    return;
+    std::string msg = name() + ": Channel " + std::to_string(channel)
+                      + " is not activated.";
+    throw std::invalid_argument(msg);
   }
 
+  if (!d_device->hasGainMode(SOAPY_SDR_RX, channel) && enable) {
+    std::string msg = name() + ": Channel " + std::to_string(channel)
+                      + " does not support AGC";
+    throw std::invalid_argument(msg);
+  }
   d_device->setGainMode(SOAPY_SDR_RX, channel, enable);
 }
 
@@ -410,11 +416,12 @@ void
 source_impl::set_sample_rate(size_t channel, double sample_rate)
 {
   if (channel >= d_nchan) {
-    return;
+    std::string msg = name() + ": Channel " + std::to_string(channel)
+                      + " is not activated.";
+    throw std::invalid_argument(msg);
   }
 
   d_device->setSampleRate(SOAPY_SDR_RX, channel, sample_rate);
-  d_sampling_rate = sample_rate;
 }
 
 std::vector<std::string>
@@ -431,18 +438,21 @@ void
 source_impl::set_bandwidth(size_t channel, double bandwidth)
 {
   if (channel >= d_nchan) {
-    return;
+    std::string msg = name() + ": Channel " + std::to_string(channel)
+                      + " is not activated.";
+    throw std::invalid_argument(msg);
   }
 
   d_device->setBandwidth(SOAPY_SDR_RX, channel, bandwidth);
-  d_bandwidth = bandwidth;
 }
 
 void
 source_impl::set_antenna(const size_t channel, const std::string &name)
 {
   if (channel >= d_nchan) {
-    return;
+    std::string msg = this->name() + ": Channel " + std::to_string(channel)
+                      + " is not activated.";
+    throw std::invalid_argument(msg);
   }
 
   std::vector<std::string> antennas = d_device->listAntennas(SOAPY_SDR_RX,
@@ -451,53 +461,66 @@ source_impl::set_antenna(const size_t channel, const std::string &name)
   if (antennas.size() > 0) {
     if (std::find(antennas.begin(), antennas.end(),
                   name) == antennas.end()) {
-      GR_LOG_WARN(d_logger,
-                  boost::format("Antenna name %s not supported.") % name);
+      std::string msg = this->name() + ": Antenna " + name + " at channel "
+                        + std::to_string(channel) + " is not supported. "
+                        + "Available antennas are: [";
+      for (std::string i : antennas) {
+        msg += i + ", ";
+      }
+      msg.erase(msg.length() - 2, 2);
+      msg += "]";
+      throw std::invalid_argument(msg);
       return;
     }
   }
 
   d_device->setAntenna(SOAPY_SDR_RX, channel, name);
-  d_antenna = name;
 }
 
 void
-source_impl::set_dc_offset(size_t channel, gr_complexd dc_offset,
-                           bool dc_offset_auto_mode)
+source_impl::set_dc_offset(size_t channel, gr_complexd dc_offset)
 {
   if (channel >= d_nchan) {
+    std::string msg = this->name() + ": Channel " + std::to_string(channel)
+                      + " is not activated.";
+    throw std::invalid_argument(msg);
+  }
+
+  const bool supported = d_device->hasDCOffset(SOAPY_SDR_RX, channel);
+  /*
+   * In case of 0 DC offset, the method exits to avoid failing in case of the
+   * device does not supports DC offset
+   */
+  if (std::fpclassify(std::norm(dc_offset)) == FP_ZERO) {
+    if (supported && !d_device->getDCOffsetMode(SOAPY_SDR_RX, channel)) {
+      d_device->setDCOffset(SOAPY_SDR_RX, channel, dc_offset);
+    }
     return;
   }
 
-  if (!DC_offset_support(channel)) {
-    return;
+  if (!supported) {
+    std::string msg = this->name() + ": Channel " + std::to_string(channel)
+                      + " does not support DC offset setting";
+    throw std::invalid_argument(msg);
   }
-
-  /* If DC Correction is supported but automatic mode is not set DC correction */
-  if (!dc_offset_auto_mode
-      && d_device->hasDCOffset(SOAPY_SDR_RX, channel)) {
-    d_device->setDCOffset(SOAPY_SDR_RX, channel, dc_offset);
-    d_dc_offset = dc_offset;
-  }
+  d_device->setDCOffset(SOAPY_SDR_RX, channel, dc_offset);
 }
 
 void
-source_impl::set_dc_offset_mode(size_t channel, bool dc_offset_auto_mode)
+source_impl::set_dc_removal(size_t channel, bool automatic)
 {
   if (channel >= d_nchan) {
-    return;
+    std::string msg = this->name() + ": Channel " + std::to_string(channel)
+                      + " is not activated.";
+    throw std::invalid_argument(msg);
   }
 
-  if (!DC_offset_support(channel)) {
-    return;
+  if (!d_device->hasDCOffsetMode(SOAPY_SDR_RX, channel) && automatic) {
+    std::string msg = this->name() + ": Channel " + std::to_string(channel)
+                      + " does not support automatic DC removal setting";
+    throw std::invalid_argument(msg);
   }
-
-  /* If user specifies automatic DC Correction and is supported activate it */
-  if (dc_offset_auto_mode
-      && d_device->hasDCOffsetMode(SOAPY_SDR_RX, channel)) {
-    d_device->setDCOffsetMode(SOAPY_SDR_RX, channel, dc_offset_auto_mode);
-    d_dc_offset_auto_mode = dc_offset_auto_mode;
-  }
+  d_device->setDCOffsetMode(SOAPY_SDR_RX, channel, automatic);
 }
 
 void
@@ -505,51 +528,70 @@ source_impl::set_frequency_correction(size_t channel,
                                       double freq_correction)
 {
   if (channel >= d_nchan) {
+    std::string msg = this->name() + ": Channel " + std::to_string(channel)
+                      + " is not activated.";
+    throw std::invalid_argument(msg);
+  }
+
+  const bool supported = d_device->hasFrequencyCorrection(SOAPY_SDR_RX, channel);
+  /*
+   * In case of 0 frequency correction, the method exits to avoid failing
+   * in case of the device does not supports DC offset
+   */
+  if (std::fpclassify(std::abs(freq_correction)) == FP_ZERO) {
+    if (supported) {
+      d_device->setFrequencyCorrection(SOAPY_SDR_RX, channel, freq_correction);
+    }
     return;
   }
 
-  if (!freq_correction_support(channel)) {
-    return;
+  if (!supported) {
+    std::string msg = this->name() + ": Channel " + std::to_string(channel)
+                      + " does not support frequency correction setting";
+    throw std::invalid_argument(msg);
   }
-
-  /* If the device supports Frequency correction set value */
-  if (d_device->hasFrequencyCorrection(SOAPY_SDR_RX, channel)) {
-    d_device->setFrequencyCorrection(SOAPY_SDR_RX, channel,
-                                     freq_correction);
-    d_frequency_correction = freq_correction;
-  }
+  d_device->setFrequencyCorrection(SOAPY_SDR_RX, channel, freq_correction);
 }
 
 void
 source_impl::set_iq_balance(size_t channel, gr_complexd iq_balance)
 {
   if (channel >= d_nchan) {
+    std::string msg = this->name() + ": Channel " + std::to_string(channel)
+                      + " is not activated.";
+    throw std::invalid_argument(msg);
+  }
+
+  const bool supported = d_device->hasIQBalance(SOAPY_SDR_RX, channel);
+  /*
+   * In case of 0 frequency correction, the method exits to avoid failing
+   * in case of the device does not supports DC offset
+   */
+  if (std::fpclassify(std::norm(iq_balance)) == FP_ZERO) {
+    if (supported) {
+      d_device->setIQBalance(SOAPY_SDR_RX, channel, iq_balance);
+    }
     return;
   }
 
-  if (!IQ_balance_support(channel)) {
-    return;
+  if (!supported) {
+    std::string msg = this->name() + ": Channel " + std::to_string(channel)
+                      + " does not support IQ imbalance correction setting";
+    throw std::invalid_argument(msg);
   }
-
-  /* If the device supports IQ blance correction set value */
-  if (d_device->hasIQBalance(SOAPY_SDR_RX, channel)) {
-    d_device->setIQBalance(SOAPY_SDR_RX, channel, iq_balance);
-    d_iq_balance = iq_balance;
-  }
+  d_device->setIQBalance(SOAPY_SDR_RX, channel, iq_balance);
 }
 
 void
 source_impl::set_master_clock_rate(double clock_rate)
 {
   d_device->setMasterClockRate(clock_rate);
-  d_clock_rate = clock_rate;
 }
 
 void
 source_impl::set_clock_source(const std::string &clock_source)
 {
   d_device->setClockSource(clock_source);
-  d_clock_source = clock_source;
 }
 
 void

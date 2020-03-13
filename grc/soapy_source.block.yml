@@ -203,12 +203,31 @@ parameters:
     default: '0'
     hide: ${ 'part' if nchan > 0 else 'all' }
 
-  - id: dc_offset_auto_mode0
-    label: 'Ch0: Automatic DC Offset Mode'
+  - id: dc_removal0
+    label: 'Ch0: Automatic DC Removal'
     category: RF Options
-    dtype: bool
-    default: 'False'
-    hide: ${ 'all' if ( devname in ['plutosdr', 'airspy', 'rtlsdr'] ) else 'part' }
+    dtype: string
+    options: [False, True]
+    option_labels: [False, True]
+    default: True
+    
+  - id: dc_offset0
+    label: 'Ch0: DC Offset'
+    category: RF Options
+    dtype: complex
+    default: '0'
+
+  - id: correction0
+    label: 'Ch0: Frequency Correction'
+    category: RF Options
+    dtype: real
+    default: '0'
+
+  - id: balance0
+    label: 'Ch0: IQ Balance Correction'
+    category: RF Options
+    dtype: complex
+    default: '0'
 
   - id: agc0
     label: 'Ch0: Automatic Gain Control'
@@ -217,14 +236,6 @@ parameters:
     default: 'False'
     hide: ${ 'none' if (devname in ['airspy', 'plutosdr', 'sdrplay', 'uhd'])
              else ('all' if devname in ['lime', 'rtlsdr'] else 'part')}
-
-  - id: dc_offset0
-    label: 'Ch0: DC Offset'
-    category: RF Options
-    dtype: complex
-    default: '0'
-    hide: ${ 'all' if ( (devname in ['uhd', 'lime', 'plutosdr', 'airspy',
-             'rtlsdr']) or dc_offset_auto_mode0 == 'True' ) else 'part' }
 
   - id: sdrplay_if_mode
     label: IF Mode
@@ -262,22 +273,6 @@ parameters:
     dtype: bool
     default: 'False'
     hide: ${ 'none' if ( devname == 'sdrplay' ) else 'all' }
-
-  - id: correction0
-    label: 'Ch0: Frequency Correction'
-    category: RF Options
-    dtype: real
-    default: '0'
-    hide: ${ 'all' if ( devname in ['uhd', 'lime', 'plutosdr', 'airspy',
-             'sdrplay'] ) else 'part' }
-
-  - id: balance0
-    label: 'Ch0: IQ Balance Correction'
-    category: RF Options
-    dtype: complex
-    default: '0'
-    hide: ${ 'all' if ( devname in ['uhd', 'lime', 'plutosdr', 'airspy',
-             'rtlsdr', 'sdrplay'] ) else 'part' }
 
   - id: tune_args1
     label: 'Ch1: Tune arguments'
@@ -359,13 +354,35 @@ parameters:
     default: '0'
     hide: ${ 'part' if nchan > 1 else 'all' }
 
-  - id: dc_offset_auto_mode1
-    label: 'Ch1: Automatic DC Offset Mode'
+  - id: dc_removal1
+    label: 'Ch1: Automatic DC Removal'
     category: RF Options
-    dtype: bool
-    default: 'False'
-    hide: ${ 'all' if ( nchan < 2 or ( devname in ['plutosdr', 'airspy',
-             'rtlsdr', 'hackrf']) ) else 'part' }
+    dtype: string
+    options: [False, True]
+    option_labels: [False, True]
+    default: True
+    hide: ${ 'all' if nchan < 2 else 'none' }
+
+  - id: dc_offset1
+    label: 'Ch1: DC Offset'
+    category: RF Options
+    dtype: complex
+    default: '0'
+    hide: ${ 'all' if nchan < 2 else 'none' }
+
+  - id: correction1
+    label: 'Ch1: Frequency Correction'
+    category: RF Options
+    dtype: real
+    default: '0'
+    hide: ${ 'all' if nchan < 2 else 'none' }
+
+  - id: balance1
+    label: 'Ch1: IQ Balance Correction'
+    category: RF Options
+    dtype: complex
+    default: '0'
+    hide: ${ 'all' if nchan < 2 else 'none' }
 
   - id: agc1
     label: 'Ch1: Automatic Gain Control'
@@ -373,35 +390,7 @@ parameters:
     dtype: bool
     default: 'False'
     hide: ${ 'all' if ( nchan < 2 or (devname in ['airspy', 'rtlsdr', 'plutosdr', 'sdrplay']))
-             else 'part'}
-
-  - id: dc_offset1
-    label: 'Ch1: DC Offset'
-    category: RF Options
-    dtype: complex
-    default: '0'
-    hide: ${ 'all' if (nchan <= 1 or (devname in ['uhd', 'lime', 'plutosdr',
-             'airspy', 'rtlsdr'])
-             or dc_offset_auto_mode0 ) else 'part' }
-
-  - id: correction1
-    label: 'Ch1: Frequency Correction'
-    category: RF Options
-    dtype: real
-    default: '0'
-    hide: ${ 'all' if (nchan <= 1 or (devname in ['uhd', 'lime', 'plutosdr',
-             'airspy', 'rtlsdr']) )
-             else 'part' }
-
-  - id: balance1
-    label: 'Ch1: IQ Balance Correction'
-    category: RF Options
-    dtype: complex
-    default: '0'
-    hide: ${ 'all' if (nchan <= 1 or (devname in ['uhd', 'lime', 'plutosdr',
-             'airspy', 'rtlsdr']) )
-             else 'part' }
-
+             else 'none'}
 inputs:
   - domain: message
     id: command
@@ -417,6 +406,8 @@ asserts:
 templates:
     imports: |-
       import soapy
+      import distutils
+      from distutils import util
     make: |
         None
         <%! import SoapySDR %>
@@ -468,32 +459,31 @@ templates:
         % if len(context.get('clock_source')()) > 0:
         self.${id}.set_clock_source(${clock_source})
         % endif
-
-        # Set up DC offset
-        if (self.${id}.DC_offset_support(0)):
-           self.${id}.set_dc_offset(0,${dc_offset0},${dc_offset_auto_mode0})
-
+        
+        self.${id}.set_dc_removal(0,bool(distutils.util.strtobool(${dc_removal0})))
         % if context.get('nchan')() > 1:
-        if (self.${id}.DC_offset_support(1)):
-            self.${id}.set_dc_offset(1,${dc_offset1},${dc_offset_auto_mode1})
+        self.${id}.set_dc_removal(1,bool(distutils.util.strtobool(${dc_removal1})))
+        % endif
+        
+        # Set up DC offset. If set to (0, 0) internally the source block
+        # will handle the case if no DC offset correction is supported 
+        self.${id}.set_dc_offset(0,${dc_offset0})
+        % if context.get('nchan')() > 1:
+        self.${id}.set_dc_offset(1,${dc_offset1})
         % endif
 
-        # Setup IQ Balance
-        if (self.${id}.IQ_balance_support(0)):
-           self.${id}.set_iq_balance(0,${balance0})
-
+        # Setup IQ Balance. If set to (0, 0) internally the source block
+        # will handle the case if no IQ balance correction is supported 
+        self.${id}.set_iq_balance(0,${balance0})
         % if context.get('nchan')() > 1:
-        if (self.${id}.IQ_balance_support(1)):
-           self.${id}.set_iq_balance(1,${balance1})
+        self.${id}.set_iq_balance(1,${balance1})
         % endif
 
-        # Setup Frequency correction
-        if (self.${id}.freq_correction_support(0)):
-            self.${id}.set_frequency_correction(0,${correction0})
-
+        # Setup Frequency correction. If set to 0 internally the source block
+        # will handle the case if no frequency correction is supported 
+        self.${id}.set_frequency_correction(0,${correction0})
         % if context.get('nchan')() > 1:
-        if (self.${id}.freq_correction_support(1)):
-            self.${id}.set_frequency_correction(1,${correction1})
+        self.${id}.set_frequency_correction(1,${correction1})
         % endif
 
         self.${id}.set_agc(0,${agc0})
@@ -501,27 +491,18 @@ templates:
         self.${id}.set_agc(1,${agc1})
         % endif
 
+        self.${id}.set_frequency(0,"BB",${nco_freq0})
+        % if context.get('nchan')() > 1:
+        self.${id}.set_frequency(1,"BB",${nco_freq1})
+        % endif
+        
         self.${id}.set_frequency(0, ${center_freq0})
         % if context.get('nchan')() > 1:
         self.${id}.set_frequency(1, ${center_freq1})
         % endif
 
-        # Antenna sanity checks
-        antennas0 = self.${id}.get_antennas(0)
-        if ${ant0} not in antennas0:
-            print("ERROR: Please define a valid antenna name for stream 0.")
-            antennas_str = str(antennas0).lstrip('(').rstrip(')').rstrip(',')
-            print("Allowed antennas: " + antennas_str)
-            exit(0)
         self.${id}.set_antenna(0,${ant0})
-
         % if context.get('nchan')() > 1:
-        antennas1 = self.${id}.get_antennas(1)
-        if ${ant1} not in antennas1:
-            print("ERROR: Please define a valid antenna name for stream 1.")
-            antennas_str = str(antennas1).lstrip('(').rstrip(')').rstrip(',')
-            print("Allowed antennas: " + antennas_str)
-            exit(0)
         self.${id}.set_antenna(1,${ant1})
         % endif
 
@@ -585,7 +566,7 @@ templates:
         - set_frequency(0,"BB",${nco_freq0})
         - |
           % if context.get('nchan')() > 1:
-          set_frequency(1,"BB",${nco_freq0})
+          set_frequency(1,"BB",${nco_freq1})
           % endif
 
         # Antenna
@@ -707,18 +688,25 @@ templates:
           set_frequency_correction(1,${correction1})
           % endif
 
+        # DC removal
+        - set_dc_removal(0,bool(distutils.util.strtobool(${dc_removal0})))
+        - |
+          % if context.get('nchan')() > 1:
+          set_dc_removal(1,bool(distutils.util.strtobool(${dc_removal1})))
+          % endif
+
+        # DC offset
+        - set_dc_offset(0,${dc_offset0})
+        - |
+          % if context.get('nchan')() > 1:
+          set_dc_offset(1,${dc_offset1})
+          % endif
+
         # IQ Imbalance (complex)
         - set_iq_balance(0,${balance0})
         - |
           % if context.get('nchan')() > 1:
           set_iq_balance(1,${balance1})
-          % endif
-
-          # DC offset
-        - set_dc_offset(0,${dc_offset0}, ${dc_offset_auto_mode0})
-        - |
-          % if context.get('nchan')() > 1:
-          set_dc_offset(1,${dc_offset1},${dc_offset_auto_mode1})
           % endif
 
 documentation: |-

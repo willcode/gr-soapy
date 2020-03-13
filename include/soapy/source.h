@@ -88,30 +88,6 @@ public:
                    const std::string &type);
 
   /*!
-   *
-   * @param channel the channel index
-   * @return true if DC offset is supported at the specified channel,
-   * false otherwise
-   */
-  virtual bool DC_offset_support(int channel) = 0;
-
-  /*!
-   *
-   * @param channel the channel index
-   * @return true if IQ imbalance correction is supported at the specified channel,
-   * false otherwise
-   */
-  virtual bool IQ_balance_support(int channel) = 0;
-
-  /*!
-   *
-   * @param channel the channel index
-   * @return true if frequency correction is supported at the specified channel,
-   * false otherwise
-   */
-  virtual bool freq_correction_support(int channel) = 0;
-
-  /*!
    * Returns a list with the available antennas for a specific channel
    * @param channel the channel index
    * @return the available antenna names
@@ -181,18 +157,15 @@ public:
    * Callback to set dc offset correction and mode
    * \param channel an available channel of the device
    * \param dc_offset complex for dc offset correction
-   * \param dc_offset_auto_mode true if automatic dc offset correction
    */
-  virtual void set_dc_offset(size_t channel, gr_complexd dc_offset,
-                             bool dc_offset_auto_mode) = 0;
+  virtual void set_dc_offset(size_t channel, gr_complexd dc_offset) = 0;
 
   /*!
-   * Callback to set automatic dc offset mode
+   * Callback to set automatic DC removal
    * \param channel an available channel of the device
-   * \param dc_offset_auto_mode true if automatic dc offset correction
+   * \param automatic true to set the automatic DC removal
    */
-  virtual void set_dc_offset_mode(size_t channel,
-                                  bool dc_offset_auto_mode) = 0;
+  virtual void set_dc_removal(size_t channel, bool automatic) = 0;
 
   /*!
    * Callback to set frequency correction
