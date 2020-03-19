@@ -120,23 +120,33 @@ source_impl::source_impl(size_t nchan, const std::string &device,
 
   std::vector<size_t> channs;
   channs.resize(d_nchan);
+  bool accept_samp_rate = false;
   for (size_t i = 0; i < d_nchan; i++) {
     channs[i] = i;
 
     SoapySDR::RangeList sps_range = d_device->getSampleRateRange(SOAPY_SDR_RX, i);
 
-    double min_sps = sps_range.front().minimum();
-    double max_sps = sps_range.back().maximum();
+    for (SoapySDR::Range &range : sps_range) {
+      double min_sps = range.minimum();
+      double max_sps = range.maximum();
 
-    /* for some reason the airspy provides them backwards */
-    if (min_sps > max_sps) {
-      std::swap(min_sps, max_sps);
+      if ((sampling_rate < min_sps) || (sampling_rate > max_sps)) {
+        continue;
+      }
+      else {
+        accept_samp_rate = true;
+        break;
+      }
     }
-
-    if ((sampling_rate < min_sps) || (sampling_rate > max_sps)) {
-      std::string msg = name() + ": Unsupported sample rate.  Rate must be between "
-                        + std::to_string(min_sps)
-                        + " and " + std::to_string(max_sps);
+    if (!accept_samp_rate) {
+      std::string msg = name() +
+                        ": Unsupported sample rate.  Rate must be in the range";
+      for (SoapySDR::Range &range : sps_range) {
+        double min_sps = range.minimum();
+        double max_sps = range.maximum();
+        msg += " [" + std::to_string(min_sps) +
+               ", " + std::to_string(max_sps) + "]";
+      }
       throw std::invalid_argument(msg);
     }
     set_sample_rate(i, sampling_rate);
