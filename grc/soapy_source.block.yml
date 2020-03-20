@@ -402,6 +402,11 @@ outputs:
     multiplicity: ${ nchan }
 asserts:
   - ${ nchan > 0 }
+  - ${ gain_mode0 == "Overall" or gain_mode0 == "Specific" or 
+       gain_mode0 == "Settings Field" }
+  - ${ 'True' if (nchan < 2) else (gain_mode1 == "Overall" or 
+       gain_mode1 == "Specific" or 
+       gain_mode1 == "Settings Field") }
 
 templates:
     imports: |-
