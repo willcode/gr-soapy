@@ -10,6 +10,7 @@ gr-soapy is a GNURadio wrapper for the SoapySDR library.
 * VOLK
 * git
 * SoapySDR
+* python3-soapysdr
 
 **Note**: Additionally you must install at least one Soapy SDR module
 corresponding to your SDR hardware (e.g.
