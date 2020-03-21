@@ -316,13 +316,15 @@ blocks:
     pga_gain0: gain
     pga_gain1: '0'
     samp_rate: xmit_rate
+    txvga1_gain: '-35'
+    txvga2_gain: '0'
     type: fc32
     vga_gain0: '10'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [784, 180.0]
+    coordinate: [784, 188.0]
     rotation: 0
     state: true
 

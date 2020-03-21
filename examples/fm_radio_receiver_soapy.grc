@@ -139,7 +139,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [656, 428.0]
+    coordinate: [864, 428.0]
     rotation: 0
     state: enabled
 - name: audio_sink_0
@@ -156,7 +156,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1080, 372]
+    coordinate: [1248, 348.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_0
@@ -174,7 +174,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [904, 372]
+    coordinate: [1064, 436.0]
     rotation: 0
     state: enabled
 - name: low_pass_filter_0
@@ -198,7 +198,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [264, 388.0]
+    coordinate: [480, 388.0]
     rotation: 0
     state: enabled
 - name: pfb_arb_resampler_xxx_0
@@ -219,7 +219,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [424, 412.0]
+    coordinate: [640, 412.0]
     rotation: 0
     state: true
 - name: qtgui_freq_sink_x_0
@@ -299,7 +299,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [280, 144.0]
+    coordinate: [480, 552.0]
     rotation: 0
     state: enabled
 - name: qtgui_freq_sink_x_1
@@ -379,7 +379,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1080, 448.0]
+    coordinate: [1256, 448.0]
     rotation: 0
     state: enabled
 - name: qtgui_waterfall_sink_x_0
@@ -440,13 +440,15 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [280, 248.0]
+    coordinate: [488, 256.0]
     rotation: 0
     state: enabled
 - name: soapy_source_0
   id: soapy_source
   parameters:
     affinity: ''
+    agc0: 'False'
+    agc1: 'False'
     alias: ''
     amp_gain0: '0'
     ant0: antenna
@@ -465,21 +467,18 @@ blocks:
     correction1: '0'
     dc_offset0: '0'
     dc_offset1: '0'
-    dc_offset_auto_mode0: 'False'
-    dc_offset_auto_mode1: 'False'
+    dc_removal0: 'True'
+    dc_removal1: 'True'
     dev: driver=rtlsdr
     devname: airspy
-    gain_auto_mode0: 'False'
-    gain_auto_mode1: 'False'
+    gain_mode0: Overall
+    gain_mode1: Overall
     ifgr_gain: '59'
     lna_gain0: '10'
     lna_gain1: '10'
-    manual_gain0: 'False'
-    manual_gain1: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
     mix_gain0: '10'
-    mix_gain1: '10'
     nchan: '1'
     nco_freq0: '0'
     nco_freq1: '0'
@@ -488,24 +487,29 @@ blocks:
     pga_gain0: '24'
     pga_gain1: '24'
     rfgr_gain: '9'
+    rxvga1_gain: '5'
+    rxvga2_gain: '0'
     samp_rate: samp_rate
     sdrplay_agc_setpoint: '-30'
     sdrplay_biastee: 'True'
     sdrplay_dabnotch: 'False'
     sdrplay_if_mode: Zero-IF
     sdrplay_rfnotch: 'False'
+    settings0: ''
+    settings1: ''
+    stream_args: ''
     tia_gain0: '0'
     tia_gain1: '0'
+    tune_args0: ''
+    tune_args1: ''
     tuner_gain0: '10'
-    tuner_gain1: '10'
     type: fc32
     vga_gain0: '10'
-    vga_gain1: '10'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [40, 404.0]
+    coordinate: [176, 340.0]
     rotation: 0
     state: true
 

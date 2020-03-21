@@ -156,7 +156,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1080, 372]
+    coordinate: [1048, 372.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_0
@@ -174,7 +174,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [904, 372]
+    coordinate: [872, 436.0]
     rotation: 0
     state: enabled
 - name: low_pass_filter_0
@@ -379,7 +379,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1080, 448.0]
+    coordinate: [1048, 480.0]
     rotation: 0
     state: enabled
 - name: qtgui_waterfall_sink_x_0
@@ -447,6 +447,8 @@ blocks:
   id: soapy_source
   parameters:
     affinity: ''
+    agc0: 'False'
+    agc1: 'False'
     alias: ''
     amp_gain0: '0'
     ant0: antenna
@@ -467,21 +469,18 @@ blocks:
     correction1: '0'
     dc_offset0: '0'
     dc_offset1: '0'
-    dc_offset_auto_mode0: 'False'
-    dc_offset_auto_mode1: 'False'
+    dc_removal0: 'True'
+    dc_removal1: 'True'
     dev: driver=remote
     devname: custom
-    gain_auto_mode0: 'False'
-    gain_auto_mode1: 'False'
+    gain_mode0: Overall
+    gain_mode1: Overall
     ifgr_gain: '59'
     lna_gain0: '10'
     lna_gain1: '10'
-    manual_gain0: 'False'
-    manual_gain1: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
     mix_gain0: '10'
-    mix_gain1: '10'
     nchan: '1'
     nco_freq0: '0'
     nco_freq1: '0'
@@ -490,24 +489,29 @@ blocks:
     pga_gain0: '24'
     pga_gain1: '24'
     rfgr_gain: '9'
+    rxvga1_gain: '5'
+    rxvga2_gain: '0'
     samp_rate: samp_rate
     sdrplay_agc_setpoint: '-30'
     sdrplay_biastee: 'True'
     sdrplay_dabnotch: 'False'
     sdrplay_if_mode: Zero-IF
     sdrplay_rfnotch: 'False'
+    settings0: ''
+    settings1: ''
+    stream_args: ''
     tia_gain0: '0'
     tia_gain1: '0'
+    tune_args0: ''
+    tune_args1: ''
     tuner_gain0: '10'
-    tuner_gain1: '10'
     type: fc32
     vga_gain0: '10'
-    vga_gain1: '10'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [24, 396.0]
+    coordinate: [16, 340.0]
     rotation: 0
     state: true
 

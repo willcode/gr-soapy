@@ -276,6 +276,8 @@ blocks:
   id: soapy_source
   parameters:
     affinity: ''
+    agc0: 'False'
+    agc1: 'False'
     alias: ''
     amp_gain0: '0'
     ant0: antenna
@@ -294,21 +296,18 @@ blocks:
     correction1: '0'
     dc_offset0: '0'
     dc_offset1: '0'
-    dc_offset_auto_mode0: 'False'
-    dc_offset_auto_mode1: 'False'
+    dc_removal0: 'True'
+    dc_removal1: 'True'
     dev: driver=rtlsdr
     devname: airspy
-    gain_auto_mode0: 'False'
-    gain_auto_mode1: 'False'
+    gain_mode0: Overall
+    gain_mode1: Overall
     ifgr_gain: '59'
     lna_gain0: lna
     lna_gain1: '10'
-    manual_gain0: 'True'
-    manual_gain1: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
     mix_gain0: mix
-    mix_gain1: '10'
     nchan: '1'
     nco_freq0: '0'
     nco_freq1: '0'
@@ -317,24 +316,29 @@ blocks:
     pga_gain0: '24'
     pga_gain1: '24'
     rfgr_gain: '9'
+    rxvga1_gain: '5'
+    rxvga2_gain: '0'
     samp_rate: samp_rate
     sdrplay_agc_setpoint: '-30'
     sdrplay_biastee: 'True'
     sdrplay_dabnotch: 'False'
     sdrplay_if_mode: Zero-IF
     sdrplay_rfnotch: 'False'
+    settings0: ''
+    settings1: ''
+    stream_args: ''
     tia_gain0: '0'
     tia_gain1: '0'
+    tune_args0: ''
+    tune_args1: ''
     tuner_gain0: '10'
-    tuner_gain1: '10'
     type: fc32
     vga_gain0: vga
-    vga_gain1: '10'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [152, 228.0]
+    coordinate: [152, 204.0]
     rotation: 0
     state: true
 
