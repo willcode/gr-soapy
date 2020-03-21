@@ -520,52 +520,61 @@ templates:
         self.${id}.set_antenna(1,${ant1})
         % endif
 
+        if(${gain_mode0} != 'Settings Field'):
+            # pass is needed, in case the template does not evaluare anything 
+            pass
         % if context.get('gain_mode0')() == 'Overall':
-        self.${id}.set_gain(0,${overall_gain0})
+            self.${id}.set_gain(0,${overall_gain0})
         % elif context.get('gain_mode0')() == 'Specific':
             % if context.get('devname')() in  ['uhd', 'plutosdr', 'xtrxsoapy', 'lime']:
-        self.${id}.set_gain(0,"PGA", ${pga_gain0})
+            self.${id}.set_gain(0,"PGA", ${pga_gain0})
             % endif
             % if context.get('devname')() in ['airspy', 'bladerf', 'lime', 'hackrf', 'xtrxsoapy']:
-        self.${id}.set_gain(0,"LNA", ${lna_gain0})
+            self.${id}.set_gain(0,"LNA", ${lna_gain0})
             % endif
             % if context.get('devname')() in ['xtrxsoapy', 'lime']:
-        self.${id}.set_gain(0,"TIA", ${tia_gain0})
+            self.${id}.set_gain(0,"TIA", ${tia_gain0})
             % endif
             % if context.get('devname')() in ['airspy']:
-        self.${id}.set_gain(0,"MIX", ${mix_gain0})
+            self.${id}.set_gain(0,"MIX", ${mix_gain0})
             % endif
             % if context.get('devname')() in ['airspy', 'hackrf']:
-        self.${id}.set_gain(0,"VGA", ${vga_gain0})
+            self.${id}.set_gain(0,"VGA", ${vga_gain0})
             % endif
             % if context.get('devname')() in ['rtlsdr']:
-        self.${id}.set_gain(0,"TUNER", ${tuner_gain0})
+            self.${id}.set_gain(0,"TUNER", ${tuner_gain0})
             % endif
             % if context.get('devname')() in ['hackrf']:
-        self.${id}.set_gain(0,"AMP", ${amp_gain0})
+            self.${id}.set_gain(0,"AMP", ${amp_gain0})
             % endif
             % if context.get('devname')() in ['sdrplay']:
-        self.${id}.set_gain(0,"IFGR", ${ifgr_gain})
-        self.${id}.set_gain(0,"RFGR", ${rfgr_gain})
+            self.${id}.set_gain(0,"IFGR", ${ifgr_gain})
+            self.${id}.set_gain(0,"RFGR", ${rfgr_gain})
             % endif
             % if context.get('devname')() in ['bladerf']:
-        self.${id}.set_gain(0,"rxvga1", ${rxvga1_gain})
-        self.${id}.set_gain(0,"rxvga2", ${rxvga2_gain})
+            self.${id}.set_gain(0,"rxvga1", ${rxvga1_gain})
+            self.${id}.set_gain(0,"rxvga2", ${rxvga2_gain})
             % endif
         % endif
-
-        % if context.get('gain_mode1')() == 'Overall' and context.get('nchan')() > 1:
-        self.${id}.set_gain(1,${overall_gain1})
-        % elif context.get('gain_mode1')() == 'Specific' and context.get('nchan')() > 1:
+        
+        
+        % if context.get('nchan')() > 1:
+        if(${gain_mode1} != 'Settings Field'):
+            # pass is needed, in case the template does not evaluare anything 
+            pass
+        % if context.get('gain_mode1')() == 'Overall':
+            self.${id}.set_gain(1,${overall_gain1})
+        % elif context.get('gain_mode1')() == 'Specific':
             % if context.get('devname')() in  ['uhd', 'xtrxsoapy', 'lime']:
-        self.${id}.set_gain(1,"PGA", ${pga_gain1})
+            self.${id}.set_gain(1,"PGA", ${pga_gain1})
             % endif
             % if context.get('devname')() in ['lime', 'xtrxsoapy']:
-        self.${id}.set_gain(1,"LNA", ${lna_gain1})
+            self.${id}.set_gain(1,"LNA", ${lna_gain1})
             % endif
             % if context.get('devname')() in ['xtrxsoapy', 'lime']:
-        self.${id}.set_gain(1,"TIA", ${tia_gain1})
+            self.${id}.set_gain(1,"TIA", ${tia_gain1})
             % endif
+        % endif
         % endif
 
     callbacks:
