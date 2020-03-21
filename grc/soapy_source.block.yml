@@ -415,6 +415,15 @@ templates:
       from distutils import util
     make: |
         None
+        # Make sure that the gain mode is valid
+        if(${gain_mode0} not in ['Overall', 'Specific', 'Settings Field']):
+            raise ValueError("Wrong gain mode on channel 0. Allowed gain modes: "
+                  "['Overall', 'Specific', 'Settings Field']")
+        % if context.get('nchan')() > 1:
+        if(${gain_mode1} not in ['Overall', 'Specific', 'Settings Field']):
+            raise ValueError("Wrong gain mode on channel 1. Allowed gain modes: "
+                  "['Overall', 'Specific', 'Settings Field']")
+        % endif
         <%! import SoapySDR %>
         % if context.get('devname')() == 'custom':
         dev = ${dev}
