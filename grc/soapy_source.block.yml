@@ -493,26 +493,27 @@ templates:
         self.${id}.set_iq_balance(1,${balance1})
         % endif
 
-        # Setup Frequency correction. If set to 0 internally the source block
-        # will handle the case if no frequency correction is supported 
-        self.${id}.set_frequency_correction(0,${correction0})
-        % if context.get('nchan')() > 1:
-        self.${id}.set_frequency_correction(1,${correction1})
-        % endif
-
         self.${id}.set_agc(0,${agc0})
         % if context.get('nchan')() > 1:
         self.${id}.set_agc(1,${agc1})
+        % endif
+
+        # generic frequency setting should be specified first
+        self.${id}.set_frequency(0, ${center_freq0})
+        % if context.get('nchan')() > 1:
+        self.${id}.set_frequency(1, ${center_freq1})
         % endif
 
         self.${id}.set_frequency(0,"BB",${nco_freq0})
         % if context.get('nchan')() > 1:
         self.${id}.set_frequency(1,"BB",${nco_freq1})
         % endif
-        
-        self.${id}.set_frequency(0, ${center_freq0})
+ 
+        # Setup Frequency correction. If set to 0 internally the source block
+        # will handle the case if no frequency correction is supported 
+        self.${id}.set_frequency_correction(0,${correction0})
         % if context.get('nchan')() > 1:
-        self.${id}.set_frequency(1, ${center_freq1})
+        self.${id}.set_frequency_correction(1,${correction1})
         % endif
 
         self.${id}.set_antenna(0,${ant0})
