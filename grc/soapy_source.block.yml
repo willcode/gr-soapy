@@ -520,6 +520,11 @@ templates:
         % if context.get('nchan')() > 1:
         self.${id}.set_antenna(1,${ant1})
         % endif
+        
+        self.${id}.set_bandwidth(0,${bw0})
+        % if context.get('nchan')() > 1:
+        self.${id}.set_bandwidth(1,${bw1})
+        % endif
 
         if(${gain_mode0} != 'Settings Field'):
             # pass is needed, in case the template does not evaluare anything 
