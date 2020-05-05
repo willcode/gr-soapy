@@ -266,11 +266,13 @@ source_impl::source_impl(size_t nchan, const std::string &device,
     CMD_ANTENNA_KEY,
     boost::bind(&source_impl::cmd_handler_antenna, this, _1, _2));
 
-  /* GNU Radio stream engine is very efficient when the buffers are a power of 2*/
-  set_output_multiple(1024);
-
   /* This limits each work invocation to MTU transfers */
-  set_max_noutput_items(d_mtu);
+  if (d_mtu > 0) {
+    set_max_noutput_items(d_mtu);
+  }
+  else {
+    set_max_noutput_items(1024);
+  }
 }
 
 bool
