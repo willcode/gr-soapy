@@ -305,7 +305,7 @@ templates:
                 self.${id}.set_antenna(1,${ant1})
 
         # Setup IQ Balance
-        if "${devname}" != 'uhd':
+        if "${devname}" != 'uhd' and "${devname}" != 'lime':
             if (self.${id}.IQ_balance_support(0)):
                 self.${id}.set_iq_balance(0,${balance0})
 
