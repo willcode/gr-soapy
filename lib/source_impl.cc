@@ -140,7 +140,9 @@ source_impl::source_impl(size_t nchan, const std::string &device,
     }
     if (!accept_samp_rate) {
       std::string msg = name() +
-                        ": Unsupported sample rate.  Rate must be in the range";
+                        ": Unsupported sample rate (" +
+                        sampling_rate +
+                        ").  Rate must be in the range";
       for (SoapySDR::Range &range : sps_range) {
         double min_sps = range.minimum();
         double max_sps = range.maximum();
