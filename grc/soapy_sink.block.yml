@@ -268,8 +268,10 @@ templates:
         None
         if "${devname}" == 'custom':
             dev = ${dev}
+            devname = dev.split("=", 1)[1]
         else:
             dev = 'driver=' + "${devname}"
+            devname = "${devname}"
 
         self.${id} = soapy.sink(${nchan}, dev, ${args}, ${samp_rate}, "${type}", ${length_tag_name})
 
@@ -305,7 +307,7 @@ templates:
                 self.${id}.set_antenna(1,${ant1})
 
         # Setup IQ Balance
-        if "${devname}" != 'uhd' and "${devname}" != 'lime':
+        if devname != 'uhd' and devname != 'lime':
             if (self.${id}.IQ_balance_support(0)):
                 self.${id}.set_iq_balance(0,${balance0})
 
@@ -319,14 +321,14 @@ templates:
         if (self.${id}.freq_correction_support(1)):
             self.${id}.set_frequency_correction(1,${correction1})
 
-        if "${devname}" == 'sidekiq' or "${manual_gain0}" == 'False':
+        if devname == 'sidekiq' or "${manual_gain0}" == 'False':
             self.${id}.set_gain(0,${overall_gain0})
             self.${id}.set_gain(1,${overall_gain1})
         else:
-            if "${devname}" == 'bladerf':
+            if devname == 'bladerf':
                  self.${id}.set_gain(0,"txvga1", ${txvga1_gain})
                  self.${id}.set_gain(0,"txvga2", ${txvga2_gain})
-            elif "${devname}" == 'uhd':
+            elif devname == 'uhd':
                 self.${id}.set_gain(0,"PGA", ${pga_gain0})
                 self.${id}.set_gain(1,"PGA", ${pga_gain1})
             else:
