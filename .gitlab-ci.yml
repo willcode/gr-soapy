@@ -1,5 +1,6 @@
 variables:
   GITLAB_CI_IMAGE_DEBIAN: 'debian:buster'
+  GITLAB_CI_IMAGE_ALPINE: 'alpine:3.12'
   GITLAB_CI_APT_REPOSITORY: 'deb http://download.opensuse.org/repositories/home:/librespace:/satnogs/Debian_10/ /'
   GITLAB_CI_APT_KEY_URL: 'https://download.opensuse.org/repositories/home:librespace:satnogs/Debian_10/Release.key'
   GITLAB_CI_OBS_PROJECT: 'home:librespace:satnogs'
@@ -230,7 +231,7 @@ deploy:
       - $OBS_PASS
 pages:
   stage: deploy
-  image: alpine
+  image: ${GITLAB_CI_IMAGE_ALPINE}
   script:
     - mv build/docs/doxygen/html/ public/
   artifacts:
