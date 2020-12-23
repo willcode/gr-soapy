@@ -8,16 +8,22 @@ stages:
   - style
   - build
   - deploy
+
+# 'style' stage
 style:
-  stage: style
   image: ${GITLAB_CI_IMAGE_DEBIAN}
+  stage: style
+  needs: []
   before_script:
     - apt-get -q update
     - apt-get -qy install astyle
   script:
     - 'astyle --dry-run --options=.astylerc --formatted lib/*.cc lib/*.h include/soapy/*.h  | sed ''s/^Formatted/ERROR: Unformatted/;T;q1'''
+
+# 'build' stage
 debian:
   stage: build
+  needs: []
   image: ${GITLAB_CI_IMAGE_DEBIAN}
   before_script:
     - apt-get -q update
@@ -46,6 +52,7 @@ debian:
       - artifacts
 openSUSE:
   stage: build
+  needs: []
   image: opensuse/tumbleweed
   before_script:
     - >
@@ -84,6 +91,7 @@ openSUSE:
     - cd ..
 ubuntu:
   stage: build
+  needs: []
   image: ubuntu:18.04
   variables:
     DEBIAN_FRONTEND: noninteractive
@@ -126,6 +134,7 @@ ubuntu:
     - python3 -c "import soapy"
 docs:
   stage: build
+  needs: []
   image: ubuntu:18.04
   variables:
     DEBIAN_FRONTEND: noninteractive
@@ -173,6 +182,8 @@ docs:
     when: always
     paths:
       - build/docs/doxygen/html
+
+# 'deploy' stage
 deploy:
   stage: deploy
   image: ${GITLAB_CI_IMAGE_DEBIAN}
