@@ -5,26 +5,15 @@
  *  Copyright (C) 2018, 2019
  *  Libre Space Foundation <http://libre.space>
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <gnuradio/io_signature.h>
 #include "sink_impl.h"
+#include <gnuradio/io_signature.h>
 #include <SoapySDR/Formats.h>
 
 const pmt::pmt_t CMD_CHAN_KEY = pmt::mp("chan");
@@ -37,34 +26,38 @@ const pmt::pmt_t CMD_BW_KEY = pmt::mp("bw");
 namespace gr {
 namespace soapy {
 
-sink::sptr
-sink::make(size_t nchan, const std::string &device,
-           const std::string &args,
-           double sampling_rate, const std::string &type,
-           const std::string &length_tag_name)
+sink::sptr sink::make(size_t nchan,
+                      const std::string &device,
+                      const std::string &args,
+                      double sampling_rate,
+                      const std::string &type,
+                      const std::string &length_tag_name)
 {
-  return gnuradio::get_initial_sptr(
-           new sink_impl(nchan, device, args, sampling_rate, type,
-                         length_tag_name));
+  return gnuradio::make_block_sptr<sink_impl>(
+           nchan, device, args, sampling_rate, type, length_tag_name);
 }
+
 
 /*
  * The private constructor
  */
-sink_impl::sink_impl(size_t nchan, const std::string &device,
-                     const std::string &args, double sampling_rate,
-                     const std::string &type, const std::string &length_tag_name) :
-  gr::sync_block("soapy::sink",
-                 args_to_io_sig(type, nchan),
-                 gr::io_signature::make(0, 0, 0)),
-  d_stopped(true),
-  d_message_port(pmt::mp("command")),
-  d_sampling_rate(sampling_rate),
-  d_nchan(nchan),
-  d_type(type),
-  d_length_tag_key(length_tag_name.empty() ? pmt::PMT_NIL
-                   : pmt::string_to_symbol(length_tag_name)),
-  d_burst_remaining(0)
+sink_impl::sink_impl(size_t nchan,
+                     const std::string &device,
+                     const std::string &args,
+                     double sampling_rate,
+                     const std::string &type,
+                     const std::string &length_tag_name)
+  : gr::sync_block("sink",
+                   args_to_io_sig(type, nchan),
+                   gr::io_signature::make(0, 0, 0)),
+    d_stopped(true),
+    d_message_port(pmt::mp("command")),
+    d_sampling_rate(sampling_rate),
+    d_nchan(nchan),
+    d_type(type),
+    d_length_tag_key(length_tag_name.empty() ? pmt::PMT_NIL
+                     : pmt::string_to_symbol(length_tag_name)),
+    d_burst_remaining(0)
 {
   if (type == "fc32") {
     d_type_size = 8;
@@ -568,9 +561,9 @@ sink_impl::cmd_handler_antenna(pmt::pmt_t val, size_t chann)
   set_antenna(chann, pmt::symbol_to_string(val));
 }
 
-int
-sink_impl::work(int noutput_items, gr_vector_const_void_star &input_items,
-                gr_vector_void_star &output_items)
+int sink_impl::work(int noutput_items,
+                    gr_vector_const_void_star &input_items,
+                    gr_vector_void_star &output_items)
 {
   int ninput_items = noutput_items;
   int flags = 0;
@@ -646,4 +639,3 @@ sink_impl::msg_handler_command(pmt::pmt_t msg)
 }
 } /* namespace soapy */
 } /* namespace gr */
-

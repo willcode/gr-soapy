@@ -5,26 +5,15 @@
  *  Copyright (C) 2018, 2019, 2020, 2021
  *  Libre Space Foundation <http://libre.space>
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <gnuradio/io_signature.h>
 #include "source_impl.h"
+#include <gnuradio/io_signature.h>
 #include <SoapySDR/Formats.h>
 #include <cmath>
 
@@ -37,39 +26,44 @@ const pmt::pmt_t CMD_BW_KEY = pmt::mp("bw");
 
 namespace gr {
 namespace soapy {
-source::sptr
-source::make(size_t nchan, const std::string &device,
-             const std::string &dev_args,
-             const std::string &stream_args,
-             const std::vector<std::string> &tune_args,
-             const std::vector<std::string> &other_settings,
-             double sampling_rate,
-             const std::string &type)
+
+source::sptr source::make(size_t nchan,
+                          const std::string &device,
+                          const std::string &dev_args,
+                          const std::string &stream_args,
+                          const std::vector<std::string> &tune_args,
+                          const std::vector<std::string> &other_settings,
+                          double sampling_rate,
+                          const std::string &type)
 {
-  return gnuradio::get_initial_sptr(
-           new source_impl(nchan, device, dev_args, stream_args,
-                           tune_args, other_settings, sampling_rate, type));
+  return gnuradio::make_block_sptr<source_impl>(nchan,
+         device,
+         dev_args,
+         stream_args,
+         tune_args,
+         other_settings,
+         sampling_rate,
+         type);
 }
+
 
 /*
  * The private constructor
  */
-source_impl::source_impl(size_t nchan, const std::string &device,
+source_impl::source_impl(size_t nchan,
+                         const std::string &device,
                          const std::string &dev_args,
                          const std::string &stream_args,
                          const std::vector<std::string> &tune_args,
                          const std::vector<std::string> &other_settings,
                          double sampling_rate,
-                         const std::string &type) :
-  gr::sync_block("soapy::source", gr::io_signature::make(0, 0, 0),
-                 args_to_io_sig(type, nchan)),
-  /*
-   * Swig does not guarantee C++ destructors are called from python,
-   *  so recommends against relying on them for cleanup.
-   */
-  d_stopped(true),
-  d_mtu(0),
-  d_nchan(nchan)
+                         const std::string &type)
+  : gr::sync_block("source",
+                   gr::io_signature::make(0, 0, 0),
+                   args_to_io_sig(type, nchan)),
+    d_stopped(true),
+    d_mtu(0),
+    d_nchan(nchan)
 {
   if (nchan != tune_args.size()) {
     std::string msg = name() +  ": Wrong number of channels and tune arguments";
@@ -778,4 +772,3 @@ source_impl::msg_handler_command(pmt::pmt_t msg)
 }
 } /* namespace soapy */
 } /* namespace gr */
-

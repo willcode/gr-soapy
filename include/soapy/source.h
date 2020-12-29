@@ -5,33 +5,19 @@
  *  Copyright (C) 2018
  *  Libre Space Foundation <http://librespacefoundation.org/>
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
-
 
 #ifndef INCLUDED_SOAPY_SOURCE_H
 #define INCLUDED_SOAPY_SOURCE_H
 
-#include <soapy/api.h>
 #include <gnuradio/sync_block.h>
+#include <soapy/api.h>
 #include <cstdint>
 #include <vector>
 #include <string>
 
 namespace gr {
-
-
 namespace soapy {
 
 /*!
@@ -55,7 +41,7 @@ namespace soapy {
  */
 class SOAPY_API source : virtual public gr::sync_block {
 public:
-  typedef boost::shared_ptr<source> sptr;
+  typedef std::shared_ptr<source> sptr;
 
   /*!
    * \brief Return a shared_ptr to a new instance of soapy::source.
@@ -200,4 +186,3 @@ public:
 } // namespace gr
 
 #endif /* INCLUDED_SOAPY_SOURCE_H */
-

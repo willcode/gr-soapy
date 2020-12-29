@@ -5,20 +5,8 @@
  *  Copyright (C) 2018, 2019, 2020
  *  Libre Space Foundation <http://libre.space>
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
-/// \file source_impl.h
 
 #ifndef INCLUDED_SOAPY_SOURCE_IMPL_H
 #define INCLUDED_SOAPY_SOURCE_IMPL_H
@@ -80,7 +68,8 @@ private:
   }
 
 public:
-  source_impl(size_t nchan, const std::string &device,
+  source_impl(size_t nchan,
+              const std::string &device,
               const std::string &dev_args,
               const std::string &stream_args,
               const std::vector<std::string> &tune_args,
@@ -354,8 +343,8 @@ public:
    */
   void cmd_handler_antenna(pmt::pmt_t val, size_t chann);
 };
+
 } // namespace soapy
 } // namespace gr
 
 #endif /* INCLUDED_SOAPY_SOURCE_IMPL_H */
-

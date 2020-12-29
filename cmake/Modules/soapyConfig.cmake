@@ -24,7 +24,7 @@ FIND_LIBRARY(
           /usr/lib64
           )
 
-include("${CMAKE_CURRENT_LIST_DIR}/gnuradio-soapyTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/soapyTarget.cmake")
 
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(SOAPY DEFAULT_MSG SOAPY_LIBRARIES SOAPY_INCLUDE_DIRS)
