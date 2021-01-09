@@ -76,7 +76,7 @@ source_impl::source_impl(size_t nchan, const std::string &device,
     throw std::invalid_argument(msg);
   }
 
-  if (nchan != tune_args.size()) {
+  if (nchan != other_settings.size()) {
     std::string msg = name() +  ": Wrong number of channels and settings";
     throw std::invalid_argument(msg);
   }
