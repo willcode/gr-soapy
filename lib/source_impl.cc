@@ -2,7 +2,7 @@
 /*
  * gr-soapy: Soapy SDR Radio Out-Of-Tree Module
  *
- *  Copyright (C) 2018, 2019, 2020
+ *  Copyright (C) 2018, 2019, 2020, 2021
  *  Libre Space Foundation <http://libre.space>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -745,7 +745,7 @@ source_impl::work(int noutput_items,
         GR_LOG_WARN(d_logger, boost::format("Block stream error."));
         return 0;;
       case SOAPY_SDR_TIMEOUT:
-        break;
+        return 0;
       case SOAPY_SDR_CORRUPTION:
         GR_LOG_WARN(d_logger, boost::format("Block corruption."));
         return 0;
